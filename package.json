@@ -1,0 +1,26 @@
+{
+  "name": "mbta-graphql",
+  "version": "1.0.0",
+  "description": "A graphql wrapper for the open mbta REST api",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "npm run build:dev",
+    "build:dev": "nodemon 'src/server.ts' --exec 'ts-node' src/server.ts -e ts,graphql",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/eventsource": "^1.1.2",
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.6.2",
+    "tslint": "^6.0.0",
+    "typescript": "^3.7.5"
+  },
+  "dependencies": {
+    "apollo-server": "^2.10.1",
+    "dotenv": "^8.2.0",
+    "eventsource": "^1.0.7",
+    "graphql": "^14.6.0"
+  }
+}
