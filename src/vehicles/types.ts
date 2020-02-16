@@ -29,13 +29,13 @@ export type MbtaVehiclesJSON = JSONAPI.CollectionResourceDoc<
 
 export type Vehicle = {
   id: Scalars["ID"];
-  updatedAt: Maybe<Scalars["String"]>;
+  updated_at: Maybe<Scalars["String"]>;
   speed: Maybe<Scalars["Float"]>;
   longitude: Maybe<Scalars["Float"]>;
   latitude: Maybe<Scalars["Float"]>;
   label: Maybe<Scalars["String"]>;
-  directionId: Maybe<Scalars["Int"]>;
-  currentStopSequence: Maybe<Scalars["Int"]>;
-  currentStatus: Maybe<VehicleCurrentStopStatus>;
+  direction_id: Maybe<Scalars["Int"]>;
+  current_stop_sequence: Maybe<Scalars["Int"]>;
+  current_status: Maybe<VehicleCurrentStopStatus>;
   bearing: Maybe<Scalars["Int"]>;
 };

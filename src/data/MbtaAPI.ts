@@ -11,8 +11,9 @@ export default class MbtaAPI extends RESTDataSource {
     request.headers.set("X-API-Key", process.env.MBTA_API_KEY);
   }
 
-  async getVehicles(): Promise<MbtaVehiclesJSON> {
-    return await this.parseAsyncJSON(this.get(`vehicles`));
+  async getVehicles(fields: string[]): Promise<MbtaVehiclesJSON> {
+    const fieldString = `fields[vehicle]=${fields.join(",")}`;
+    return await this.parseAsyncJSON(this.get(`vehicles?${fieldString}`));
   }
 
   async parseAsyncJSON(promise: Promise<string>) {

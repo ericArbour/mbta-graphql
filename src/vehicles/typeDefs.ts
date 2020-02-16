@@ -1,5 +1,13 @@
 import { gql } from "apollo-server";
 
+/*
+  Sources:
+  https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md
+  https://github.com/mbta/api/blob/291096b00907f978a5ad6ecf3b606e307c9707d4/apps/model/lib/model/vehicle.ex
+  https://developers.google.com/transit/gtfs/reference
+  https://github.com/mbta/gtfs-documentation/blob/master/reference/gtfs.md
+*/
+
 export default gql`
   enum VehicleCurrentStopStatus {
     """
@@ -22,7 +30,7 @@ export default gql`
     """
     Time at which vehicle information was last updated.
     """
-    updatedAt: String
+    updated_at: String
     """
     Meters per second
     """
@@ -41,7 +49,7 @@ export default gql`
     0 - Travel in one direction (e.g. outbound travel).
     1 - Travel in the opposite direction (e.g. inbound travel).
     """
-    directionId: Int
+    direction_id: Int
     """
     The stop sequence index of the current stop.
     The meaning of current_stop_sequence (i.e.,
@@ -49,12 +57,12 @@ export default gql`
     current_status. If current_status is missing
     IN_TRANSIT_TO is assumed.
     """
-    currentStopSequence: Int
+    current_stop_sequence: Int
     """
     The exact status of the vehicle with respect to the current stop.
     Ignored if current_stop_sequence is missing.
     """
-    currentStatus: VehicleCurrentStopStatus
+    current_status: VehicleCurrentStopStatus
     """
     in degrees, clockwise from True North, i.e., 0 is North and
     90 is East.
