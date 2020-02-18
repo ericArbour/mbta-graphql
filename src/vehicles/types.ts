@@ -28,14 +28,19 @@ export type MbtaVehiclesJSON = JSONAPI.CollectionResourceDoc<
 >;
 
 export type Vehicle = {
-  id: Scalars["ID"];
-  updated_at: Maybe<Scalars["String"]>;
-  speed: Maybe<Scalars["Float"]>;
-  longitude: Maybe<Scalars["Float"]>;
-  latitude: Maybe<Scalars["Float"]>;
-  label: Maybe<Scalars["String"]>;
-  direction_id: Maybe<Scalars["Int"]>;
-  current_stop_sequence: Maybe<Scalars["Int"]>;
-  current_status: Maybe<VehicleCurrentStopStatus>;
-  bearing: Maybe<Scalars["Int"]>;
+  id: Maybe<Scalars["ID"]>;
+  updated_at?: Maybe<Scalars["String"]>;
+  speed?: Maybe<Scalars["Float"]>;
+  longitude?: Maybe<Scalars["Float"]>;
+  latitude?: Maybe<Scalars["Float"]>;
+  label?: Maybe<Scalars["String"]>;
+  direction_id?: Maybe<Scalars["Int"]>;
+  current_stop_sequence?: Maybe<Scalars["Int"]>;
+  current_status?: Maybe<VehicleCurrentStopStatus>;
+  bearing?: Maybe<Scalars["Int"]>;
+};
+
+export type VehicleResolverArgs = {
+  vehicleIdFilter?: string[];
+  labelFilter?: string[];
 };

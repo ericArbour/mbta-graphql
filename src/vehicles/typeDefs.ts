@@ -64,6 +64,6 @@ export default gql`
   }
 
   extend type Query {
-    vehicles: [Vehicle]
+    vehicles(vehicleIdFilter: [String], labelFilter: [String]): [Vehicle]
   }
 `;

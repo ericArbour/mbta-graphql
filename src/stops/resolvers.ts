@@ -18,7 +18,7 @@ const resolvers: IResolvers<string, IContext> = {
 };
 
 function mbtaStopToStop(mbtaStop: MbtaStop): Stop {
-  const { id, attributes } = mbtaStop;
+  const { id = null, attributes } = mbtaStop;
 
   return {
     id,

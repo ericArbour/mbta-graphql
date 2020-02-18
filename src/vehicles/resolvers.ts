@@ -4,13 +4,18 @@ import { FieldNode } from "graphql";
 import { IContext } from "../data/dataSources";
 import { getFieldsFromInfo } from "../helpers";
 
-import { MbtaVehicle, Vehicle } from "./types";
+import { MbtaVehicle, Vehicle, VehicleResolverArgs } from "./types";
 
 const resolvers: IResolvers<string, IContext> = {
   Query: {
-    vehicles: async (parent, args, { dataSources }, info) => {
+    vehicles: async (
+      parent,
+      args: VehicleResolverArgs,
+      { dataSources },
+      info
+    ) => {
       const fields = getFieldsFromInfo(info);
-      const result = await dataSources.mbtaAPI.getVehicles(fields);
+      const result = await dataSources.mbtaAPI.getVehicles(fields, args);
 
       return result.data.map(mbtaVehicleToVehicle);
     }
@@ -18,7 +23,7 @@ const resolvers: IResolvers<string, IContext> = {
 };
 
 function mbtaVehicleToVehicle(mbtaVehicle: MbtaVehicle): Vehicle {
-  const { id, attributes } = mbtaVehicle;
+  const { id = null, attributes } = mbtaVehicle;
 
   return {
     id,
