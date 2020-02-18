@@ -4,21 +4,21 @@ import { FieldNode } from "graphql";
 import { IContext } from "../data/dataSources";
 import { getFieldsFromInfo } from "../helpers";
 
-import { MbtaVehicle, Vehicle } from "./types";
+import { MbtaStop, Stop } from "./types";
 
 const resolvers: IResolvers<string, IContext> = {
   Query: {
-    vehicles: async (parent, args, { dataSources }, info) => {
+    stops: async (parent, args, { dataSources }, info) => {
       const fields = getFieldsFromInfo(info);
-      const result = await dataSources.mbtaAPI.getVehicles(fields);
+      const result = await dataSources.mbtaAPI.getStops(fields);
 
-      return result.data.map(mbtaVehicleToVehicle);
+      return result.data.map(mbtaStopToStop);
     }
   }
 };
 
-function mbtaVehicleToVehicle(mbtaVehicle: MbtaVehicle): Vehicle {
-  const { id, attributes } = mbtaVehicle;
+function mbtaStopToStop(mbtaStop: MbtaStop): Stop {
+  const { id, attributes } = mbtaStop;
 
   return {
     id,

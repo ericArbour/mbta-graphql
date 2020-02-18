@@ -9,10 +9,12 @@ import { gql } from "apollo-server";
 */
 
 export default gql`
-  enum VehicleCurrentStopStatus {
+  """
+  The exact status of the vehicle with respect to the current stop. Ignored if current_stop_sequence is missing.
+  """
+  enum CurrentStopStatus {
     """
-    The vehicle is just about to arrive at the stop (on a stop
-    display, the vehicle symbol typically flashes).
+    The vehicle is just about to arrive at the stop (on a stop display, the vehicle symbol typically flashes).
     """
     INCOMING_AT
     """
@@ -25,6 +27,9 @@ export default gql`
     IN_TRANSIT_TO
   }
 
+  """
+  Vehicle represents the current status of a vehicle.
+  """
   type Vehicle {
     id: ID!
     """
@@ -42,30 +47,18 @@ export default gql`
     """
     label: String
     """
-    Indicates the direction of travel for a trip.
-    This field is not used in routing; it provides
-    a way to separate trips by direction when publishing
-    time tables. Valid options are:
+    Indicates the direction of travel for a trip. This field is not used in routing; it provides a way to separate trips by direction when publishing time tables. Valid options are:
     0 - Travel in one direction (e.g. outbound travel).
     1 - Travel in the opposite direction (e.g. inbound travel).
     """
     direction_id: Int
     """
-    The stop sequence index of the current stop.
-    The meaning of current_stop_sequence (i.e.,
-    the stop that it refers to) is determined by
-    current_status. If current_status is missing
-    IN_TRANSIT_TO is assumed.
+    The stop sequence index of the current stop. The meaning of current_stop_sequence (i.e., the stop that it refers to) is determined by current_status. If current_status is missing IN_TRANSIT_TO is assumed.
     """
     current_stop_sequence: Int
+    current_status: CurrentStopStatus
     """
-    The exact status of the vehicle with respect to the current stop.
-    Ignored if current_stop_sequence is missing.
-    """
-    current_status: VehicleCurrentStopStatus
-    """
-    in degrees, clockwise from True North, i.e., 0 is North and
-    90 is East.
+    in degrees, clockwise from True North, i.e., 0 is North and 90 is East.
     """
     bearing: Int
   }

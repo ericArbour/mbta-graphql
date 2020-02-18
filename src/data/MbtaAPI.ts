@@ -1,5 +1,6 @@
 import { RESTDataSource, RequestOptions } from "apollo-datasource-rest";
 import { MbtaVehiclesJSON } from "../vehicles/types";
+import { MbtaStopsJSON } from "../stops/types";
 
 export default class MbtaAPI extends RESTDataSource {
   constructor() {
@@ -14,6 +15,11 @@ export default class MbtaAPI extends RESTDataSource {
   async getVehicles(fields: string[]): Promise<MbtaVehiclesJSON> {
     const fieldString = `fields[vehicle]=${fields.join(",")}`;
     return await this.parseAsyncJSON(this.get(`vehicles?${fieldString}`));
+  }
+
+  async getStops(fields: string[]): Promise<MbtaStopsJSON> {
+    const fieldString = `fields[stop]=${fields.join(",")}`;
+    return await this.parseAsyncJSON(this.get(`stops?${fieldString}`));
   }
 
   async parseAsyncJSON(promise: Promise<string>) {

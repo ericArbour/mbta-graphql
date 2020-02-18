@@ -6,6 +6,8 @@ import merge from "lodash.merge";
 import dataSources, { IContext } from "./data/dataSources";
 import vehicleTypeDefs from "./vehicles/typeDefs";
 import vehicleResolvers from "./vehicles/resolvers";
+import stopTypeDefs from "./stops/typeDefs";
+import stopResolvers from "./stops/resolvers";
 
 dotenv.config();
 
@@ -19,11 +21,12 @@ const resolvers: IResolvers<any, IContext> = merge(
   {
     Query: {}
   },
-  vehicleResolvers
+  vehicleResolvers,
+  stopResolvers
 );
 
 const server = new ApolloServer({
-  typeDefs: [rootTypeDefs, vehicleTypeDefs],
+  typeDefs: [rootTypeDefs, vehicleTypeDefs, stopTypeDefs],
   resolvers,
   dataSources
 });
