@@ -67,11 +67,13 @@ export default gql`
     radius: Float
   }
 
+  input StopFilter {
+    stopIdFilter: [String]
+    locationTypeFilter: [Int]
+    locationFilter: LocationFilterInput
+  }
+
   extend type Query {
-    stops(
-      stopIdFilter: [String]
-      locationTypeFilter: [Int]
-      locationFilter: LocationFilterInput
-    ): [Stop]
+    stops(filter: StopFilter): [Stop]
   }
 `;

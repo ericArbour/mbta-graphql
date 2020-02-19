@@ -48,8 +48,12 @@ export type LocationFilterInput = {
   radius: number;
 };
 
-export type StopResolverArgs = {
+export type StopFilter = {
   stopIdFilter?: string[];
   locationTypeFilter?: number[];
   locationFilter?: LocationFilterInput;
+};
+
+export type StopResolverArgs = {
+  filter?: StopFilter;
 };

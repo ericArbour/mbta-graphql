@@ -17,11 +17,12 @@ export default class MbtaAPI extends RESTDataSource {
     args: VehicleResolverArgs
   ): Promise<MbtaVehiclesJSON> {
     const fieldString = `fields[vehicle]=${fields.join(",")}`;
-    const { vehicleIdFilter = [], labelFilter = [] } = args;
-    const vehicleIdFilterString = vehicleIdFilter.length
+    const vehicleIdFilter = args.filter?.vehicleIdFilter;
+    const labelFilter = args.filter?.labelFilter;
+    const vehicleIdFilterString = vehicleIdFilter?.length
       ? `&filter[id]=${vehicleIdFilter.join(",")}`
       : "";
-    const labelFilterString = labelFilter.length
+    const labelFilterString = labelFilter?.length
       ? `&filter[label]=${labelFilter.join(",")}`
       : "";
     const queryString = `${fieldString}${vehicleIdFilterString}${labelFilterString}`;
@@ -34,11 +35,13 @@ export default class MbtaAPI extends RESTDataSource {
     args: StopResolverArgs
   ): Promise<MbtaStopsJSON> {
     const fieldString = `fields[stop]=${fields.join(",")}`;
-    const { stopIdFilter = [], locationTypeFilter = [], locationFilter } = args;
-    const stopIdFilterString = stopIdFilter.length
+    const stopIdFilter = args.filter?.stopIdFilter;
+    const locationTypeFilter = args.filter?.locationTypeFilter;
+    const locationFilter = args.filter?.locationFilter;
+    const stopIdFilterString = stopIdFilter?.length
       ? `&filter[id]=${stopIdFilter.join(",")}`
       : "";
-    const locationTypeFilterString = locationTypeFilter.length
+    const locationTypeFilterString = locationTypeFilter?.length
       ? `&filter[location_type]=${locationTypeFilter.join(",")}`
       : "";
     const locationFilterString = locationFilter

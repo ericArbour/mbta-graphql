@@ -40,7 +40,11 @@ export type Vehicle = {
   bearing?: Maybe<Scalars["Int"]>;
 };
 
-export type VehicleResolverArgs = {
+export type VehicleFilter = {
   vehicleIdFilter?: string[];
   labelFilter?: string[];
+};
+
+export type VehicleResolverArgs = {
+  filter?: VehicleFilter;
 };

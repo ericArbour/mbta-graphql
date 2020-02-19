@@ -63,7 +63,12 @@ export default gql`
     bearing: Int
   }
 
+  input VehicleFilter {
+    vehicleIdFilter: [String]
+    labelFilter: [String]
+  }
+
   extend type Query {
-    vehicles(vehicleIdFilter: [String], labelFilter: [String]): [Vehicle]
+    vehicles(filter: VehicleFilter): [Vehicle]
   }
 `;
