@@ -3,6 +3,7 @@ import { gql } from "apollo-server";
 /*
   Sources:
   https://github.com/mbta/api/blob/ae01a349968f9ee8c3e467ab3b52656c23c41a47/apps/model/lib/model/stop.ex
+  https://api-v3.mbta.com/docs/swagger/index.html#/
 */
 
 export default gql`
@@ -57,7 +58,20 @@ export default gql`
     address: String
   }
 
+  input LocationFilterInput {
+    latitude: Float
+    longitude: Float
+    """
+    The distance is in degrees as if latitude and longitude were on a flat 2D plane and normal Pythagorean distance was calculated. Over the region MBTA serves, 0.02 degrees is approximately 1 mile.
+    """
+    radius: Float
+  }
+
   extend type Query {
-    stops: [Stop]
+    stops(
+      stopIdFilter: [String]
+      locationTypeFilter: [Int]
+      locationFilter: LocationFilterInput
+    ): [Stop]
   }
 `;

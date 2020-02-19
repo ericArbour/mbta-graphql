@@ -1,6 +1,6 @@
 import { RESTDataSource, RequestOptions } from "apollo-datasource-rest";
 import { MbtaVehiclesJSON, VehicleResolverArgs } from "../vehicles/types";
-import { MbtaStopsJSON } from "../stops/types";
+import { MbtaStopsJSON, StopResolverArgs } from "../stops/types";
 
 export default class MbtaAPI extends RESTDataSource {
   constructor() {
@@ -29,9 +29,24 @@ export default class MbtaAPI extends RESTDataSource {
     return await this.parseAsyncJSON(this.get(`vehicles?${queryString}`));
   }
 
-  async getStops(fields: string[] = []): Promise<MbtaStopsJSON> {
+  async getStops(
+    fields: string[] = [],
+    args: StopResolverArgs
+  ): Promise<MbtaStopsJSON> {
     const fieldString = `fields[stop]=${fields.join(",")}`;
-    return await this.parseAsyncJSON(this.get(`stops?${fieldString}`));
+    const { stopIdFilter = [], locationTypeFilter = [], locationFilter } = args;
+    const stopIdFilterString = stopIdFilter.length
+      ? `&filter[id]=${stopIdFilter.join(",")}`
+      : "";
+    const locationTypeFilterString = locationTypeFilter.length
+      ? `&filter[location_type]=${locationTypeFilter.join(",")}`
+      : "";
+    const locationFilterString = locationFilter
+      ? `&filter[latitude]=${locationFilter.latitude}&filter[longitude]=${locationFilter.longitude}&filter[radius]=${locationFilter.radius}`
+      : "";
+    const queryString = `${fieldString}${stopIdFilterString}${locationTypeFilterString}${locationFilterString}`;
+
+    return await this.parseAsyncJSON(this.get(`stops?${queryString}`));
   }
 
   async parseAsyncJSON(promise: Promise<string>) {

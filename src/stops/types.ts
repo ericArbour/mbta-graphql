@@ -41,3 +41,15 @@ export type Stop = {
   at_street?: Maybe<Scalars["String"]>;
   address?: Maybe<Scalars["String"]>;
 };
+
+export type LocationFilterInput = {
+  latitude: number;
+  longitude: number;
+  radius: number;
+};
+
+export type StopResolverArgs = {
+  stopIdFilter?: string[];
+  locationTypeFilter?: number[];
+  locationFilter?: LocationFilterInput;
+};

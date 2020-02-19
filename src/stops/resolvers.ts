@@ -4,13 +4,13 @@ import { FieldNode } from "graphql";
 import { IContext } from "../data/dataSources";
 import { getFieldsFromInfo } from "../helpers";
 
-import { MbtaStop, Stop } from "./types";
+import { MbtaStop, Stop, StopResolverArgs } from "./types";
 
 const resolvers: IResolvers<string, IContext> = {
   Query: {
-    stops: async (parent, args, { dataSources }, info) => {
+    stops: async (parent, args: StopResolverArgs, { dataSources }, info) => {
       const fields = getFieldsFromInfo(info);
-      const result = await dataSources.mbtaAPI.getStops(fields);
+      const result = await dataSources.mbtaAPI.getStops(fields, args);
 
       return result.data.map(mbtaStopToStop);
     }
