@@ -59,21 +59,21 @@ export default gql`
   }
 
   input LocationFilterInput {
-    latitude: Float
-    longitude: Float
+    latitude: Float!
+    longitude: Float!
     """
     The distance is in degrees as if latitude and longitude were on a flat 2D plane and normal Pythagorean distance was calculated. Over the region MBTA serves, 0.02 degrees is approximately 1 mile.
     """
-    radius: Float
+    radius: Float!
   }
 
   input StopFilter {
-    stopIdFilter: [String]
-    locationTypeFilter: [Int]
+    stopIdFilter: [String!]
+    locationTypeFilter: [Int!]
     locationFilter: LocationFilterInput
   }
 
   extend type Query {
-    stops(filter: StopFilter): [Stop]
+    stops(filter: StopFilter): [Stop!]
   }
 `;

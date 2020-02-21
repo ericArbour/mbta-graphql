@@ -64,11 +64,11 @@ export default gql`
   }
 
   input VehicleFilter {
-    vehicleIdFilter: [String]
-    labelFilter: [String]
+    vehicleIdFilter: [String!]
+    labelFilter: [String!]
   }
 
   extend type Query {
-    vehicles(filter: VehicleFilter): [Vehicle]
+    vehicles(filter: VehicleFilter): [Vehicle!]
   }
 `;
