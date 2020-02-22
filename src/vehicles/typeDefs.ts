@@ -69,6 +69,6 @@ export default gql`
   }
 
   extend type Query {
-    vehicles(filter: VehicleFilter): [Vehicle!]
+    vehicles(filter: VehicleFilter): [Vehicle!]!
   }
 `;

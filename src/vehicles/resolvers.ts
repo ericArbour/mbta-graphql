@@ -13,7 +13,7 @@ const resolvers: IResolvers<string, IContext> = {
       args: VehicleResolverArgs,
       { dataSources },
       info
-    ) => {
+    ): Promise<Vehicle[]> => {
       const fields = getFieldsFromInfo(info);
       const result = await dataSources.mbtaAPI.getVehicles(fields, args);
 

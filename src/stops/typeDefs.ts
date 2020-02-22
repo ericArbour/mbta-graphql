@@ -74,6 +74,7 @@ export default gql`
   }
 
   extend type Query {
-    stops(filter: StopFilter): [Stop!]
+    stops(filter: StopFilter): [Stop!]!
+    stop(id: ID!): Stop
   }
 `;

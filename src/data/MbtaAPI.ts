@@ -1,6 +1,13 @@
 import { RESTDataSource, RequestOptions } from "apollo-datasource-rest";
+import * as JSONAPI from "jsonapi-typescript";
+
 import { MbtaVehiclesJSON, VehicleResolverArgs } from "../vehicles/types";
-import { MbtaStopsJSON, StopResolverArgs } from "../stops/types";
+import {
+  MbtaStopsJSON,
+  MbtaStopJSON,
+  StopsResolverArgs,
+  StopResolverArgs
+} from "../stops/types";
 
 export default class MbtaAPI extends RESTDataSource {
   constructor() {
@@ -32,7 +39,7 @@ export default class MbtaAPI extends RESTDataSource {
 
   async getStops(
     fields: string[] = [],
-    args: StopResolverArgs
+    args: StopsResolverArgs
   ): Promise<MbtaStopsJSON> {
     const fieldString = `fields[stop]=${fields.join(",")}`;
     const stopIdFilter = args.filter?.stopIdFilter;
@@ -50,6 +57,17 @@ export default class MbtaAPI extends RESTDataSource {
     const queryString = `${fieldString}${stopIdFilterString}${locationTypeFilterString}${locationFilterString}`;
 
     return await this.parseAsyncJSON(this.get(`stops?${queryString}`));
+  }
+
+  async getStop(
+    fields: string[] = [],
+    args: StopResolverArgs
+  ): Promise<MbtaStopJSON> {
+    const fieldString = `fields[stop]=${fields.join(",")}`;
+    console.log(`stops/${args.id}?${fieldString}`);
+    return await this.parseAsyncJSON(
+      this.get(`stops/${args.id}?${fieldString}`)
+    );
   }
 
   async parseAsyncJSON(promise: Promise<string>) {

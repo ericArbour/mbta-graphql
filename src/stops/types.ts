@@ -25,6 +25,8 @@ export type MbtaStopsJSON = JSONAPI.CollectionResourceDoc<
   MbtaStopAttributes
 >;
 
+export type MbtaStopJSON = JSONAPI.DocWithData<MbtaStop>;
+
 export type Stop = {
   id: Maybe<Scalars["ID"]>;
   wheelchair_boarding?: Maybe<Scalars["Int"]>;
@@ -54,6 +56,10 @@ export type StopFilter = {
   locationFilter?: LocationFilterInput;
 };
 
-export type StopResolverArgs = {
+export type StopsResolverArgs = {
   filter?: StopFilter;
+};
+
+export type StopResolverArgs = {
+  id: string;
 };
