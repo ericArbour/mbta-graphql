@@ -1,6 +1,7 @@
 import * as JSONAPI from "jsonapi-typescript";
 
 import { Maybe, Scalars } from "../types";
+import { Stop } from "../stops/types";
 
 enum VehicleCurrentStopStatus {
   INCOMING_AT = "INCOMING_AT",
@@ -38,6 +39,7 @@ export type Vehicle = {
   current_stop_sequence?: Maybe<Scalars["Int"]>;
   current_status?: Maybe<VehicleCurrentStopStatus>;
   bearing?: Maybe<Scalars["Int"]>;
+  stop?: Maybe<Stop>;
 };
 
 export type VehicleFilter = {

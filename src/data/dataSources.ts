@@ -1,7 +1,7 @@
 import { DataSources } from "apollo-server-core/dist/graphqlOptions";
 import MbtaAPI from "./MbtaAPI";
 
-interface IDataSources {
+export interface IDataSources {
   mbtaAPI: MbtaAPI;
 }
 

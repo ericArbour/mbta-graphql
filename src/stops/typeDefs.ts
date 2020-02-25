@@ -56,6 +56,15 @@ export default gql`
     description: String
     at_street: String
     address: String
+    """
+    For stops location within stations, the parent_station's stop_id represents the whole facility and the child stop represents a specific boarding area, entrance, or generic node.
+    All subway, Commuter Rail, and CapeFLYER stops have a parent station, as do some bus and Silver Line facilities, such as Dudley.
+    """
+    parent_station: Stop
+    """
+    See parent_station
+    """
+    child_stops(filter: StopsFilter): [Stop!]
   }
 
   input LocationFilterInput {
@@ -67,14 +76,14 @@ export default gql`
     radius: Float!
   }
 
-  input StopFilter {
+  input StopsFilter {
     stopIdFilter: [String!]
     locationTypeFilter: [Int!]
     locationFilter: LocationFilterInput
   }
 
   extend type Query {
-    stops(filter: StopFilter): [Stop!]!
+    stops(filter: StopsFilter): [Stop!]!
     stop(id: ID!): Stop
   }
 `;

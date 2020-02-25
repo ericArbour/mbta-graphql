@@ -3,7 +3,8 @@ import { IResolvers } from "graphql-tools";
 import dotenv from "dotenv";
 import merge from "lodash.merge";
 
-import dataSources, { IContext } from "./data/dataSources";
+import { IContext } from "./data/dataSources";
+import dataSources from "./data/dataSources";
 import vehicleTypeDefs from "./vehicles/typeDefs";
 import vehicleResolvers from "./vehicles/resolvers";
 import stopTypeDefs from "./stops/typeDefs";

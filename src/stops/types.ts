@@ -42,6 +42,8 @@ export type Stop = {
   description?: Maybe<Scalars["String"]>;
   at_street?: Maybe<Scalars["String"]>;
   address?: Maybe<Scalars["String"]>;
+  parent_station?: Maybe<Stop>;
+  child_stops?: Maybe<Stop[]>;
 };
 
 export type LocationFilterInput = {

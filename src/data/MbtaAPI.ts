@@ -1,12 +1,16 @@
 import { RESTDataSource, RequestOptions } from "apollo-datasource-rest";
-import * as JSONAPI from "jsonapi-typescript";
+import { DataSourceConfig } from "apollo-datasource";
 
+import DataLoader, { BatchLoadFn } from "dataloader";
+
+import { isNotUndefined } from "../types";
 import { MbtaVehiclesJSON, VehicleResolverArgs } from "../vehicles/types";
 import {
   MbtaStopsJSON,
   MbtaStopJSON,
   StopsResolverArgs,
-  StopResolverArgs
+  StopResolverArgs,
+  MbtaStop
 } from "../stops/types";
 
 export default class MbtaAPI extends RESTDataSource {
@@ -63,11 +67,46 @@ export default class MbtaAPI extends RESTDataSource {
     fields: string[] = [],
     args: StopResolverArgs
   ): Promise<MbtaStopJSON> {
-    const fieldString = `fields[stop]=${fields.join(",")}`;
-    console.log(`stops/${args.id}?${fieldString}`);
-    return await this.parseAsyncJSON(
-      this.get(`stops/${args.id}?${fieldString}`)
+    const relationships = ["child_stops", "parent_station"];
+    const relationshipFields = fields.filter(field =>
+      relationships.includes(field)
     );
+    const attributeFields = fields.filter(
+      field => !relationships.includes(field)
+    );
+    const fieldString = `fields[stop]=${attributeFields.join(",")}`;
+    const relationshipsString = relationshipFields.length
+      ? `&include=${relationships.join(",")}`
+      : "";
+
+    return await this.parseAsyncJSON(
+      this.get(`stops/${args.id}?${fieldString}${relationshipsString}`)
+    );
+  }
+
+  private vehicleStopBatchLoadFn: BatchLoadFn<
+    { id: string; fields: string[] },
+    MbtaStop
+  > = async configs => {
+    const batchIds = configs.map(({ id }) => id);
+    const mbtaStopsJSON: MbtaStopsJSON = await this.parseAsyncJSON(
+      this.get(
+        `stops?fields[stop]=${configs[0].fields.join(
+          ","
+        )}&filter[id]=${configs.map(({ id }) => id).join(",")}`
+      )
+    );
+    const mbtaStops = mbtaStopsJSON?.data;
+
+    return configs
+      .map(config => mbtaStops.find(mbtaStop => mbtaStop.id === config.id))
+      .filter(isNotUndefined);
+  };
+
+  private vehicleStopsDataLoader = new DataLoader(this.vehicleStopBatchLoadFn);
+
+  async getVehicleStop(config: { id: string; fields: string[] }) {
+    return this.vehicleStopsDataLoader.load(config);
   }
 
   async parseAsyncJSON(promise: Promise<string>) {

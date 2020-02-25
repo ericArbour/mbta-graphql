@@ -61,14 +61,18 @@ export default gql`
     in degrees, clockwise from True North, i.e., 0 is North and 90 is East.
     """
     bearing: Int
+    """
+    The current stop
+    """
+    stop: Stop
   }
 
-  input VehicleFilter {
+  input VehiclesFilter {
     vehicleIdFilter: [String!]
     labelFilter: [String!]
   }
 
   extend type Query {
-    vehicles(filter: VehicleFilter): [Vehicle!]!
+    vehicles(filter: VehiclesFilter): [Vehicle!]!
   }
 `;
