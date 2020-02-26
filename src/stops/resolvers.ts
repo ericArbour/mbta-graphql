@@ -1,5 +1,4 @@
-import { IResolvers } from "graphql-tools";
-import { FieldNode } from "graphql";
+import { IResolvers, FilterToSchema } from "graphql-tools";
 
 import { IContext } from "../data/dataSources";
 import { getFieldsFromInfo } from "../helpers";
@@ -9,7 +8,13 @@ import {
   isResourceIdentifierObjectArray
 } from "../types";
 
-import { MbtaStop, Stop, StopsResolverArgs, StopResolverArgs } from "./types";
+import {
+  MbtaStop,
+  Stop,
+  StopsResolverArgs,
+  StopResolverArgs,
+  ChildStopsResolverArgs
+} from "./types";
 
 const resolvers: IResolvers<any, IContext> = {
   Query: {
@@ -20,9 +25,9 @@ const resolvers: IResolvers<any, IContext> = {
       info
     ): Promise<Stop[]> => {
       const fields = getFieldsFromInfo(info);
-      const result = await dataSources.mbtaAPI.getStops(fields, args);
+      const mbtaStops = await dataSources.mbtaAPI.getStops(fields, args);
 
-      return result.data.map(mbtaStopToStop);
+      return mbtaStops.map(mbtaStopToStop);
     },
     stop: async (
       parent,
@@ -31,40 +36,55 @@ const resolvers: IResolvers<any, IContext> = {
       info
     ): Promise<Stop> => {
       const fields = getFieldsFromInfo(info);
-      const result = await dataSources.mbtaAPI.getStop(fields, args);
+      const mbtaStop = await dataSources.mbtaAPI.getStop(fields, args);
 
-      return mbtaStopToStop(result.data);
+      return mbtaStopToStop(mbtaStop);
     }
   },
   Stop: {
     child_stops: async (
       parent: Stop,
-      args: StopsResolverArgs,
+      args: ChildStopsResolverArgs,
       { dataSources },
       info
     ) => {
       if (!parent.child_stops) return null;
 
       const fields = getFieldsFromInfo(info);
+      const stopIdFilter = args.filter?.stopIdFilter;
+      const locationTypeFilter = args.filter?.locationTypeFilter;
+      const fieldsWithFilterInfo =
+        locationTypeFilter && !fields.includes("location_type")
+          ? [...fields, "location_type"]
+          : fields;
 
       const childStopIds = parent.child_stops
         ?.map(({ id }) => id)
         .filter(isNotNull);
 
-      const argsStopIdFilter = args.filter?.stopIdFilter;
-      const stopIdFilter = argsStopIdFilter
-        ? childStopIds?.filter(childId =>
-            argsStopIdFilter.find(stopId => stopId === childId)
-          )
-        : childStopIds;
+      const childMbtaStops = await dataSources.mbtaAPI.getChildStops({
+        ids: childStopIds,
+        fields: fieldsWithFilterInfo
+      });
 
-      const newArgs = !args.filter
-        ? { ...args, filter: { stopIdFilter } }
-        : { ...args, filter: { ...args.filter, stopIdFilter } };
+      const locationTypeFilteredChildMbtaStops = locationTypeFilter
+        ? childMbtaStops.filter(childMbtaStop => {
+            const locationType = childMbtaStop.attributes?.location_type;
+            if (locationType === null || locationType === undefined)
+              return false;
+            return locationTypeFilter.includes(locationType);
+          })
+        : childMbtaStops;
 
-      console.log(newArgs);
-      const result = await dataSources.mbtaAPI.getStops(fields, newArgs);
-      return result.data.map(mbtaStopToStop);
+      const stopIdFilteredChildMbtaStops = stopIdFilter
+        ? locationTypeFilteredChildMbtaStops.filter(childMbtaStop => {
+            const id = childMbtaStop.id;
+            if (id === undefined) return false;
+            return stopIdFilter.includes(id);
+          })
+        : locationTypeFilteredChildMbtaStops;
+
+      return stopIdFilteredChildMbtaStops.map(mbtaStopToStop);
     }
   }
 };

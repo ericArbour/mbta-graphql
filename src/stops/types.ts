@@ -1,6 +1,6 @@
 import * as JSONAPI from "jsonapi-typescript";
 
-import { Maybe, Scalars } from "../types";
+import { Maybe, Scalars, isResourceObject } from "../types";
 
 type MbtaStopAttributes = {
   wheelchair_boarding: Maybe<number>;
@@ -20,12 +20,9 @@ type MbtaStopAttributes = {
 
 export type MbtaStop = JSONAPI.ResourceObject<string, MbtaStopAttributes>;
 
-export type MbtaStopsJSON = JSONAPI.CollectionResourceDoc<
-  string,
-  MbtaStopAttributes
->;
-
-export type MbtaStopJSON = JSONAPI.DocWithData<MbtaStop>;
+export function isMbtaStop(a: any): a is MbtaStop {
+  return isResourceObject(a) && a.type === "stop";
+}
 
 export type Stop = {
   id: Maybe<Scalars["ID"]>;
@@ -46,20 +43,31 @@ export type Stop = {
   child_stops?: Maybe<Stop[]>;
 };
 
-export type LocationFilterInput = {
+type LocationFilterInput = {
   latitude: number;
   longitude: number;
   radius: number;
 };
 
-export type StopFilter = {
+type StopsFilter = {
   stopIdFilter?: string[];
   locationTypeFilter?: number[];
   locationFilter?: LocationFilterInput;
 };
 
+type ChildStopsFilter = {
+  stopIdFilter?: string[];
+  locationTypeFilter?: number[];
+};
+
+export type ChildStopsBatchConfig = { ids: string[]; fields: string[] };
+
 export type StopsResolverArgs = {
-  filter?: StopFilter;
+  filter?: StopsFilter;
+};
+
+export type ChildStopsResolverArgs = {
+  filter?: ChildStopsFilter;
 };
 
 export type StopResolverArgs = {

@@ -1,6 +1,6 @@
 import * as JSONAPI from "jsonapi-typescript";
 
-import { Maybe, Scalars } from "../types";
+import { Maybe, Scalars, isResourceObject } from "../types";
 import { Stop } from "../stops/types";
 
 enum VehicleCurrentStopStatus {
@@ -23,10 +23,9 @@ type MbtaVehicleAttributes = {
 
 export type MbtaVehicle = JSONAPI.ResourceObject<string, MbtaVehicleAttributes>;
 
-export type MbtaVehiclesJSON = JSONAPI.CollectionResourceDoc<
-  string,
-  MbtaVehicleAttributes
->;
+export function isMbtaVehicle(a: any): a is MbtaVehicle {
+  return isResourceObject(a) && a.type === "vehicle";
+}
 
 export type Vehicle = {
   id: Maybe<Scalars["ID"]>;
@@ -41,6 +40,8 @@ export type Vehicle = {
   bearing?: Maybe<Scalars["Int"]>;
   stop?: Maybe<Stop>;
 };
+
+export type VehicleStopBatchConfig = { id: string; fields: string[] };
 
 export type VehicleFilter = {
   vehicleIdFilter?: string[];

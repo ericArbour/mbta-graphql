@@ -64,7 +64,7 @@ export default gql`
     """
     See parent_station
     """
-    child_stops(filter: StopsFilter): [Stop!]
+    child_stops(filter: ChildStopsFilter): [Stop!]
   }
 
   input LocationFilterInput {
@@ -80,6 +80,11 @@ export default gql`
     stopIdFilter: [String!]
     locationTypeFilter: [Int!]
     locationFilter: LocationFilterInput
+  }
+
+  input ChildStopsFilter {
+    stopIdFilter: [String!]
+    locationTypeFilter: [Int!]
   }
 
   extend type Query {

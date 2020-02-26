@@ -16,9 +16,9 @@ const resolvers: IResolvers<any, IContext> = {
       info
     ): Promise<Vehicle[]> => {
       const fields = getFieldsFromInfo(info);
-      const result = await dataSources.mbtaAPI.getVehicles(fields, args);
+      const mbtaVehicles = await dataSources.mbtaAPI.getVehicles(fields, args);
 
-      return result.data.map(mbtaVehicleToVehicle);
+      return mbtaVehicles.map(mbtaVehicleToVehicle);
     }
   },
   Vehicle: {

@@ -1,16 +1,23 @@
 import { RESTDataSource, RequestOptions } from "apollo-datasource-rest";
-import { DataSourceConfig } from "apollo-datasource";
-
 import DataLoader, { BatchLoadFn } from "dataloader";
 
-import { isNotUndefined } from "../types";
-import { MbtaVehiclesJSON, VehicleResolverArgs } from "../vehicles/types";
 import {
-  MbtaStopsJSON,
-  MbtaStopJSON,
+  isNotUndefined,
+  isCollectionResourceDoc,
+  isDocWithData
+} from "../types";
+import {
+  MbtaVehicle,
+  isMbtaVehicle,
+  VehicleResolverArgs,
+  VehicleStopBatchConfig
+} from "../vehicles/types";
+import {
   StopsResolverArgs,
   StopResolverArgs,
-  MbtaStop
+  ChildStopsBatchConfig,
+  MbtaStop,
+  isMbtaStop
 } from "../stops/types";
 
 export default class MbtaAPI extends RESTDataSource {
@@ -26,7 +33,7 @@ export default class MbtaAPI extends RESTDataSource {
   async getVehicles(
     fields: string[] = [],
     args: VehicleResolverArgs
-  ): Promise<MbtaVehiclesJSON> {
+  ): Promise<MbtaVehicle[]> {
     const fieldString = `fields[vehicle]=${fields.join(",")}`;
     const vehicleIdFilter = args.filter?.vehicleIdFilter;
     const labelFilter = args.filter?.labelFilter;
@@ -38,14 +45,32 @@ export default class MbtaAPI extends RESTDataSource {
       : "";
     const queryString = `${fieldString}${vehicleIdFilterString}${labelFilterString}`;
 
-    return await this.parseAsyncJSON(this.get(`vehicles?${queryString}`));
+    const result = await this.parseAsyncJSON(
+      this.get(`vehicles?${queryString}`)
+    );
+
+    if (isCollectionResourceDoc(result, isMbtaVehicle)) {
+      return result.data;
+    } else {
+      throw new Error("Bad data");
+    }
   }
 
   async getStops(
     fields: string[] = [],
     args: StopsResolverArgs
-  ): Promise<MbtaStopsJSON> {
-    const fieldString = `fields[stop]=${fields.join(",")}`;
+  ): Promise<MbtaStop[]> {
+    const relationships = ["child_stops", "parent_station"];
+    const relationshipsFields = fields.filter(field =>
+      relationships.includes(field)
+    );
+    const attributeFields = fields.filter(
+      field => !relationships.includes(field)
+    );
+    const fieldsString = `fields[stop]=${attributeFields.join(",")}`;
+    const relationshipsString = relationshipsFields.length
+      ? `&include=${relationshipsFields.join(",")}`
+      : "";
     const stopIdFilter = args.filter?.stopIdFilter;
     const locationTypeFilter = args.filter?.locationTypeFilter;
     const locationFilter = args.filter?.locationFilter;
@@ -58,55 +83,122 @@ export default class MbtaAPI extends RESTDataSource {
     const locationFilterString = locationFilter
       ? `&filter[latitude]=${locationFilter.latitude}&filter[longitude]=${locationFilter.longitude}&filter[radius]=${locationFilter.radius}`
       : "";
-    const queryString = `${fieldString}${stopIdFilterString}${locationTypeFilterString}${locationFilterString}`;
+    const queryString = `${fieldsString}${relationshipsString}${stopIdFilterString}${locationTypeFilterString}${locationFilterString}`;
 
-    return await this.parseAsyncJSON(this.get(`stops?${queryString}`));
+    const result = await this.parseAsyncJSON(this.get(`stops?${queryString}`));
+
+    if (isCollectionResourceDoc(result, isMbtaStop)) {
+      return result.data;
+    } else {
+      throw new Error("Bad data");
+    }
   }
 
   async getStop(
     fields: string[] = [],
     args: StopResolverArgs
-  ): Promise<MbtaStopJSON> {
+  ): Promise<MbtaStop> {
     const relationships = ["child_stops", "parent_station"];
-    const relationshipFields = fields.filter(field =>
+    const relationshipsFields = fields.filter(field =>
       relationships.includes(field)
     );
     const attributeFields = fields.filter(
       field => !relationships.includes(field)
     );
-    const fieldString = `fields[stop]=${attributeFields.join(",")}`;
-    const relationshipsString = relationshipFields.length
-      ? `&include=${relationships.join(",")}`
+    const fieldsString = `fields[stop]=${attributeFields.join(",")}`;
+    const relationshipsString = relationshipsFields.length
+      ? `&include=${relationshipsFields.join(",")}`
       : "";
 
-    return await this.parseAsyncJSON(
-      this.get(`stops/${args.id}?${fieldString}${relationshipsString}`)
+    const result = await this.parseAsyncJSON(
+      this.get(`stops/${args.id}?${fieldsString}${relationshipsString}`)
     );
+
+    if (isDocWithData(result, isMbtaStop)) {
+      return result.data;
+    } else {
+      throw new Error("Bad data");
+    }
   }
 
   private vehicleStopBatchLoadFn: BatchLoadFn<
-    { id: string; fields: string[] },
+    VehicleStopBatchConfig,
     MbtaStop
   > = async configs => {
-    const batchIds = configs.map(({ id }) => id);
-    const mbtaStopsJSON: MbtaStopsJSON = await this.parseAsyncJSON(
-      this.get(
-        `stops?fields[stop]=${configs[0].fields.join(
-          ","
-        )}&filter[id]=${configs.map(({ id }) => id).join(",")}`
-      )
+    const batchIdsString = `&filter[id]=${configs
+      .map(({ id }) => id)
+      .join(",")}`;
+    const fields = configs[0].fields;
+    const relationships = ["child_stops", "parent_station"];
+    const relationshipsFields = fields.filter(field =>
+      relationships.includes(field)
     );
-    const mbtaStops = mbtaStopsJSON?.data;
+    const attributeFields = fields.filter(
+      field => !relationships.includes(field)
+    );
+    const fieldsString = `fields[stop]=${attributeFields.join(",")}`;
+    const relationshipsString = relationshipsFields.length
+      ? `&include=${relationshipsFields.join(",")}`
+      : "";
+    const result = await this.parseAsyncJSON(
+      this.get(`stops?${fieldsString}${relationshipsString}${batchIdsString}`)
+    );
 
-    return configs
-      .map(config => mbtaStops.find(mbtaStop => mbtaStop.id === config.id))
-      .filter(isNotUndefined);
+    if (isCollectionResourceDoc(result, isMbtaStop)) {
+      const mbtaStops = result.data;
+      return configs
+        .map(config => mbtaStops.find(mbtaStop => mbtaStop.id === config.id))
+        .filter(isNotUndefined);
+    } else {
+      throw new Error("Bad data");
+    }
   };
 
   private vehicleStopsDataLoader = new DataLoader(this.vehicleStopBatchLoadFn);
 
-  async getVehicleStop(config: { id: string; fields: string[] }) {
+  async getVehicleStop(config: VehicleStopBatchConfig) {
     return this.vehicleStopsDataLoader.load(config);
+  }
+
+  private childStopsBatchLoadFn: BatchLoadFn<
+    ChildStopsBatchConfig,
+    MbtaStop[]
+  > = async configs => {
+    const uniqueChildIds = [...new Set(configs.flatMap(config => config.ids))];
+    const uniqueChildIdsString = `&filter[id]=${uniqueChildIds.join(",")}`;
+    const fields = configs[0].fields;
+    const relationships = ["child_stops", "parent_station"];
+    const relationshipsFields = fields.filter(field =>
+      relationships.includes(field)
+    );
+    const attributeFields = fields.filter(
+      field => !relationships.includes(field)
+    );
+    const fieldsString = `fields[stop]=${attributeFields.join(",")}`;
+    const relationshipsString = relationshipsFields.length
+      ? `&include=${relationshipsFields.join(",")}`
+      : "";
+    const result = await this.parseAsyncJSON(
+      this.get(
+        `stops?${fieldsString}${relationshipsString}${uniqueChildIdsString}`
+      )
+    );
+    if (isCollectionResourceDoc(result, isMbtaStop)) {
+      const mbtaStops = result.data;
+      return configs.map(config =>
+        config.ids
+          .map(id => mbtaStops.find(mbtaStop => mbtaStop.id === id))
+          .filter(isNotUndefined)
+      );
+    } else {
+      throw new Error("Bad data");
+    }
+  };
+
+  private childStopsDataLoader = new DataLoader(this.childStopsBatchLoadFn);
+
+  async getChildStops(config: ChildStopsBatchConfig) {
+    return this.childStopsDataLoader.load(config);
   }
 
   async parseAsyncJSON(promise: Promise<string>) {
