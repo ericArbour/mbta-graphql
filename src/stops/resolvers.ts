@@ -5,6 +5,7 @@ import { getFieldsFromInfo } from "../helpers";
 import {
   isNotNull,
   isRelationshipsWithData,
+  isResourceIdentifierObject,
   isResourceIdentifierObjectArray
 } from "../types";
 
@@ -47,7 +48,7 @@ const resolvers: IResolvers<any, IContext> = {
       args: ChildStopsResolverArgs,
       { dataSources },
       info
-    ) => {
+    ): Promise<Stop[] | null> => {
       if (!parent.child_stops) return null;
 
       const fields = getFieldsFromInfo(info);
@@ -85,6 +86,23 @@ const resolvers: IResolvers<any, IContext> = {
         : locationTypeFilteredChildMbtaStops;
 
       return stopIdFilteredChildMbtaStops.map(mbtaStopToStop);
+    },
+    parent_station: async (
+      parent: Stop,
+      args,
+      { dataSources },
+      info
+    ): Promise<Stop | null> => {
+      const stopId = parent.parent_station?.id;
+      if (!stopId) return null;
+
+      const fields = getFieldsFromInfo(info);
+      const stop = await dataSources.mbtaAPI.getBatchStop({
+        id: stopId,
+        fields
+      });
+
+      return mbtaStopToStop(stop);
     }
   }
 };
@@ -92,20 +110,32 @@ const resolvers: IResolvers<any, IContext> = {
 export function mbtaStopToStop(mbtaStop: MbtaStop): Stop {
   const { id = null, attributes, relationships } = mbtaStop;
   const childStopsRelationship = relationships?.child_stops;
+  const parentStationRelationship = relationships?.parent_station;
 
   const childStopsRelationshipData = isRelationshipsWithData(
     childStopsRelationship
   )
-    ? childStopsRelationship?.data
+    ? childStopsRelationship.data
     : null;
   const childStops = isResourceIdentifierObjectArray(childStopsRelationshipData)
     ? childStopsRelationshipData.map(({ id: stopId }) => ({ id: stopId }))
+    : null;
+  const parentStationRelationshipData = isRelationshipsWithData(
+    parentStationRelationship
+  )
+    ? parentStationRelationship.data
+    : null;
+  const parentStation = isResourceIdentifierObject(
+    parentStationRelationshipData
+  )
+    ? { id: parentStationRelationshipData.id }
     : null;
 
   return {
     id,
     ...attributes,
-    child_stops: childStops
+    child_stops: childStops,
+    parent_station: parentStation
   };
 }
 

@@ -3,6 +3,7 @@ import { IResolvers } from "graphql-tools";
 import { IContext } from "../data/dataSources";
 import { getFieldsFromInfo } from "../helpers";
 import { mbtaStopToStop } from "../stops/resolvers";
+import { Stop } from "../stops/types";
 import { isRelationshipsWithData, isResourceIdentifierObject } from "../types";
 
 import { MbtaVehicle, Vehicle, VehicleResolverArgs } from "./types";
@@ -27,12 +28,12 @@ const resolvers: IResolvers<any, IContext> = {
       args: VehicleResolverArgs,
       { dataSources },
       info
-    ) => {
+    ): Promise<Stop | null> => {
       const stopId = parent?.stop?.id;
       if (!stopId) return null;
 
       const fields = getFieldsFromInfo(info);
-      const stop = await dataSources.mbtaAPI.getVehicleStop({
+      const stop = await dataSources.mbtaAPI.getBatchStop({
         id: stopId,
         fields
       });

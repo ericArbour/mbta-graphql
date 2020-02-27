@@ -1,21 +1,21 @@
 import * as JSONAPI from "jsonapi-typescript";
 
-import { Maybe, Scalars, isResourceObject } from "../types";
+import { Scalars, isResourceObject } from "../types";
 
 type MbtaStopAttributes = {
-  wheelchair_boarding: Maybe<number>;
-  vehicle_type: Maybe<number>;
-  platform_name: Maybe<string>;
-  platform_code: Maybe<string>;
-  on_street: Maybe<string>;
-  name: Maybe<string>;
-  municipality: Maybe<string>;
-  longitude: Maybe<number>;
-  location_type: Maybe<number>;
-  latitude: Maybe<number>;
-  description: Maybe<string>;
-  at_street: Maybe<string>;
-  address: Maybe<string>;
+  wheelchair_boarding: number | null;
+  vehicle_type: number | null;
+  platform_name: string | null;
+  platform_code: string | null;
+  on_street: string | null;
+  name: string | null;
+  municipality: string | null;
+  longitude: number | null;
+  location_type: number | null;
+  latitude: number | null;
+  description: string | null;
+  at_street: string | null;
+  address: string | null;
 };
 
 export type MbtaStop = JSONAPI.ResourceObject<string, MbtaStopAttributes>;
@@ -25,22 +25,22 @@ export function isMbtaStop(a: any): a is MbtaStop {
 }
 
 export type Stop = {
-  id: Maybe<Scalars["ID"]>;
-  wheelchair_boarding?: Maybe<Scalars["Int"]>;
-  vehicle_type?: Maybe<Scalars["Int"]>;
-  platform_name?: Maybe<Scalars["String"]>;
-  platform_code?: Maybe<Scalars["String"]>;
-  on_street?: Maybe<Scalars["String"]>;
-  name?: Maybe<Scalars["String"]>;
-  municipality?: Maybe<Scalars["String"]>;
-  longitude?: Maybe<Scalars["Float"]>;
-  location_type?: Maybe<Scalars["Int"]>;
-  latitude?: Maybe<Scalars["Float"]>;
-  description?: Maybe<Scalars["String"]>;
-  at_street?: Maybe<Scalars["String"]>;
-  address?: Maybe<Scalars["String"]>;
-  parent_station?: Maybe<Stop>;
-  child_stops?: Maybe<Stop[]>;
+  id: Scalars["ID"] | null;
+  wheelchair_boarding?: Scalars["Int"] | null;
+  vehicle_type?: Scalars["Int"] | null;
+  platform_name?: Scalars["String"] | null;
+  platform_code?: Scalars["String"] | null;
+  on_street?: Scalars["String"] | null;
+  name?: Scalars["String"] | null;
+  municipality?: Scalars["String"] | null;
+  longitude?: Scalars["Float"] | null;
+  location_type?: Scalars["Int"] | null;
+  latitude?: Scalars["Float"] | null;
+  description?: Scalars["String"] | null;
+  at_street?: Scalars["String"] | null;
+  address?: Scalars["String"] | null;
+  parent_station?: Stop | null;
+  child_stops?: Stop[] | null;
 };
 
 type LocationFilterInput = {

@@ -1,6 +1,6 @@
 import * as JSONAPI from "jsonapi-typescript";
 
-import { Maybe, Scalars, isResourceObject } from "../types";
+import { Scalars, isResourceObject } from "../types";
 import { Stop } from "../stops/types";
 
 enum VehicleCurrentStopStatus {
@@ -10,15 +10,15 @@ enum VehicleCurrentStopStatus {
 }
 
 type MbtaVehicleAttributes = {
-  updated_at: string;
-  speed: number;
-  longitude: number;
-  latitude: number;
-  label: string;
-  direction_id: number;
-  current_stop_sequence: number;
-  current_status: VehicleCurrentStopStatus;
-  bearing: number;
+  updated_at: string | null;
+  speed: number | null;
+  longitude: number | null;
+  latitude: number | null;
+  label: string | null;
+  direction_id: number | null;
+  current_stop_sequence: number | null;
+  current_status: VehicleCurrentStopStatus | null;
+  bearing: number | null;
 };
 
 export type MbtaVehicle = JSONAPI.ResourceObject<string, MbtaVehicleAttributes>;
@@ -28,20 +28,20 @@ export function isMbtaVehicle(a: any): a is MbtaVehicle {
 }
 
 export type Vehicle = {
-  id: Maybe<Scalars["ID"]>;
-  updated_at?: Maybe<Scalars["String"]>;
-  speed?: Maybe<Scalars["Float"]>;
-  longitude?: Maybe<Scalars["Float"]>;
-  latitude?: Maybe<Scalars["Float"]>;
-  label?: Maybe<Scalars["String"]>;
-  direction_id?: Maybe<Scalars["Int"]>;
-  current_stop_sequence?: Maybe<Scalars["Int"]>;
-  current_status?: Maybe<VehicleCurrentStopStatus>;
-  bearing?: Maybe<Scalars["Int"]>;
-  stop?: Maybe<Stop>;
+  id: Scalars["ID"] | null;
+  updated_at?: Scalars["String"] | null;
+  speed?: Scalars["Float"] | null;
+  longitude?: Scalars["Float"] | null;
+  latitude?: Scalars["Float"] | null;
+  label?: Scalars["String"] | null;
+  direction_id?: Scalars["Int"] | null;
+  current_stop_sequence?: Scalars["Int"] | null;
+  current_status?: VehicleCurrentStopStatus | null;
+  bearing?: Scalars["Int"] | null;
+  stop?: Stop | null;
 };
 
-export type VehicleStopBatchConfig = { id: string; fields: string[] };
+export type BatchStopConfig = { id: string; fields: string[] };
 
 export type VehicleFilter = {
   vehicleIdFilter?: string[];

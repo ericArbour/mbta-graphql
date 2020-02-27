@@ -10,7 +10,7 @@ import {
   MbtaVehicle,
   isMbtaVehicle,
   VehicleResolverArgs,
-  VehicleStopBatchConfig
+  BatchStopConfig
 } from "../vehicles/types";
 import {
   StopsResolverArgs,
@@ -121,8 +121,8 @@ export default class MbtaAPI extends RESTDataSource {
     }
   }
 
-  private vehicleStopBatchLoadFn: BatchLoadFn<
-    VehicleStopBatchConfig,
+  private batchStopsLoadFn: BatchLoadFn<
+    BatchStopConfig,
     MbtaStop
   > = async configs => {
     const batchIdsString = `&filter[id]=${configs
@@ -154,10 +154,10 @@ export default class MbtaAPI extends RESTDataSource {
     }
   };
 
-  private vehicleStopsDataLoader = new DataLoader(this.vehicleStopBatchLoadFn);
+  private batchStopsDataLoader = new DataLoader(this.batchStopsLoadFn);
 
-  async getVehicleStop(config: VehicleStopBatchConfig) {
-    return this.vehicleStopsDataLoader.load(config);
+  async getBatchStop(config: BatchStopConfig) {
+    return this.batchStopsDataLoader.load(config);
   }
 
   private childStopsBatchLoadFn: BatchLoadFn<

@@ -1,8 +1,6 @@
 import * as JSONAPI from "jsonapi-typescript";
 import * as JSON from "json-typescript";
 
-export type Maybe<T> = null | T;
-
 export type Scalars = {
   ID: string;
   String: string;
@@ -15,7 +13,7 @@ export function isNotUndefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
 
-export function isNotNull<T>(x: Maybe<T>): x is T {
+export function isNotNull<T>(x: T | null): x is T {
   return x !== null;
 }
 
@@ -59,5 +57,11 @@ export function isResourceIdentifierObject(
 export function isResourceIdentifierObjectArray(
   relationship: JSONAPI.ResourceLinkage | undefined
 ): relationship is JSONAPI.ResourceIdentifierObject[] {
-  return Array.isArray(relationship as JSONAPI.ResourceIdentifierObject[]);
+  const relationshipArray = relationship as JSONAPI.ResourceIdentifierObject[];
+  return (
+    relationship !== undefined &&
+    relationship !== null &&
+    Array.isArray(relationshipArray) &&
+    relationshipArray.every(isResourceIdentifierObject)
+  );
 }
