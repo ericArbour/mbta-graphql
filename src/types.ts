@@ -1,6 +1,8 @@
 import * as JSONAPI from "jsonapi-typescript";
 import * as JSON from "json-typescript";
 
+import MbtaAPI from "./data/MbtaAPI";
+
 export type Scalars = {
   ID: string;
   String: string;
@@ -8,6 +10,14 @@ export type Scalars = {
   Int: number;
   Float: number;
 };
+
+export interface IDataSources {
+  mbtaAPI: MbtaAPI;
+}
+
+export interface IContext {
+  dataSources: IDataSources;
+}
 
 export function isNotUndefined<T>(x: T | undefined): x is T {
   return x !== undefined;

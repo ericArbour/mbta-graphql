@@ -1,6 +1,6 @@
 import { IResolvers, FilterToSchema } from "graphql-tools";
 
-import { IContext } from "../data/dataSources";
+import { IContext } from "../types";
 import { getFieldsFromInfo } from "../helpers";
 import {
   isNotNull,

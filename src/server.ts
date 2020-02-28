@@ -1,35 +1,19 @@
-import { ApolloServer, gql } from "apollo-server";
-import { IResolvers } from "graphql-tools";
+import { ApolloServer } from "apollo-server";
+import { DataSources } from "apollo-server-core/dist/graphqlOptions";
 import dotenv from "dotenv";
-import merge from "lodash.merge";
 
-import { IContext } from "./data/dataSources";
-import dataSources from "./data/dataSources";
-import vehicleTypeDefs from "./vehicles/typeDefs";
-import vehicleResolvers from "./vehicles/resolvers";
-import stopTypeDefs from "./stops/typeDefs";
-import stopResolvers from "./stops/resolvers";
+import MbtaAPI from "./data/MbtaAPI";
+import { typeDefs, resolvers } from "./rootGraphQL";
+import { IDataSources } from "./types";
 
 dotenv.config();
 
-const rootTypeDefs = gql`
-  type Query {
-    root: String
-  }
-`;
-
-const resolvers: IResolvers<any, IContext> = merge(
-  {
-    Query: {}
-  },
-  vehicleResolvers,
-  stopResolvers
-);
-
 const server = new ApolloServer({
-  typeDefs: [rootTypeDefs, vehicleTypeDefs, stopTypeDefs],
+  typeDefs,
   resolvers,
-  dataSources
+  dataSources: (): DataSources<IDataSources> => ({
+    mbtaAPI: new MbtaAPI()
+  })
 });
 
 server.listen(4000).then(({ url }) => {

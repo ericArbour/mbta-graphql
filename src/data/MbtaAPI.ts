@@ -19,6 +19,7 @@ import {
   MbtaStop,
   isMbtaStop
 } from "../stops/types";
+import { MbtaRESTError } from "../helpers";
 
 export default class MbtaAPI extends RESTDataSource {
   constructor() {
@@ -45,14 +46,12 @@ export default class MbtaAPI extends RESTDataSource {
       : "";
     const queryString = `${fieldString}${vehicleIdFilterString}${labelFilterString}`;
 
-    const result = await this.parseAsyncJSON(
-      this.get(`vehicles?${queryString}`)
-    );
+    const result = await this.getParsedJSON(`vehicles?${queryString}`);
 
     if (isCollectionResourceDoc(result, isMbtaVehicle)) {
       return result.data;
     } else {
-      throw new Error("Bad data");
+      throw new MbtaRESTError();
     }
   }
 
@@ -85,12 +84,12 @@ export default class MbtaAPI extends RESTDataSource {
       : "";
     const queryString = `${fieldsString}${relationshipsString}${stopIdFilterString}${locationTypeFilterString}${locationFilterString}`;
 
-    const result = await this.parseAsyncJSON(this.get(`stops?${queryString}`));
+    const result = await this.getParsedJSON(`stops?${queryString}`);
 
     if (isCollectionResourceDoc(result, isMbtaStop)) {
       return result.data;
     } else {
-      throw new Error("Bad data");
+      throw new MbtaRESTError();
     }
   }
 
@@ -110,14 +109,14 @@ export default class MbtaAPI extends RESTDataSource {
       ? `&include=${relationshipsFields.join(",")}`
       : "";
 
-    const result = await this.parseAsyncJSON(
-      this.get(`stops/${args.id}?${fieldsString}${relationshipsString}`)
+    const result = await this.getParsedJSON(
+      `stops/${args.id}?${fieldsString}${relationshipsString}`
     );
 
     if (isDocWithData(result, isMbtaStop)) {
       return result.data;
     } else {
-      throw new Error("Bad data");
+      throw new MbtaRESTError();
     }
   }
 
@@ -140,8 +139,8 @@ export default class MbtaAPI extends RESTDataSource {
     const relationshipsString = relationshipsFields.length
       ? `&include=${relationshipsFields.join(",")}`
       : "";
-    const result = await this.parseAsyncJSON(
-      this.get(`stops?${fieldsString}${relationshipsString}${batchIdsString}`)
+    const result = await this.getParsedJSON(
+      `stops?${fieldsString}${relationshipsString}${batchIdsString}`
     );
 
     if (isCollectionResourceDoc(result, isMbtaStop)) {
@@ -150,7 +149,7 @@ export default class MbtaAPI extends RESTDataSource {
         .map(config => mbtaStops.find(mbtaStop => mbtaStop.id === config.id))
         .filter(isNotUndefined);
     } else {
-      throw new Error("Bad data");
+      throw new MbtaRESTError();
     }
   };
 
@@ -178,10 +177,8 @@ export default class MbtaAPI extends RESTDataSource {
     const relationshipsString = relationshipsFields.length
       ? `&include=${relationshipsFields.join(",")}`
       : "";
-    const result = await this.parseAsyncJSON(
-      this.get(
-        `stops?${fieldsString}${relationshipsString}${uniqueChildIdsString}`
-      )
+    const result = await this.getParsedJSON(
+      `stops?${fieldsString}${relationshipsString}${uniqueChildIdsString}`
     );
     if (isCollectionResourceDoc(result, isMbtaStop)) {
       const mbtaStops = result.data;
@@ -191,7 +188,7 @@ export default class MbtaAPI extends RESTDataSource {
           .filter(isNotUndefined)
       );
     } else {
-      throw new Error("Bad data");
+      throw new MbtaRESTError();
     }
   };
 
@@ -201,7 +198,11 @@ export default class MbtaAPI extends RESTDataSource {
     return this.childStopsDataLoader.load(config);
   }
 
-  async parseAsyncJSON(promise: Promise<string>) {
+  async getParsedJSON(path: string): Promise<any> {
+    return this.parseAsyncJSON(this.get(path));
+  }
+
+  async parseAsyncJSON(promise: Promise<string>): Promise<any> {
     const jsonString = await promise;
     return JSON.parse(jsonString);
   }
