@@ -1,7 +1,7 @@
 import { IResolvers } from "graphql-tools";
 
 import { IContext } from "../types";
-import { getFieldsFromInfo } from "../helpers";
+import { getFieldsFromInfo } from "../utils/utils";
 import { mbtaStopToStop } from "../stops/resolvers";
 import { Stop } from "../stops/types";
 import { isRelationshipsWithData, isResourceIdentifierObject } from "../types";

@@ -9,7 +9,7 @@ export function getFieldsFromInfo(info: GraphQLResolveInfo): string[] {
       .map(fieldNode =>
         fieldNode.kind === "Field" ? fieldNode.name.value : ""
       )
-      // id field is always returned and never needs to be specified in fields
+      // id field is always returned from MBTA api and never needs to be specified in fields
       .filter(field => field && field !== "id")
   );
 }

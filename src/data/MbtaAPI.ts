@@ -19,7 +19,7 @@ import {
   MbtaStop,
   isMbtaStop
 } from "../stops/types";
-import { MbtaRESTError } from "../helpers";
+import { MbtaRESTError } from "../utils/utils";
 
 export default class MbtaAPI extends RESTDataSource {
   constructor() {
@@ -35,7 +35,19 @@ export default class MbtaAPI extends RESTDataSource {
     fields: string[] = [],
     args: VehicleResolverArgs
   ): Promise<MbtaVehicle[]> {
-    const fieldString = `fields[vehicle]=${fields.join(",")}`;
+    const relationships = ["stop"];
+    const relationshipsFields = fields.filter(field =>
+      relationships.includes(field)
+    );
+    const attributeFields = fields.filter(
+      field => !relationships.includes(field)
+    );
+    const fieldsString = `fields[vehicle]=${attributeFields.join(",")}`;
+    const relationshipsString = relationshipsFields.length
+      ? `&include=${relationshipsFields.join(",")}${relationshipsFields.map(
+          relationshipsField => `&fields[${relationshipsField}]=`
+        )}`
+      : "";
     const vehicleIdFilter = args.filter?.vehicleIdFilter;
     const labelFilter = args.filter?.labelFilter;
     const vehicleIdFilterString = vehicleIdFilter?.length
@@ -44,7 +56,7 @@ export default class MbtaAPI extends RESTDataSource {
     const labelFilterString = labelFilter?.length
       ? `&filter[label]=${labelFilter.join(",")}`
       : "";
-    const queryString = `${fieldString}${vehicleIdFilterString}${labelFilterString}`;
+    const queryString = `${fieldsString}${relationshipsString}${vehicleIdFilterString}${labelFilterString}`;
 
     const result = await this.getParsedJSON(`vehicles?${queryString}`);
 
