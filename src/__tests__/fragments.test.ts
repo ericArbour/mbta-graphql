@@ -21,10 +21,11 @@ beforeEach(() => {
   mockGet.mockClear();
 });
 
-describe("Fragment Tests", () => {
+describe("Queries with fragments", () => {
   const { server } = constructTestServer();
   const { query } = createTestClient(server);
-  it("Only requests included fields with fragments of a depth of 1", async () => {
+
+  it("only request included fields with fragments of a depth of 1", async () => {
     const GET_STOP = gql`
       query GetStop {
         stop(id: "STOP1") {
@@ -42,7 +43,8 @@ describe("Fragment Tests", () => {
       "stops/STOP1?fields[stop]=wheelchair_boarding,latitude"
     );
   });
-  it("Only requests included fields with fragments of a depth of 2", async () => {
+
+  it("only request included fields with fragments of a depth of 2", async () => {
     const GET_STOP = gql`
       query GetStop {
         stop(id: "STOP1") {
@@ -64,7 +66,8 @@ describe("Fragment Tests", () => {
       "stops/STOP1?fields[stop]=wheelchair_boarding,latitude,longitude"
     );
   });
-  it("Only requests included fields with fragments of a depth of 3", async () => {
+
+  it("only request included fields with fragments of a depth of 3", async () => {
     const GET_STOP = gql`
       query GetStop {
         stop(id: "STOP1") {
@@ -90,7 +93,8 @@ describe("Fragment Tests", () => {
       "stops/STOP1?fields[stop]=wheelchair_boarding,latitude,longitude,location_type"
     );
   });
-  it("Only requests included fields with fragments in relationship queries", async () => {
+
+  it("Only request included fields with fragments in relationship queries", async () => {
     const GET_STOP = gql`
       query GetStop {
         stop(id: "STOP1") {

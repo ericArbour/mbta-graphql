@@ -29,10 +29,10 @@ jest.mock("apollo-datasource-rest", () => {
   };
 });
 
-describe("Vehicles Query", () => {
-  it("Can traverse from the vehicles node to nested stops", async () => {
-    const GET_VEHICLES = gql`
-      query GetVehicles {
+describe("Full graph query", () => {
+  it("can traverse from the vehicles node to nested stops", async () => {
+    const GET_FULL_GRAPH = gql`
+      query FullGraph {
         vehicles {
           id
           updated_at
@@ -45,60 +45,37 @@ describe("Vehicles Query", () => {
           current_status
           bearing
           stop {
-            id
-            wheelchair_boarding
-            vehicle_type
-            platform_name
-            platform_code
-            on_street
-            name
-            municipality
-            latitude
-            longitude
-            location_type
-            description
-            at_street
-            address
+            ...StopFields
             parent_station {
-              id
-              wheelchair_boarding
-              vehicle_type
-              platform_name
-              platform_code
-              on_street
-              name
-              municipality
-              latitude
-              longitude
-              location_type
-              description
-              at_street
-              address
+              ...StopFields
             }
             child_stops {
-              id
-              wheelchair_boarding
-              vehicle_type
-              platform_name
-              platform_code
-              on_street
-              name
-              municipality
-              latitude
-              longitude
-              location_type
-              description
-              at_street
-              address
+              ...StopFields
             }
           }
         }
+      }
+      fragment StopFields on Stop {
+        id
+        wheelchair_boarding
+        vehicle_type
+        platform_name
+        platform_code
+        on_street
+        name
+        municipality
+        latitude
+        longitude
+        location_type
+        description
+        at_street
+        address
       }
     `;
 
     const { server } = constructTestServer();
     const { query } = createTestClient(server);
-    const res = await query({ query: GET_VEHICLES });
+    const res = await query({ query: GET_FULL_GRAPH });
 
     expect(mockGet).toHaveBeenNthCalledWith(
       1,
