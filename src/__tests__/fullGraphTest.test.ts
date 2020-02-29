@@ -32,7 +32,7 @@ jest.mock("apollo-datasource-rest", () => {
 describe("Vehicles Query", () => {
   it("Can traverse from the vehicles node to nested stops", async () => {
     const GET_VEHICLES = gql`
-      query Vehicles {
+      query GetVehicles {
         vehicles {
           id
           updated_at
