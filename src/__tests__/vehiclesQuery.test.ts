@@ -2,19 +2,9 @@ import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server";
 
 import { constructTestServer } from "../utils/testUtils";
+import { mockGet } from "../__mocks__/apollo-datasource-rest";
 
-const mockGet = jest.fn();
-
-jest.mock("apollo-datasource-rest", () => {
-  class MockRESTDataSource {
-    baseUrl = "";
-    get = mockGet;
-  }
-
-  return {
-    RESTDataSource: MockRESTDataSource
-  };
-});
+jest.mock("apollo-datasource-rest");
 
 beforeEach(() => {
   mockGet.mockClear();
@@ -34,7 +24,8 @@ describe("Vehicles query", () => {
         }
       }
     `;
-    const res = await query({ query: GET_VEHICLES });
+    await query({ query: GET_VEHICLES });
+
     expect(mockGet).toBeCalledWith("vehicles?fields[vehicle]=speed,label");
   });
 
@@ -46,7 +37,8 @@ describe("Vehicles query", () => {
         }
       }
     `;
-    const res = await query({ query: GET_VEHICLES });
+    await query({ query: GET_VEHICLES });
+
     expect(mockGet).toBeCalledWith(
       "vehicles?fields[vehicle]=&filter[id]=VEHICLE1"
     );
@@ -60,7 +52,8 @@ describe("Vehicles query", () => {
         }
       }
     `;
-    const res = await query({ query: GET_VEHICLES });
+    await query({ query: GET_VEHICLES });
+
     expect(mockGet).toBeCalledWith(
       "vehicles?fields[vehicle]=&filter[label]=Vehicle One"
     );

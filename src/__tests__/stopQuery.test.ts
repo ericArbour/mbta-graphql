@@ -2,6 +2,7 @@ import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server";
 
 import { constructTestServer } from "../utils/testUtils";
+import { mockGet } from "../__mocks__/apollo-datasource-rest";
 import {
   response1,
   response2,
@@ -10,19 +11,6 @@ import {
   response5,
   result
 } from "../mockData/stopQueryTest";
-
-const mockGet = jest.fn();
-
-jest.mock("apollo-datasource-rest", () => {
-  class MockRESTDataSource {
-    baseUrl = "";
-    get = mockGet;
-  }
-
-  return {
-    RESTDataSource: MockRESTDataSource
-  };
-});
 
 beforeEach(() => {
   mockGet.mockClear();
@@ -41,7 +29,8 @@ describe("Stop query", () => {
         }
       }
     `;
-    const res = await query({ query: GET_STOP });
+    await query({ query: GET_STOP });
+
     expect(mockGet).toBeCalledWith(
       "stops/STOP1?fields[stop]=name,vehicle_type"
     );

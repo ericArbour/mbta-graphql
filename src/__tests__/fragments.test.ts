@@ -2,20 +2,8 @@ import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server";
 
 import { constructTestServer } from "../utils/testUtils";
+import { mockGet } from "../__mocks__/apollo-datasource-rest";
 import { mbtaStopResponse } from "../mockData/fragmentsTest";
-
-const mockGet = jest.fn().mockReturnValue(mbtaStopResponse);
-
-jest.mock("apollo-datasource-rest", () => {
-  class MockRESTDataSource {
-    baseUrl = "";
-    get = mockGet;
-  }
-
-  return {
-    RESTDataSource: MockRESTDataSource
-  };
-});
 
 beforeEach(() => {
   mockGet.mockClear();
@@ -38,7 +26,8 @@ describe("Queries with fragments", () => {
         latitude
       }
     `;
-    const res = await query({ query: GET_STOP });
+    await query({ query: GET_STOP });
+
     expect(mockGet).toBeCalledWith(
       "stops/STOP1?fields[stop]=wheelchair_boarding,latitude"
     );
@@ -61,7 +50,8 @@ describe("Queries with fragments", () => {
         longitude
       }
     `;
-    const res = await query({ query: GET_STOP });
+    await query({ query: GET_STOP });
+
     expect(mockGet).toBeCalledWith(
       "stops/STOP1?fields[stop]=wheelchair_boarding,latitude,longitude"
     );
@@ -88,13 +78,15 @@ describe("Queries with fragments", () => {
         location_type
       }
     `;
-    const res = await query({ query: GET_STOP });
+    await query({ query: GET_STOP });
+
     expect(mockGet).toBeCalledWith(
       "stops/STOP1?fields[stop]=wheelchair_boarding,latitude,longitude,location_type"
     );
   });
 
   it("Only request included fields with fragments in relationship queries", async () => {
+    mockGet.mockReturnValue(mbtaStopResponse);
     const GET_STOP = gql`
       query GetStop {
         stop(id: "STOP1") {
@@ -112,7 +104,8 @@ describe("Queries with fragments", () => {
         name
       }
     `;
-    const res = await query({ query: GET_STOP });
+    await query({ query: GET_STOP });
+
     expect(mockGet).toHaveBeenNthCalledWith(
       1,
       "stops/STOP1?fields[stop]=name&include=parent_station,child_stops"

@@ -2,7 +2,7 @@ import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server";
 
 import { constructTestServer } from "../utils/testUtils";
-
+import { mockGet } from "../__mocks__/apollo-datasource-rest";
 import {
   mbtaVehiclesResponse,
   mbtaStopsResponse,
@@ -11,26 +11,14 @@ import {
   responseData
 } from "../mockData/fullGraphTest";
 
-const mockGet = jest
-  .fn()
-  .mockReturnValueOnce(mbtaVehiclesResponse)
-  .mockReturnValueOnce(mbtaStopsResponse)
-  .mockReturnValueOnce(mbtaChildStopsResponse)
-  .mockReturnValueOnce(mbtaParentStopsResponse);
-
-jest.mock("apollo-datasource-rest", () => {
-  class MockRESTDataSource {
-    baseUrl = "";
-    get = mockGet;
-  }
-
-  return {
-    RESTDataSource: MockRESTDataSource
-  };
-});
-
 describe("Full graph query", () => {
   it("can traverse from the vehicles node to nested stops", async () => {
+    mockGet
+      .mockReturnValueOnce(mbtaVehiclesResponse)
+      .mockReturnValueOnce(mbtaStopsResponse)
+      .mockReturnValueOnce(mbtaChildStopsResponse)
+      .mockReturnValueOnce(mbtaParentStopsResponse);
+
     const GET_FULL_GRAPH = gql`
       query FullGraph {
         vehicles {

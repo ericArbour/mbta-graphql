@@ -2,19 +2,7 @@ import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server";
 
 import { constructTestServer } from "../utils/testUtils";
-
-const mockGet = jest.fn();
-
-jest.mock("apollo-datasource-rest", () => {
-  class MockRESTDataSource {
-    baseUrl = "";
-    get = mockGet;
-  }
-
-  return {
-    RESTDataSource: MockRESTDataSource
-  };
-});
+import { mockGet } from "../__mocks__/apollo-datasource-rest";
 
 beforeEach(() => {
   mockGet.mockClear();
@@ -33,7 +21,8 @@ describe("Stops query", () => {
         }
       }
     `;
-    const res = await query({ query: GET_STOPS });
+    await query({ query: GET_STOPS });
+
     expect(mockGet).toBeCalledWith(
       "stops?fields[stop]=vehicle_type,description"
     );
@@ -47,7 +36,8 @@ describe("Stops query", () => {
         }
       }
     `;
-    const res = await query({ query: GET_STOPS });
+    await query({ query: GET_STOPS });
+
     expect(mockGet).toBeCalledWith(
       "stops?fields[stop]=&filter[id]=STOP1,STOP2"
     );
@@ -61,7 +51,8 @@ describe("Stops query", () => {
         }
       }
     `;
-    const res = await query({ query: GET_STOPS });
+    await query({ query: GET_STOPS });
+
     expect(mockGet).toBeCalledWith(
       "stops?fields[stop]=&filter[location_type]=0,1,2"
     );
@@ -79,7 +70,8 @@ describe("Stops query", () => {
         }
       }
     `;
-    const res = await query({ query: GET_STOPS });
+    await query({ query: GET_STOPS });
+
     expect(mockGet).toBeCalledWith(
       "stops?fields[stop]=latitude,longitude&filter[latitude]=70&filter[longitude]=40&filter[radius]=1"
     );
@@ -100,7 +92,8 @@ describe("Stops query", () => {
         }
       }
     `;
-    const res = await query({ query: GET_STOPS });
+    await query({ query: GET_STOPS });
+
     expect(mockGet).toBeCalledWith(
       "stops?fields[stop]=latitude,longitude&filter[location_type]=1&filter[latitude]=70&filter[longitude]=40&filter[radius]=1"
     );
