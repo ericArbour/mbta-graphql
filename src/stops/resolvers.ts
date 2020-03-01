@@ -48,9 +48,8 @@ const resolvers: IResolvers<any, IContext> = {
       args: ChildStopsResolverArgs,
       { dataSources },
       info
-    ): Promise<Stop[] | null> => {
-      if (!parent.child_stops) return null;
-
+    ): Promise<Stop[]> => {
+      if (!parent.child_stops) return [];
       const fields = getFieldsFromInfo(info);
       const stopIdFilter = args.filter?.stopIdFilter;
       const locationTypeFilter = args.filter?.locationTypeFilter;
@@ -63,8 +62,12 @@ const resolvers: IResolvers<any, IContext> = {
         ?.map(({ id }) => id)
         .filter(isNotNull);
 
+      const filteredChildStopIds = stopIdFilter
+        ? childStopIds.filter(childStopId => stopIdFilter.includes(childStopId))
+        : childStopIds;
+
       const childMbtaStops = await dataSources.mbtaAPI.getChildStops({
-        ids: childStopIds,
+        ids: filteredChildStopIds,
         fields: fieldsWithFilterInfo
       });
 

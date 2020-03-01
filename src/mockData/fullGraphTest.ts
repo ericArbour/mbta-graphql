@@ -557,7 +557,7 @@ export const responseData = {
           vehicle_type: null,
           wheelchair_boarding: 1
         },
-        child_stops: null
+        child_stops: []
       }
     }
   ]

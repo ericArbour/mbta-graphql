@@ -139,7 +139,7 @@ export default class MbtaAPI extends RESTDataSource {
     const batchIdsString = `&filter[id]=${configs
       .map(({ id }) => id)
       .join(",")}`;
-    const fields = configs[0].fields;
+    const fields = [...new Set(configs.flatMap(config => config.fields))];
     const relationships = ["child_stops", "parent_station"];
     const relationshipsFields = fields.filter(field =>
       relationships.includes(field)
@@ -177,7 +177,7 @@ export default class MbtaAPI extends RESTDataSource {
   > = async configs => {
     const uniqueChildIds = [...new Set(configs.flatMap(config => config.ids))];
     const uniqueChildIdsString = `&filter[id]=${uniqueChildIds.join(",")}`;
-    const fields = configs[0].fields;
+    const fields = [...new Set(configs.flatMap(config => config.fields))];
     const relationships = ["child_stops", "parent_station"];
     const relationshipsFields = fields.filter(field =>
       relationships.includes(field)
@@ -192,6 +192,7 @@ export default class MbtaAPI extends RESTDataSource {
     const result = await this.getParsedJSON(
       `stops?${fieldsString}${relationshipsString}${uniqueChildIdsString}`
     );
+
     if (isCollectionResourceDoc(result, isMbtaStop)) {
       const mbtaStops = result.data;
       return configs.map(config =>

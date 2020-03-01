@@ -64,7 +64,7 @@ export default gql`
     """
     See parent_station
     """
-    child_stops(filter: ChildStopsFilter): [Stop!]
+    child_stops(filter: ChildStopsFilter): [Stop!]!
   }
 
   input LocationFilterInput {
