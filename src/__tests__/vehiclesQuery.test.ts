@@ -6,7 +6,7 @@ import { mockGet } from "../__mocks__/apollo-datasource-rest";
 
 jest.mock("apollo-datasource-rest");
 
-beforeEach(() => {
+afterEach(() => {
   mockGet.mockClear();
 });
 

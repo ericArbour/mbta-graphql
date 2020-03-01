@@ -12,7 +12,7 @@ import {
   result
 } from "../mockData/stopQueryTest";
 
-beforeEach(() => {
+afterEach(() => {
   mockGet.mockClear();
 });
 
@@ -89,19 +89,19 @@ describe("Stop query", () => {
 
     expect(mockGet).toHaveBeenNthCalledWith(
       1,
-      "stops/STOP2?fields[stop]=&include=parent_station,child_stops"
+      "stops/STOP2?fields[stop]=&include=parent_station,child_stops&fields[parent_station]=&fields[child_stops]="
     );
     expect(mockGet).toHaveBeenNthCalledWith(
       2,
-      "stops/STOP7?fields[stop]=name,description,longitude,latitude,vehicle_type&include=child_stops"
+      "stops/STOP7?fields[stop]=name,description,longitude,latitude,vehicle_type&include=child_stops&fields[child_stops]="
     );
     expect(mockGet).toHaveBeenNthCalledWith(
       3,
-      "stops?fields[stop]=&include=child_stops&filter[id]=STOP1"
+      "stops?fields[stop]=&include=child_stops&fields[child_stops]=&filter[id]=STOP1"
     );
     expect(mockGet).toHaveBeenNthCalledWith(
       4,
-      "stops?fields[stop]=name&include=child_stops&filter[id]=STOP4,STOP5,STOP8"
+      "stops?fields[stop]=name&include=child_stops&fields[child_stops]=&filter[id]=STOP4,STOP5,STOP8"
     );
     expect(mockGet).toHaveBeenNthCalledWith(
       5,

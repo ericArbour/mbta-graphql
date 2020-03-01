@@ -71,7 +71,7 @@ describe("Full graph query", () => {
     );
     expect(mockGet).toHaveBeenNthCalledWith(
       2,
-      "stops?fields[stop]=wheelchair_boarding,vehicle_type,platform_name,platform_code,on_street,name,municipality,latitude,longitude,location_type,description,at_street,address&include=parent_station,child_stops&filter[id]=STOP1,STOP2,STOP3"
+      "stops?fields[stop]=wheelchair_boarding,vehicle_type,platform_name,platform_code,on_street,name,municipality,latitude,longitude,location_type,description,at_street,address&include=parent_station,child_stops&fields[parent_station]=&fields[child_stops]=&filter[id]=STOP1,STOP2,STOP3"
     );
     expect(mockGet).toHaveBeenNthCalledWith(
       3,

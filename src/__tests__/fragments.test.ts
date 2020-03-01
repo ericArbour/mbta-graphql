@@ -5,7 +5,7 @@ import { constructTestServer } from "../utils/testUtils";
 import { mockGet } from "../__mocks__/apollo-datasource-rest";
 import { mbtaStopResponse } from "../mockData/fragmentsTest";
 
-beforeEach(() => {
+afterEach(() => {
   mockGet.mockClear();
 });
 
@@ -108,7 +108,7 @@ describe("Queries with fragments", () => {
 
     expect(mockGet).toHaveBeenNthCalledWith(
       1,
-      "stops/STOP1?fields[stop]=name&include=parent_station,child_stops"
+      "stops/STOP1?fields[stop]=name&include=parent_station,child_stops&fields[parent_station]=&fields[child_stops]="
     );
     expect(mockGet).toHaveBeenNthCalledWith(
       2,

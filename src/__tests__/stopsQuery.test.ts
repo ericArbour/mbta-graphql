@@ -4,7 +4,7 @@ import { gql } from "apollo-server";
 import { constructTestServer } from "../utils/testUtils";
 import { mockGet } from "../__mocks__/apollo-datasource-rest";
 
-beforeEach(() => {
+afterEach(() => {
   mockGet.mockClear();
 });
 

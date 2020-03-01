@@ -31,23 +31,40 @@ export default class MbtaAPI extends RESTDataSource {
     request.headers.set("X-API-Key", process.env.MBTA_API_KEY || "");
   }
 
+  private getFieldsAndIncludeParams(
+    pathType: string,
+    fields: string[],
+    relationships: string[]
+  ): string {
+    const uniqueFields = [...new Set(fields)];
+    const relationshipsFields = uniqueFields.filter(field =>
+      relationships.includes(field)
+    );
+    const attributeFields = uniqueFields.filter(
+      field => !relationships.includes(field)
+    );
+    const fieldsString = `fields[${pathType}]=${attributeFields.join(",")}`;
+    const includeRelationshipsString = relationshipsFields.length
+      ? `&include=${relationshipsFields.join(",")}`
+      : "";
+    const includeRelationshipsFieldsString = relationshipsFields.length
+      ? `${relationshipsFields
+          .map(relationshipsField => `&fields[${relationshipsField}]=`)
+          .join("")}`
+      : "";
+
+    return `${fieldsString}${includeRelationshipsString}${includeRelationshipsFieldsString}`;
+  }
+
   async getVehicles(
     fields: string[] = [],
     args: VehicleResolverArgs
   ): Promise<MbtaVehicle[]> {
-    const relationships = ["stop"];
-    const relationshipsFields = fields.filter(field =>
-      relationships.includes(field)
+    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
+      "vehicle",
+      fields,
+      ["stop"]
     );
-    const attributeFields = fields.filter(
-      field => !relationships.includes(field)
-    );
-    const fieldsString = `fields[vehicle]=${attributeFields.join(",")}`;
-    const relationshipsString = relationshipsFields.length
-      ? `&include=${relationshipsFields.join(",")}${relationshipsFields.map(
-          relationshipsField => `&fields[${relationshipsField}]=`
-        )}`
-      : "";
     const vehicleIdFilter = args.filter?.vehicleIdFilter;
     const labelFilter = args.filter?.labelFilter;
     const vehicleIdFilterString = vehicleIdFilter?.length
@@ -56,7 +73,7 @@ export default class MbtaAPI extends RESTDataSource {
     const labelFilterString = labelFilter?.length
       ? `&filter[label]=${labelFilter.join(",")}`
       : "";
-    const queryString = `${fieldsString}${relationshipsString}${vehicleIdFilterString}${labelFilterString}`;
+    const queryString = `${fieldsAndIncludeParams}${vehicleIdFilterString}${labelFilterString}`;
 
     const result = await this.getParsedJSON(`vehicles?${queryString}`);
 
@@ -71,17 +88,11 @@ export default class MbtaAPI extends RESTDataSource {
     fields: string[] = [],
     args: StopsResolverArgs
   ): Promise<MbtaStop[]> {
-    const relationships = ["child_stops", "parent_station"];
-    const relationshipsFields = fields.filter(field =>
-      relationships.includes(field)
+    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
+      "stop",
+      fields,
+      ["child_stops", "parent_station"]
     );
-    const attributeFields = fields.filter(
-      field => !relationships.includes(field)
-    );
-    const fieldsString = `fields[stop]=${attributeFields.join(",")}`;
-    const relationshipsString = relationshipsFields.length
-      ? `&include=${relationshipsFields.join(",")}`
-      : "";
     const stopIdFilter = args.filter?.stopIdFilter;
     const locationTypeFilter = args.filter?.locationTypeFilter;
     const locationFilter = args.filter?.locationFilter;
@@ -94,7 +105,7 @@ export default class MbtaAPI extends RESTDataSource {
     const locationFilterString = locationFilter
       ? `&filter[latitude]=${locationFilter.latitude}&filter[longitude]=${locationFilter.longitude}&filter[radius]=${locationFilter.radius}`
       : "";
-    const queryString = `${fieldsString}${relationshipsString}${stopIdFilterString}${locationTypeFilterString}${locationFilterString}`;
+    const queryString = `${fieldsAndIncludeParams}${stopIdFilterString}${locationTypeFilterString}${locationFilterString}`;
 
     const result = await this.getParsedJSON(`stops?${queryString}`);
 
@@ -109,20 +120,14 @@ export default class MbtaAPI extends RESTDataSource {
     fields: string[] = [],
     args: StopResolverArgs
   ): Promise<MbtaStop> {
-    const relationships = ["child_stops", "parent_station"];
-    const relationshipsFields = fields.filter(field =>
-      relationships.includes(field)
+    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
+      "stop",
+      fields,
+      ["child_stops", "parent_station"]
     );
-    const attributeFields = fields.filter(
-      field => !relationships.includes(field)
-    );
-    const fieldsString = `fields[stop]=${attributeFields.join(",")}`;
-    const relationshipsString = relationshipsFields.length
-      ? `&include=${relationshipsFields.join(",")}`
-      : "";
 
     const result = await this.getParsedJSON(
-      `stops/${args.id}?${fieldsString}${relationshipsString}`
+      `stops/${args.id}?${fieldsAndIncludeParams}`
     );
 
     if (isDocWithData(result, isMbtaStop)) {
@@ -139,20 +144,15 @@ export default class MbtaAPI extends RESTDataSource {
     const batchIdsString = `&filter[id]=${configs
       .map(({ id }) => id)
       .join(",")}`;
-    const fields = [...new Set(configs.flatMap(config => config.fields))];
-    const relationships = ["child_stops", "parent_station"];
-    const relationshipsFields = fields.filter(field =>
-      relationships.includes(field)
+    const fields = configs.flatMap(config => config.fields);
+    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
+      "stop",
+      fields,
+      ["child_stops", "parent_station"]
     );
-    const attributeFields = fields.filter(
-      field => !relationships.includes(field)
-    );
-    const fieldsString = `fields[stop]=${attributeFields.join(",")}`;
-    const relationshipsString = relationshipsFields.length
-      ? `&include=${relationshipsFields.join(",")}`
-      : "";
+
     const result = await this.getParsedJSON(
-      `stops?${fieldsString}${relationshipsString}${batchIdsString}`
+      `stops?${fieldsAndIncludeParams}${batchIdsString}`
     );
 
     if (isCollectionResourceDoc(result, isMbtaStop)) {
@@ -177,20 +177,15 @@ export default class MbtaAPI extends RESTDataSource {
   > = async configs => {
     const uniqueChildIds = [...new Set(configs.flatMap(config => config.ids))];
     const uniqueChildIdsString = `&filter[id]=${uniqueChildIds.join(",")}`;
-    const fields = [...new Set(configs.flatMap(config => config.fields))];
-    const relationships = ["child_stops", "parent_station"];
-    const relationshipsFields = fields.filter(field =>
-      relationships.includes(field)
+    const fields = configs.flatMap(config => config.fields);
+    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
+      "stop",
+      fields,
+      ["child_stops", "parent_station"]
     );
-    const attributeFields = fields.filter(
-      field => !relationships.includes(field)
-    );
-    const fieldsString = `fields[stop]=${attributeFields.join(",")}`;
-    const relationshipsString = relationshipsFields.length
-      ? `&include=${relationshipsFields.join(",")}`
-      : "";
+
     const result = await this.getParsedJSON(
-      `stops?${fieldsString}${relationshipsString}${uniqueChildIdsString}`
+      `stops?${fieldsAndIncludeParams}${uniqueChildIdsString}`
     );
 
     if (isCollectionResourceDoc(result, isMbtaStop)) {

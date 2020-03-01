@@ -9,12 +9,9 @@ export function getFieldsFromInfo(info: GraphQLResolveInfo): string[] {
   const selections = info.fieldNodes[0].selectionSet?.selections || [];
 
   // id field is always returned from MBTA api and never needs to be specified in fields
-  const fields = recursiveFieldsGetter(selections, info.fragments).filter(
+  return recursiveFieldsGetter(selections, info.fragments).filter(
     field => field && field !== "id"
   );
-
-  // remove duplicates in the case of multiple field requests with aliasing
-  return [...new Set(fields)];
 }
 
 type FragmentMap = {
