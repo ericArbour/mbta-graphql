@@ -6,13 +6,18 @@ import { mbtaStopToStop } from "../stops/resolvers";
 import { Stop } from "../stops/types";
 import { isRelationshipsWithData, isResourceIdentifierObject } from "../types";
 
-import { MbtaVehicle, Vehicle, VehicleResolverArgs } from "./types";
+import {
+  MbtaVehicle,
+  Vehicle,
+  VehiclesResolverArgs,
+  VehicleResolverArgs
+} from "./types";
 
 const resolvers: IResolvers<any, IContext> = {
   Query: {
     vehicles: async (
       parent,
-      args: VehicleResolverArgs,
+      args: VehiclesResolverArgs,
       { dataSources },
       info
     ): Promise<Vehicle[]> => {
@@ -20,12 +25,23 @@ const resolvers: IResolvers<any, IContext> = {
       const mbtaVehicles = await dataSources.mbtaAPI.getVehicles(fields, args);
 
       return mbtaVehicles.map(mbtaVehicleToVehicle);
+    },
+    vehicle: async (
+      parent,
+      args: VehicleResolverArgs,
+      { dataSources },
+      info
+    ) => {
+      const fields = getFieldsFromInfo(info);
+      const mbtaVehicle = await dataSources.mbtaAPI.getVehicle(fields, args);
+
+      return mbtaVehicleToVehicle(mbtaVehicle);
     }
   },
   Vehicle: {
     stop: async (
       parent: Vehicle,
-      args: VehicleResolverArgs,
+      args: VehiclesResolverArgs,
       { dataSources },
       info
     ): Promise<Stop | null> => {

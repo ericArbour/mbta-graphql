@@ -9,6 +9,7 @@ import {
 import {
   MbtaVehicle,
   isMbtaVehicle,
+  VehiclesResolverArgs,
   VehicleResolverArgs,
   BatchStopConfig
 } from "../vehicles/types";
@@ -57,8 +58,8 @@ export default class MbtaAPI extends RESTDataSource {
   }
 
   async getVehicles(
-    fields: string[] = [],
-    args: VehicleResolverArgs
+    fields: string[],
+    args: VehiclesResolverArgs
   ): Promise<MbtaVehicle[]> {
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "vehicle",
@@ -84,8 +85,29 @@ export default class MbtaAPI extends RESTDataSource {
     }
   }
 
+  async getVehicle(
+    fields: string[],
+    args: VehicleResolverArgs
+  ): Promise<MbtaVehicle> {
+    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
+      "vehicle",
+      fields,
+      ["stop"]
+    );
+
+    const result = await this.getParsedJSON(
+      `vehicles/${args.id}?${fieldsAndIncludeParams}`
+    );
+
+    if (isDocWithData(result, isMbtaVehicle)) {
+      return result.data;
+    } else {
+      throw new MbtaRESTError();
+    }
+  }
+
   async getStops(
-    fields: string[] = [],
+    fields: string[],
     args: StopsResolverArgs
   ): Promise<MbtaStop[]> {
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
@@ -116,10 +138,7 @@ export default class MbtaAPI extends RESTDataSource {
     }
   }
 
-  async getStop(
-    fields: string[] = [],
-    args: StopResolverArgs
-  ): Promise<MbtaStop> {
+  async getStop(fields: string[], args: StopResolverArgs): Promise<MbtaStop> {
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "stop",
       fields,
@@ -206,11 +225,11 @@ export default class MbtaAPI extends RESTDataSource {
     return this.childStopsDataLoader.load(config);
   }
 
-  async getParsedJSON(path: string): Promise<any> {
+  private async getParsedJSON(path: string): Promise<any> {
     return this.parseAsyncJSON(this.get(path));
   }
 
-  async parseAsyncJSON(promise: Promise<string>): Promise<any> {
+  private async parseAsyncJSON(promise: Promise<string>): Promise<any> {
     const jsonString = await promise;
     return JSON.parse(jsonString);
   }

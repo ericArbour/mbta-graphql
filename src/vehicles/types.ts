@@ -43,11 +43,15 @@ export type Vehicle = {
 
 export type BatchStopConfig = { id: string; fields: string[] };
 
-export type VehicleFilter = {
+export type VehiclesFilter = {
   vehicleIdFilter?: string[];
   labelFilter?: string[];
 };
 
+export type VehiclesResolverArgs = {
+  filter?: VehiclesFilter;
+};
+
 export type VehicleResolverArgs = {
-  filter?: VehicleFilter;
+  id: string;
 };

@@ -74,5 +74,6 @@ export default gql`
 
   extend type Query {
     vehicles(filter: VehiclesFilter): [Vehicle!]!
+    vehicle(id: ID!): Vehicle
   }
 `;
