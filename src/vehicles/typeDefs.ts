@@ -40,8 +40,14 @@ export default gql`
     Meters per second
     """
     speed: Float
-    longitude: Float
+    """
+    Latitude of the stop or station. Degrees North, in the WGS-84 coordinate system.
+    """
     latitude: Float
+    """
+    Longitude of the stop or station. Degrees East, in the WGS-84 coordinate system.
+    """
+    longitude: Float
     """
     User visible label, such as the one on the signage on the vehicle.
     """

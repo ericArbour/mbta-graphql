@@ -44,7 +44,7 @@ describe("Vehicle query", () => {
       }
     `;
     const res = await query({ query: GET_VEHICLE });
-    console.log(res.data);
+
     expect(mockGet).toHaveBeenNthCalledWith(
       1,
       "vehicles/VEHICLE1?fields[vehicle]=&include=stop&fields[stop]="

@@ -20,6 +20,12 @@ import {
   MbtaStop,
   isMbtaStop
 } from "../stops/types";
+import {
+  MbtaRoute,
+  isMbtaRoute,
+  RoutesResolverArgs,
+  RouteResolverArgs
+} from "../routes/types";
 import { MbtaRESTError } from "../utils/utils";
 
 export default class MbtaAPI extends RESTDataSource {
@@ -223,6 +229,55 @@ export default class MbtaAPI extends RESTDataSource {
 
   async getChildStops(config: ChildStopsBatchConfig) {
     return this.childStopsDataLoader.load(config);
+  }
+
+  async getRoutes(
+    fields: string[],
+    args: RoutesResolverArgs
+  ): Promise<MbtaRoute[]> {
+    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
+      "route",
+      fields,
+      []
+    );
+    const routeIdFilter = args.filter?.routeIdFilter;
+    const typeFilter = args.filter?.typeFilter;
+    const routeIdFilterString = routeIdFilter?.length
+      ? `&filter[id]=${routeIdFilter.join(",")}`
+      : "";
+    const typeFilterString = typeFilter?.length
+      ? `&filter[type]=${typeFilter.join(",")}`
+      : "";
+    const queryString = `${fieldsAndIncludeParams}${routeIdFilterString}${typeFilterString}`;
+
+    const result = await this.getParsedJSON(`routes?${queryString}`);
+
+    if (isCollectionResourceDoc(result, isMbtaRoute)) {
+      return result.data;
+    } else {
+      throw new MbtaRESTError();
+    }
+  }
+
+  async getRoute(
+    fields: string[],
+    args: RouteResolverArgs
+  ): Promise<MbtaRoute> {
+    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
+      "route",
+      fields,
+      []
+    );
+
+    const result = await this.getParsedJSON(
+      `routes/${args.id}?${fieldsAndIncludeParams}`
+    );
+
+    if (isDocWithData(result, isMbtaRoute)) {
+      return result.data;
+    } else {
+      throw new MbtaRESTError();
+    }
   }
 
   private async getParsedJSON(path: string): Promise<any> {

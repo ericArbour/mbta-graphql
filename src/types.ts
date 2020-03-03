@@ -3,14 +3,6 @@ import * as JSON from "json-typescript";
 
 import MbtaAPI from "./data/MbtaAPI";
 
-export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
-};
-
 export interface IDataSources {
   mbtaAPI: MbtaAPI;
 }

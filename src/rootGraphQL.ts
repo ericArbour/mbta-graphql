@@ -6,6 +6,8 @@ import vehicleTypeDefs from "./vehicles/typeDefs";
 import vehicleResolvers from "./vehicles/resolvers";
 import stopTypeDefs from "./stops/typeDefs";
 import stopResolvers from "./stops/resolvers";
+import routeTypeDefs from "./routes/typeDefs";
+import routeResolvers from "./routes/resolvers";
 import { IContext } from "./types";
 
 const rootTypeDefs = gql`
@@ -14,12 +16,18 @@ const rootTypeDefs = gql`
   }
 `;
 
-export const typeDefs = [rootTypeDefs, vehicleTypeDefs, stopTypeDefs];
+export const typeDefs = [
+  rootTypeDefs,
+  vehicleTypeDefs,
+  stopTypeDefs,
+  routeTypeDefs
+];
 
 export const resolvers: IResolvers<any, IContext> = merge(
   {
     Query: {}
   },
   vehicleResolvers,
-  stopResolvers
+  stopResolvers,
+  routeResolvers
 );

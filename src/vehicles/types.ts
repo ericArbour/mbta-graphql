@@ -1,6 +1,6 @@
 import * as JSONAPI from "jsonapi-typescript";
 
-import { Scalars, isResourceObject } from "../types";
+import { isResourceObject } from "../types";
 import { Stop } from "../stops/types";
 
 enum VehicleCurrentStopStatus {
@@ -28,16 +28,16 @@ export function isMbtaVehicle(a: any): a is MbtaVehicle {
 }
 
 export type Vehicle = {
-  id: Scalars["ID"] | null;
-  updated_at?: Scalars["String"] | null;
-  speed?: Scalars["Float"] | null;
-  longitude?: Scalars["Float"] | null;
-  latitude?: Scalars["Float"] | null;
-  label?: Scalars["String"] | null;
-  direction_id?: Scalars["Int"] | null;
-  current_stop_sequence?: Scalars["Int"] | null;
+  id: string | null;
+  updated_at?: string | null;
+  speed?: number | null;
+  longitude?: number | null;
+  latitude?: number | null;
+  label?: string | null;
+  direction_id?: number | null;
+  current_stop_sequence?: number | null;
   current_status?: VehicleCurrentStopStatus | null;
-  bearing?: Scalars["Int"] | null;
+  bearing?: number | null;
   stop?: Stop | null;
 };
 

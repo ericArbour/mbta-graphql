@@ -29,7 +29,7 @@ export default gql`
     """
     wheelchair_boarding: Int
     """
-      Indicates the type of transportation used on a route. Valid options are:
+    The type of transportation used at the stop. vehicle_type will be a valid routes route_type value. Valid options are:
     0 - Tram, Streetcar, Light rail. Any light rail or street level system within a metropolitan area.
     1 - Subway, Metro. Any underground rail system within a metropolitan area.
     2 - Rail. Used for intercity or long-distance travel.
@@ -37,12 +37,35 @@ export default gql`
     4 - Ferry. Used for short- and long-distance boat service.
     """
     vehicle_type: Int
+    """
+    A textual description of the platform or track.
+    example: Red Line
+    """
     platform_name: String
+    """
+    A short code representing the platform/track (like a number or letter).
+    example: 5
+    """
     platform_code: String
+    """
+    The street on which the stop is located.
+    """
     on_street: String
+    """
+    ame of a stop or station in the local and tourist vernacular.
+    """
     name: String
+    """
+    The municipality in which the stop is located.
+    """
     municipality: String
+    """
+    Latitude of the stop or station. Degrees North, in the WGS-84 coordinate system.
+    """
     latitude: Float
+    """
+    Longitude of the stop or station. Degrees East, in the WGS-84 coordinate system.
+    """
     longitude: Float
     """
       Type of the location:
@@ -53,8 +76,18 @@ export default gql`
     • 4: Boarding Area. A specific location on a platform, where passengers can board and/or alight vehicles.
     """
     location_type: Int
+    """
+    Description of the stop.
+    example: Alewife - Red Line
+    """
     description: String
+    """
+    The cross street at which the stop is located.
+    """
     at_street: String
+    """
+    A street address for the station.
+    """
     address: String
     """
     For stops location within stations, the parent_station's stop_id represents the whole facility and the child stop represents a specific boarding area, entrance, or generic node.

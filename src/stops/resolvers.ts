@@ -44,12 +44,12 @@ const resolvers: IResolvers<any, IContext> = {
   },
   Stop: {
     child_stops: async (
-      parent: Stop,
+      { child_stops = [] }: Stop,
       args: ChildStopsResolverArgs,
       { dataSources },
       info
     ): Promise<Stop[]> => {
-      if (!parent.child_stops) return [];
+      if (!child_stops.length) return [];
       const fields = getFieldsFromInfo(info);
       const stopIdFilter = args.filter?.stopIdFilter;
       const locationTypeFilter = args.filter?.locationTypeFilter;
@@ -58,9 +58,7 @@ const resolvers: IResolvers<any, IContext> = {
           ? [...fields, "location_type"]
           : fields;
 
-      const childStopIds = parent.child_stops
-        ?.map(({ id }) => id)
-        .filter(isNotNull);
+      const childStopIds = child_stops?.map(({ id }) => id).filter(isNotNull);
 
       const filteredChildStopIds = stopIdFilter
         ? childStopIds.filter(childStopId => stopIdFilter.includes(childStopId))
@@ -122,7 +120,7 @@ export function mbtaStopToStop(mbtaStop: MbtaStop): Stop {
     : null;
   const childStops = isResourceIdentifierObjectArray(childStopsRelationshipData)
     ? childStopsRelationshipData.map(({ id: stopId }) => ({ id: stopId }))
-    : null;
+    : [];
   const parentStationRelationshipData = isRelationshipsWithData(
     parentStationRelationship
   )
