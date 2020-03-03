@@ -4,19 +4,19 @@ import DataLoader, { BatchLoadFn } from "dataloader";
 import {
   isNotUndefined,
   isCollectionResourceDoc,
-  isDocWithData
+  isDocWithData,
+  BatchFieldConfig,
+  BatchListFieldConfig
 } from "../types";
 import {
   MbtaVehicle,
   isMbtaVehicle,
   VehiclesResolverArgs,
-  VehicleResolverArgs,
-  BatchStopConfig
+  VehicleResolverArgs
 } from "../vehicles/types";
 import {
   StopsResolverArgs,
   StopResolverArgs,
-  ChildStopsBatchConfig,
   MbtaStop,
   isMbtaStop
 } from "../stops/types";
@@ -27,6 +27,10 @@ import {
   RouteResolverArgs
 } from "../routes/types";
 import { MbtaRESTError } from "../utils/utils";
+
+const vehicleRelationships: string[] = ["stop"];
+const stopRelationships: string[] = ["child_stops", "parent_station", "route"];
+const routeRelationships: string[] = [];
 
 export default class MbtaAPI extends RESTDataSource {
   constructor() {
@@ -70,7 +74,7 @@ export default class MbtaAPI extends RESTDataSource {
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "vehicle",
       fields,
-      ["stop"]
+      vehicleRelationships
     );
     const vehicleIdFilter = args.filter?.vehicleIdFilter;
     const labelFilter = args.filter?.labelFilter;
@@ -98,7 +102,7 @@ export default class MbtaAPI extends RESTDataSource {
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "vehicle",
       fields,
-      ["stop"]
+      vehicleRelationships
     );
 
     const result = await this.getParsedJSON(
@@ -119,7 +123,7 @@ export default class MbtaAPI extends RESTDataSource {
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "stop",
       fields,
-      ["child_stops", "parent_station"]
+      stopRelationships
     );
     const stopIdFilter = args.filter?.stopIdFilter;
     const locationTypeFilter = args.filter?.locationTypeFilter;
@@ -148,7 +152,7 @@ export default class MbtaAPI extends RESTDataSource {
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "stop",
       fields,
-      ["child_stops", "parent_station"]
+      stopRelationships
     );
 
     const result = await this.getParsedJSON(
@@ -162,8 +166,8 @@ export default class MbtaAPI extends RESTDataSource {
     }
   }
 
-  private batchStopsLoadFn: BatchLoadFn<
-    BatchStopConfig,
+  private batchStopLoadFn: BatchLoadFn<
+    BatchFieldConfig,
     MbtaStop
   > = async configs => {
     const batchIdsString = `&filter[id]=${configs
@@ -173,7 +177,7 @@ export default class MbtaAPI extends RESTDataSource {
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "stop",
       fields,
-      ["child_stops", "parent_station"]
+      stopRelationships
     );
 
     const result = await this.getParsedJSON(
@@ -190,14 +194,14 @@ export default class MbtaAPI extends RESTDataSource {
     }
   };
 
-  private batchStopsDataLoader = new DataLoader(this.batchStopsLoadFn);
+  private batchStopDataLoader = new DataLoader(this.batchStopLoadFn);
 
-  async getBatchStop(config: BatchStopConfig) {
-    return this.batchStopsDataLoader.load(config);
+  async getBatchStop(config: BatchFieldConfig) {
+    return this.batchStopDataLoader.load(config);
   }
 
   private childStopsBatchLoadFn: BatchLoadFn<
-    ChildStopsBatchConfig,
+    BatchListFieldConfig,
     MbtaStop[]
   > = async configs => {
     const uniqueChildIds = [...new Set(configs.flatMap(config => config.ids))];
@@ -206,7 +210,7 @@ export default class MbtaAPI extends RESTDataSource {
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "stop",
       fields,
-      ["child_stops", "parent_station"]
+      stopRelationships
     );
 
     const result = await this.getParsedJSON(
@@ -227,7 +231,7 @@ export default class MbtaAPI extends RESTDataSource {
 
   private childStopsDataLoader = new DataLoader(this.childStopsBatchLoadFn);
 
-  async getChildStops(config: ChildStopsBatchConfig) {
+  async getChildStops(config: BatchListFieldConfig) {
     return this.childStopsDataLoader.load(config);
   }
 
@@ -238,7 +242,7 @@ export default class MbtaAPI extends RESTDataSource {
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "route",
       fields,
-      []
+      routeRelationships
     );
     const routeIdFilter = args.filter?.routeIdFilter;
     const typeFilter = args.filter?.typeFilter;
@@ -266,7 +270,7 @@ export default class MbtaAPI extends RESTDataSource {
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "route",
       fields,
-      []
+      routeRelationships
     );
 
     const result = await this.getParsedJSON(
@@ -278,6 +282,40 @@ export default class MbtaAPI extends RESTDataSource {
     } else {
       throw new MbtaRESTError();
     }
+  }
+
+  private batchRouteLoadFn: BatchLoadFn<
+    BatchFieldConfig,
+    MbtaRoute
+  > = async configs => {
+    const batchIdsString = `&filter[id]=${configs
+      .map(({ id }) => id)
+      .join(",")}`;
+    const fields = configs.flatMap(config => config.fields);
+    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
+      "route",
+      fields,
+      routeRelationships
+    );
+
+    const result = await this.getParsedJSON(
+      `routes?${fieldsAndIncludeParams}${batchIdsString}`
+    );
+
+    if (isCollectionResourceDoc(result, isMbtaRoute)) {
+      const mbtaRoutes = result.data;
+      return configs
+        .map(config => mbtaRoutes.find(mbtaRoute => mbtaRoute.id === config.id))
+        .filter(isNotUndefined);
+    } else {
+      throw new MbtaRESTError();
+    }
+  };
+
+  private batchRouteDataLoader = new DataLoader(this.batchRouteLoadFn);
+
+  async getBatchRoute(config: BatchFieldConfig) {
+    return this.batchRouteDataLoader.load(config);
   }
 
   private async getParsedJSON(path: string): Promise<any> {

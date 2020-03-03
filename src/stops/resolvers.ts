@@ -1,8 +1,8 @@
 import { IResolvers, FilterToSchema } from "graphql-tools";
 
-import { IContext } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
 import {
+  IContext,
   isNotNull,
   isRelationshipsWithData,
   isResourceIdentifierObject,

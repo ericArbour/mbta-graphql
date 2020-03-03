@@ -32,7 +32,7 @@ const resolvers: IResolvers<any, IContext> = {
   }
 };
 
-function mbtaRouteToRoute(mbtaRoute: MbtaRoute): Route {
+export function mbtaRouteToRoute(mbtaRoute: MbtaRoute): Route {
   const { id = null, attributes } = mbtaRoute;
 
   return {

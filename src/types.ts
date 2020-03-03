@@ -67,3 +67,7 @@ export function isResourceIdentifierObjectArray(
     relationshipArray.every(isResourceIdentifierObject)
   );
 }
+
+export type BatchFieldConfig = { id: string; fields: string[] };
+
+export type BatchListFieldConfig = { ids: string[]; fields: string[] };

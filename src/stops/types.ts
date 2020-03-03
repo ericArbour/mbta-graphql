@@ -60,8 +60,6 @@ type ChildStopsFilter = {
   locationTypeFilter?: number[];
 };
 
-export type ChildStopsBatchConfig = { ids: string[]; fields: string[] };
-
 export type StopsResolverArgs = {
   filter?: StopsFilter;
 };

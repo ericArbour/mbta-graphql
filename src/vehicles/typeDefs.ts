@@ -71,6 +71,10 @@ export default gql`
     The current stop
     """
     stop: Stop
+    """
+    The route to which the vehicle belongs.
+    """
+    route: Route
   }
 
   input VehiclesFilter {

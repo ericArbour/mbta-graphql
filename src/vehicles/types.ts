@@ -2,6 +2,7 @@ import * as JSONAPI from "jsonapi-typescript";
 
 import { isResourceObject } from "../types";
 import { Stop } from "../stops/types";
+import { Route } from "../routes/types";
 
 enum VehicleCurrentStopStatus {
   INCOMING_AT = "INCOMING_AT",
@@ -39,9 +40,8 @@ export type Vehicle = {
   current_status?: VehicleCurrentStopStatus | null;
   bearing?: number | null;
   stop?: Stop | null;
+  route?: Route | null;
 };
-
-export type BatchStopConfig = { id: string; fields: string[] };
 
 export type VehiclesFilter = {
   vehicleIdFilter?: string[];

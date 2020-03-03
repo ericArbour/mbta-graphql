@@ -2,9 +2,11 @@ import { IResolvers } from "graphql-tools";
 
 import { IContext } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
+import { isRelationshipsWithData, isResourceIdentifierObject } from "../types";
 import { mbtaStopToStop } from "../stops/resolvers";
 import { Stop } from "../stops/types";
-import { isRelationshipsWithData, isResourceIdentifierObject } from "../types";
+import { Route } from "../routes/types";
+import { mbtaRouteToRoute } from "../routes/resolvers";
 
 import {
   MbtaVehicle,
@@ -55,6 +57,23 @@ const resolvers: IResolvers<any, IContext> = {
       });
 
       return mbtaStopToStop(stop);
+    },
+    route: async (
+      parent: Vehicle,
+      args,
+      { dataSources },
+      info
+    ): Promise<Route | null> => {
+      const routeId = parent.route?.id;
+      if (!routeId) return null;
+
+      const fields = getFieldsFromInfo(info);
+      const route = await dataSources.mbtaAPI.getBatchRoute({
+        id: routeId,
+        fields
+      });
+
+      return mbtaRouteToRoute(route);
     }
   }
 };
@@ -62,20 +81,29 @@ const resolvers: IResolvers<any, IContext> = {
 function mbtaVehicleToVehicle(mbtaVehicle: MbtaVehicle): Vehicle {
   const { id = null, attributes, relationships } = mbtaVehicle;
   const stopRelationship = relationships?.stop;
+  const routeRelationship = relationships?.route;
 
   const stopRelationshipData = isRelationshipsWithData(stopRelationship)
     ? stopRelationship?.data
     : null;
-  const stopId = isResourceIdentifierObject(stopRelationshipData)
-    ? stopRelationshipData?.id
+  const stop = isResourceIdentifierObject(stopRelationshipData)
+    ? {
+        id: stopRelationshipData.id
+      }
+    : null;
+
+  const routeRelationshipData = isRelationshipsWithData(routeRelationship)
+    ? routeRelationship.data
+    : null;
+  const route = isResourceIdentifierObject(routeRelationshipData)
+    ? { id: routeRelationshipData.id }
     : null;
 
   return {
     id,
     ...attributes,
-    stop: {
-      id: stopId
-    }
+    stop,
+    route
   };
 }
 
