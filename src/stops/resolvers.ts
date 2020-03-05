@@ -64,7 +64,7 @@ const resolvers: IResolvers<any, IContext> = {
         ? childStopIds.filter(childStopId => stopIdFilter.includes(childStopId))
         : childStopIds;
 
-      const childMbtaStops = await dataSources.mbtaAPI.getChildStops({
+      const childMbtaStops = await dataSources.mbtaAPI.getBatchChildStops({
         ids: filteredChildStopIds,
         fields: fieldsWithFilterInfo
       });

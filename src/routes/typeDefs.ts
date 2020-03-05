@@ -63,6 +63,10 @@ export default gql`
     example: FFFFFF
     """
     color: String
+    """
+    The list of vehicles assigned to the route.
+    """
+    vehicles: [Vehicle!]!
   }
 
   input RoutesFilter {

@@ -78,7 +78,7 @@ const resolvers: IResolvers<any, IContext> = {
   }
 };
 
-function mbtaVehicleToVehicle(mbtaVehicle: MbtaVehicle): Vehicle {
+export function mbtaVehicleToVehicle(mbtaVehicle: MbtaVehicle): Vehicle {
   const { id = null, attributes, relationships } = mbtaVehicle;
   const stopRelationship = relationships?.stop;
   const routeRelationship = relationships?.route;

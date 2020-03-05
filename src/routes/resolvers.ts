@@ -2,6 +2,8 @@ import { IResolvers } from "graphql-tools";
 
 import { IContext } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
+import { Vehicle } from "../vehicles/types";
+import { mbtaVehicleToVehicle } from "../vehicles/resolvers";
 
 import {
   MbtaRoute,
@@ -28,6 +30,23 @@ const resolvers: IResolvers<any, IContext> = {
       const mbtaRoute = await dataSources.mbtaAPI.getRoute(fields, args);
 
       return mbtaRouteToRoute(mbtaRoute);
+    }
+  },
+  Route: {
+    vehicles: async (
+      { id }: Route,
+      args,
+      { dataSources },
+      info
+    ): Promise<Vehicle[]> => {
+      if (!id) return [];
+      const fields = getFieldsFromInfo(info);
+      const mbtaVehicles = await dataSources.mbtaAPI.getBatchRouteVehicles({
+        id,
+        fields
+      });
+
+      return mbtaVehicles.map(mbtaVehicleToVehicle);
     }
   }
 };
