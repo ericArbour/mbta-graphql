@@ -1,5 +1,6 @@
 import { RESTDataSource, RequestOptions } from "apollo-datasource-rest";
 import DataLoader, { BatchLoadFn } from "dataloader";
+import chunk from "lodash.chunk";
 
 import {
   isNotUndefined,
@@ -270,24 +271,26 @@ export default class MbtaAPI extends RESTDataSource {
     BatchListFieldConfig,
     MbtaStop[]
   > = async configs => {
-    const uniqueChildIds = [
-      ...new Set(configs.flatMap(config => config.ids))
-    ].slice(0, 400);
-    console.log(uniqueChildIds.length);
-    const uniqueChildIdsString = `&filter[id]=${uniqueChildIds.join(",")}`;
+    const uniqueChildIds = [...new Set(configs.flatMap(config => config.ids))];
+    // requests are chunked in batches of 400 to prevent URL size limitations
+    const childIdsChunks = chunk(uniqueChildIds, 400);
     const fields = configs.flatMap(config => config.fields);
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "stop",
       fields,
       stopRelationships
     );
+    const requests = childIdsChunks.map(childIds => {
+      const childIdsString = `&filter[id]=${childIds.join(",")}`;
+      return this.getParsedJSON(
+        `stops?${fieldsAndIncludeParams}${childIdsString}`
+      );
+    });
 
-    const result = await this.getParsedJSON(
-      `stops?${fieldsAndIncludeParams}${uniqueChildIdsString}`
-    );
+    const results = await Promise.all(requests);
 
-    if (isCollectionResourceDoc(result, isMbtaStop)) {
-      const mbtaStops = result.data;
+    if (isArrayOfCollectionResourceDocs(results, isMbtaStop)) {
+      const mbtaStops = results.flatMap(result => result.data);
       return configs.map(config =>
         config.ids
           .map(id => mbtaStops.find(mbtaStop => mbtaStop.id === id))
