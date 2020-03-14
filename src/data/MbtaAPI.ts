@@ -180,7 +180,7 @@ export default class MbtaAPI extends RESTDataSource {
     this.batchRouteVehiclesLoadFn
   );
 
-  async getBatchRouteVehicles(config: BatchFieldConfig) {
+  getBatchRouteVehicles(config: BatchFieldConfig) {
     return this.batchRouteVehiclesDataLoader.load(config);
   }
 
@@ -238,9 +238,6 @@ export default class MbtaAPI extends RESTDataSource {
     BatchFieldConfig,
     MbtaStop
   > = async configs => {
-    const batchIdsString = `&filter[id]=${configs
-      .map(({ id }) => id)
-      .join(",")}`;
     const fields = configs.flatMap(config => config.fields);
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "stop",
@@ -248,12 +245,21 @@ export default class MbtaAPI extends RESTDataSource {
       stopRelationships
     );
 
-    const result = await this.getParsedJSON(
-      `stops?${fieldsAndIncludeParams}${batchIdsString}`
-    );
+    const stopIds = configs.map(({ id }) => id);
+    // requests are chunked in batches of 400 to prevent URL size limitations
+    const stopIdsChunks = chunk(stopIds, 400);
 
-    if (isCollectionResourceDoc(result, isMbtaStop)) {
-      const mbtaStops = result.data;
+    const requests = stopIdsChunks.map(chunkOfstopIds => {
+      const batchIdsString = `&filter[id]=${chunkOfstopIds.join(",")}`;
+      return this.getParsedJSON(
+        `stops?${fieldsAndIncludeParams}${batchIdsString}`
+      );
+    });
+
+    const results = await Promise.all(requests);
+
+    if (isArrayOfCollectionResourceDocs(results, isMbtaStop)) {
+      const mbtaStops = results.flatMap(result => result.data);
       return configs
         .map(config => mbtaStops.find(mbtaStop => mbtaStop.id === config.id))
         .filter(isNotUndefined);
@@ -264,7 +270,7 @@ export default class MbtaAPI extends RESTDataSource {
 
   private batchStopDataLoader = new DataLoader(this.batchStopLoadFn);
 
-  async getBatchStop(config: BatchFieldConfig) {
+  getBatchStop(config: BatchFieldConfig) {
     return this.batchStopDataLoader.load(config);
   }
 
@@ -272,15 +278,17 @@ export default class MbtaAPI extends RESTDataSource {
     BatchListFieldConfig,
     MbtaStop[]
   > = async configs => {
-    const uniqueChildIds = [...new Set(configs.flatMap(config => config.ids))];
-    // requests are chunked in batches of 400 to prevent URL size limitations
-    const childIdsChunks = chunk(uniqueChildIds, 400);
     const fields = configs.flatMap(config => config.fields);
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "stop",
       fields,
       stopRelationships
     );
+
+    const uniqueChildIds = [...new Set(configs.flatMap(config => config.ids))];
+    // requests are chunked in batches of 400 to prevent URL size limitations
+    const childIdsChunks = chunk(uniqueChildIds, 400);
+
     const requests = childIdsChunks.map(childIds => {
       const childIdsString = `&filter[id]=${childIds.join(",")}`;
       return this.getParsedJSON(
@@ -306,7 +314,7 @@ export default class MbtaAPI extends RESTDataSource {
     this.batchChildStopsLoadFn
   );
 
-  async getBatchChildStops(config: BatchListFieldConfig) {
+  getBatchChildStops(config: BatchListFieldConfig) {
     return this.batchChildStopsDataLoader.load(config);
   }
 
@@ -358,7 +366,7 @@ export default class MbtaAPI extends RESTDataSource {
     this.batchRouteStopsLoadFn
   );
 
-  async getBatchRouteStops(config: BatchFieldConfig) {
+  getBatchRouteStops(config: BatchFieldConfig) {
     return this.batchRouteStopsDataLoader.load(config);
   }
 
@@ -441,7 +449,7 @@ export default class MbtaAPI extends RESTDataSource {
 
   private batchRouteDataLoader = new DataLoader(this.batchRouteLoadFn);
 
-  async getBatchRoute(config: BatchFieldConfig) {
+  getBatchRoute(config: BatchFieldConfig) {
     return this.batchRouteDataLoader.load(config);
   }
 
@@ -517,7 +525,7 @@ export default class MbtaAPI extends RESTDataSource {
     this.batchStopRoutesLoadFn
   );
 
-  async getBatchStopRoutes(config: BatchFieldConfig) {
+  getBatchStopRoutes(config: BatchFieldConfig) {
     return this.batchStopRoutesDataLoader.load(config);
   }
 
