@@ -67,6 +67,10 @@ export default gql`
     The list of vehicles assigned to the route.
     """
     vehicles: [Vehicle!]!
+    """
+    The list of stops on the route.
+    """
+    stops: [Stop!]!
   }
 
   input RoutesFilter {

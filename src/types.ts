@@ -42,6 +42,15 @@ export function isCollectionResourceDoc<A extends { [k: string]: JSON.Value }>(
   return typeof a === "object" && Array.isArray(a.data) && a.data.every(isA);
 }
 
+export function isArrayOfCollectionResourceDocs<
+  A extends { [k: string]: JSON.Value }
+>(
+  as: any[],
+  isA: (a: any) => a is JSONAPI.ResourceObject<string, A>
+): as is JSONAPI.CollectionResourceDoc<string, A>[] {
+  return as.every(a => isCollectionResourceDoc(a, isA));
+}
+
 export function isRelationshipsWithData(
   relationship: JSONAPI.RelationshipObject | undefined
 ): relationship is JSONAPI.RelationshipsWithData {

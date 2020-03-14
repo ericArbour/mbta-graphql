@@ -4,6 +4,8 @@ import { IContext } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
 import { Vehicle } from "../vehicles/types";
 import { mbtaVehicleToVehicle } from "../vehicles/resolvers";
+import { Stop } from "../stops/types";
+import { mbtaStopToStop } from "../stops/resolvers";
 
 import {
   MbtaRoute,
@@ -47,6 +49,21 @@ const resolvers: IResolvers<any, IContext> = {
       });
 
       return mbtaVehicles.map(mbtaVehicleToVehicle);
+    },
+    stops: async (
+      { id }: Route,
+      args,
+      { dataSources },
+      info
+    ): Promise<Stop[]> => {
+      if (!id) return [];
+      const fields = getFieldsFromInfo(info);
+      const mbtaStops = await dataSources.mbtaAPI.getBatchRouteStops({
+        id,
+        fields
+      });
+
+      return mbtaStops.map(mbtaStopToStop);
     }
   }
 };

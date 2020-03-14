@@ -2,6 +2,7 @@ import * as JSONAPI from "jsonapi-typescript";
 
 import { isResourceObject } from "../types";
 import { Vehicle } from "../vehicles/types";
+import { Stop } from "../stops/types";
 
 type MbtaRouteAttributes = {
   type: number | null;
@@ -34,7 +35,8 @@ export type Route = {
   direction_destinations?: (string | null)[] | null;
   description?: string | null;
   color?: string | null;
-  vehicles?: Vehicle[] | null;
+  vehicles?: Vehicle[];
+  stops?: Stop[];
 };
 
 export type RoutesFilter = {
