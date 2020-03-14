@@ -8,6 +8,8 @@ import {
   isResourceIdentifierObject,
   isResourceIdentifierObjectArray
 } from "../types";
+import { Route } from "../routes/types";
+import { mbtaRouteToRoute } from "../routes/resolvers";
 
 import {
   MbtaStop,
@@ -104,6 +106,23 @@ const resolvers: IResolvers<any, IContext> = {
       });
 
       return mbtaStopToStop(stop);
+    },
+    routes: async (
+      parent: Stop,
+      args,
+      { dataSources },
+      info
+    ): Promise<Route[]> => {
+      const stopId = parent.id;
+      if (!stopId) return [];
+
+      const fields = getFieldsFromInfo(info);
+      const routes = await dataSources.mbtaAPI.getBatchStopRoutes({
+        id: stopId,
+        fields
+      });
+
+      return routes.map(mbtaRouteToRoute);
     }
   }
 };

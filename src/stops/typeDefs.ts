@@ -95,9 +95,13 @@ export default gql`
     """
     parent_station: Stop
     """
-    See parent_station
+    See parent_station.
     """
     child_stops(filter: ChildStopsFilter): [Stop!]!
+    """
+    The routes the stop belongs to.
+    """
+    routes: [Route!]!
   }
 
   input LocationFilterInput {
