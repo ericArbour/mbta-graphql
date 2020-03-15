@@ -1,41 +1,28 @@
 import { RESTDataSource, RequestOptions } from "apollo-datasource-rest";
-import DataLoader, { BatchLoadFn } from "dataloader";
-import chunk from "lodash.chunk";
+import DataLoader from "dataloader";
 
+import { BatchFieldConfig, BatchListFieldConfig } from "../types";
+import { MbtaVehicle } from "../vehicles/types";
 import {
-  isNotNull,
-  isNotUndefined,
-  isCollectionResourceDoc,
-  isArrayOfCollectionResourceDocs,
-  isDocWithData,
-  isRelationshipsWithData,
-  isResourceIdentifierObject,
-  BatchFieldConfig,
-  BatchListFieldConfig
-} from "../types";
+  getVehicles,
+  getVehicle,
+  batchRouteVehiclesLoadFn
+} from "../vehicles/data";
+import { MbtaStop } from "../stops/types";
 import {
-  MbtaVehicle,
-  isMbtaVehicle,
-  VehiclesResolverArgs,
-  VehicleResolverArgs
-} from "../vehicles/types";
+  getStops,
+  getStop,
+  batchStopLoadFn,
+  batchChildStopsLoadFn,
+  batchRouteStopsLoadFn
+} from "../stops/data";
+import { MbtaRoute } from "../routes/types";
 import {
-  StopsResolverArgs,
-  StopResolverArgs,
-  MbtaStop,
-  isMbtaStop
-} from "../stops/types";
-import {
-  MbtaRoute,
-  isMbtaRoute,
-  RoutesResolverArgs,
-  RouteResolverArgs
-} from "../routes/types";
-import { MbtaRESTError } from "../utils/utils";
-
-const vehicleRelationships: string[] = ["stop"];
-const stopRelationships: string[] = ["child_stops", "parent_station", "route"];
-const routeRelationships: string[] = [];
+  getRoutes,
+  getRoute,
+  batchRouteLoadFn,
+  batchStopRoutesLoadFn
+} from "../routes/data";
 
 export default class MbtaAPI extends RESTDataSource {
   constructor() {
@@ -43,11 +30,11 @@ export default class MbtaAPI extends RESTDataSource {
     this.baseURL = "https://api-v3.mbta.com/";
   }
 
-  willSendRequest(request: RequestOptions) {
+  protected willSendRequest(request: RequestOptions) {
     request.headers.set("X-API-Key", process.env.MBTA_API_KEY || "");
   }
 
-  private getFieldsAndIncludeParams(
+  protected getFieldsAndIncludeParams(
     pathType: string,
     fields: string[],
     relationships: string[]
@@ -72,464 +59,68 @@ export default class MbtaAPI extends RESTDataSource {
     return `${fieldsString}${includeRelationshipsString}${includeRelationshipsFieldsString}`;
   }
 
-  async getVehicles(
-    fields: string[],
-    args: VehiclesResolverArgs
-  ): Promise<MbtaVehicle[]> {
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "vehicle",
-      fields,
-      vehicleRelationships
-    );
-    const vehicleIdFilter = args.filter?.vehicleIdFilter;
-    const labelFilter = args.filter?.labelFilter;
-    const vehicleIdFilterString = vehicleIdFilter?.length
-      ? `&filter[id]=${vehicleIdFilter.join(",")}`
-      : "";
-    const labelFilterString = labelFilter?.length
-      ? `&filter[label]=${labelFilter.join(",")}`
-      : "";
-    const queryString = `${fieldsAndIncludeParams}${vehicleIdFilterString}${labelFilterString}`;
+  getVehicles = getVehicles;
+  getVehicle = getVehicle;
 
-    const result = await this.getParsedJSON(`vehicles?${queryString}`);
-
-    if (isCollectionResourceDoc(result, isMbtaVehicle)) {
-      return result.data;
-    } else {
-      throw new MbtaRESTError();
-    }
-  }
-
-  async getVehicle(
-    fields: string[],
-    args: VehicleResolverArgs
-  ): Promise<MbtaVehicle> {
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "vehicle",
-      fields,
-      vehicleRelationships
-    );
-
-    const result = await this.getParsedJSON(
-      `vehicles/${args.id}?${fieldsAndIncludeParams}`
-    );
-
-    if (isDocWithData(result, isMbtaVehicle)) {
-      return result.data;
-    } else {
-      throw new MbtaRESTError();
-    }
-  }
-
-  private batchRouteVehiclesLoadFn: BatchLoadFn<
+  private batchRouteVehiclesDataLoader = new DataLoader<
     BatchFieldConfig,
     MbtaVehicle[]
-  > = async configs => {
-    if (configs.length === 1) {
-      const [config] = configs;
-      const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-        "vehicle",
-        config.fields,
-        vehicleRelationships
-      );
-      const routeFilterString = `&filter[route]=${config.id}`;
-      const result = await this.getParsedJSON(
-        `vehicles?${fieldsAndIncludeParams}${routeFilterString}`
-      );
-
-      if (isCollectionResourceDoc(result, isMbtaVehicle)) {
-        return [result.data];
-      } else {
-        throw new MbtaRESTError();
-      }
-    } else {
-      const fields = configs.flatMap(config => config.fields);
-      const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-        "vehicle",
-        [...fields, "route"],
-        vehicleRelationships
-      );
-      const result = await this.getParsedJSON(
-        `vehicles?${fieldsAndIncludeParams}`
-      );
-
-      if (isCollectionResourceDoc(result, isMbtaVehicle)) {
-        const mbtaVehicles = result.data;
-        return configs.map(config =>
-          mbtaVehicles.filter(mbtaVehicle => {
-            const routeRelationship = mbtaVehicle.relationships?.route;
-            const routeRelationshipData = isRelationshipsWithData(
-              routeRelationship
-            )
-              ? routeRelationship.data
-              : null;
-            const routeId = isResourceIdentifierObject(routeRelationshipData)
-              ? routeRelationshipData.id
-              : null;
-
-            return routeId === config.id;
-          })
-        );
-      } else {
-        throw new MbtaRESTError();
-      }
-    }
-  };
-
-  private batchRouteVehiclesDataLoader = new DataLoader(
-    this.batchRouteVehiclesLoadFn
-  );
+  >(batchRouteVehiclesLoadFn.bind(this));
 
   getBatchRouteVehicles(config: BatchFieldConfig) {
     return this.batchRouteVehiclesDataLoader.load(config);
   }
 
-  async getStops(
-    fields: string[],
-    args: StopsResolverArgs
-  ): Promise<MbtaStop[]> {
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "stop",
-      fields,
-      stopRelationships
-    );
-    const stopIdFilter = args.filter?.stopIdFilter;
-    const locationTypeFilter = args.filter?.locationTypeFilter;
-    const locationFilter = args.filter?.locationFilter;
-    const stopIdFilterString = stopIdFilter?.length
-      ? `&filter[id]=${stopIdFilter.join(",")}`
-      : "";
-    const locationTypeFilterString = locationTypeFilter?.length
-      ? `&filter[location_type]=${locationTypeFilter.join(",")}`
-      : "";
-    const locationFilterString = locationFilter
-      ? `&filter[latitude]=${locationFilter.latitude}&filter[longitude]=${locationFilter.longitude}&filter[radius]=${locationFilter.radius}`
-      : "";
-    const queryString = `${fieldsAndIncludeParams}${stopIdFilterString}${locationTypeFilterString}${locationFilterString}`;
+  getStops = getStops;
+  getStop = getStop;
 
-    const result = await this.getParsedJSON(`stops?${queryString}`);
+  private batchStopDataLoader = new DataLoader<BatchFieldConfig, MbtaStop>(
+    batchStopLoadFn.bind(this)
+  );
 
-    if (isCollectionResourceDoc(result, isMbtaStop)) {
-      return result.data;
-    } else {
-      throw new MbtaRESTError();
-    }
-  }
-
-  async getStop(fields: string[], args: StopResolverArgs): Promise<MbtaStop> {
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "stop",
-      fields,
-      stopRelationships
-    );
-
-    const result = await this.getParsedJSON(
-      `stops/${args.id}?${fieldsAndIncludeParams}`
-    );
-
-    if (isDocWithData(result, isMbtaStop)) {
-      return result.data;
-    } else {
-      throw new MbtaRESTError();
-    }
-  }
-
-  private batchStopLoadFn: BatchLoadFn<
-    BatchFieldConfig,
-    MbtaStop
-  > = async configs => {
-    const fields = configs.flatMap(config => config.fields);
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "stop",
-      fields,
-      stopRelationships
-    );
-
-    const stopIds = configs.map(({ id }) => id);
-    // requests are chunked in batches of 400 to prevent URL size limitations
-    const stopIdsChunks = chunk(stopIds, 400);
-
-    const requests = stopIdsChunks.map(chunkOfstopIds => {
-      const batchIdsString = `&filter[id]=${chunkOfstopIds.join(",")}`;
-      return this.getParsedJSON(
-        `stops?${fieldsAndIncludeParams}${batchIdsString}`
-      );
-    });
-
-    const results = await Promise.all(requests);
-
-    if (isArrayOfCollectionResourceDocs(results, isMbtaStop)) {
-      const mbtaStops = results.flatMap(result => result.data);
-      return configs
-        .map(config => mbtaStops.find(mbtaStop => mbtaStop.id === config.id))
-        .filter(isNotUndefined);
-    } else {
-      throw new MbtaRESTError();
-    }
-  };
-
-  private batchStopDataLoader = new DataLoader(this.batchStopLoadFn);
-
-  getBatchStop(config: BatchFieldConfig) {
+  getBatchStop(config: BatchFieldConfig): Promise<MbtaStop> {
     return this.batchStopDataLoader.load(config);
   }
 
-  private batchChildStopsLoadFn: BatchLoadFn<
+  private batchChildStopsDataLoader = new DataLoader<
     BatchListFieldConfig,
     MbtaStop[]
-  > = async configs => {
-    const fields = configs.flatMap(config => config.fields);
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "stop",
-      fields,
-      stopRelationships
-    );
-
-    const uniqueChildIds = [...new Set(configs.flatMap(config => config.ids))];
-    // requests are chunked in batches of 400 to prevent URL size limitations
-    const childIdsChunks = chunk(uniqueChildIds, 400);
-
-    const requests = childIdsChunks.map(childIds => {
-      const childIdsString = `&filter[id]=${childIds.join(",")}`;
-      return this.getParsedJSON(
-        `stops?${fieldsAndIncludeParams}${childIdsString}`
-      );
-    });
-
-    const results = await Promise.all(requests);
-
-    if (isArrayOfCollectionResourceDocs(results, isMbtaStop)) {
-      const mbtaStops = results.flatMap(result => result.data);
-      return configs.map(config =>
-        config.ids
-          .map(id => mbtaStops.find(mbtaStop => mbtaStop.id === id))
-          .filter(isNotUndefined)
-      );
-    } else {
-      throw new MbtaRESTError();
-    }
-  };
-
-  private batchChildStopsDataLoader = new DataLoader(
-    this.batchChildStopsLoadFn
-  );
+  >(batchChildStopsLoadFn.bind(this));
 
   getBatchChildStops(config: BatchListFieldConfig) {
     return this.batchChildStopsDataLoader.load(config);
   }
 
-  private batchRouteStopsLoadFn: BatchLoadFn<
+  private batchRouteStopsDataLoader = new DataLoader<
     BatchFieldConfig,
     MbtaStop[]
-  > = async configs => {
-    if (configs.length === 1) {
-      const [config] = configs;
-      const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-        "stop",
-        config.fields,
-        stopRelationships
-      );
-      const routeFilterString = `&filter[route]=${config.id}`;
-      const result = await this.getParsedJSON(
-        `stops?${fieldsAndIncludeParams}${routeFilterString}`
-      );
-
-      if (isCollectionResourceDoc(result, isMbtaStop)) {
-        return [result.data];
-      } else {
-        throw new MbtaRESTError();
-      }
-    } else {
-      const fields = configs.flatMap(config => config.fields);
-      const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-        "stop",
-        fields,
-        stopRelationships
-      );
-      const requests = configs.map(config => {
-        const routeFilterString = `&filter[route]=${config.id}`;
-        return this.getParsedJSON(
-          `stops?${fieldsAndIncludeParams}${routeFilterString}`
-        );
-      });
-      const results = await Promise.all(requests);
-
-      if (isArrayOfCollectionResourceDocs(results, isMbtaStop)) {
-        return results.map(result => result.data);
-      } else {
-        throw new MbtaRESTError();
-      }
-    }
-  };
-
-  private batchRouteStopsDataLoader = new DataLoader(
-    this.batchRouteStopsLoadFn
-  );
+  >(batchRouteStopsLoadFn.bind(this));
 
   getBatchRouteStops(config: BatchFieldConfig) {
     return this.batchRouteStopsDataLoader.load(config);
   }
 
-  async getRoutes(
-    fields: string[],
-    args: RoutesResolverArgs
-  ): Promise<MbtaRoute[]> {
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "route",
-      fields,
-      routeRelationships
-    );
-    const routeIdFilter = args.filter?.routeIdFilter;
-    const typeFilter = args.filter?.typeFilter;
-    const routeIdFilterString = routeIdFilter?.length
-      ? `&filter[id]=${routeIdFilter.join(",")}`
-      : "";
-    const typeFilterString = typeFilter?.length
-      ? `&filter[type]=${typeFilter.join(",")}`
-      : "";
-    const queryString = `${fieldsAndIncludeParams}${routeIdFilterString}${typeFilterString}`;
+  getRoutes = getRoutes;
+  getRoute = getRoute;
 
-    const result = await this.getParsedJSON(`routes?${queryString}`);
-
-    if (isCollectionResourceDoc(result, isMbtaRoute)) {
-      return result.data;
-    } else {
-      throw new MbtaRESTError();
-    }
-  }
-
-  async getRoute(
-    fields: string[],
-    args: RouteResolverArgs
-  ): Promise<MbtaRoute> {
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "route",
-      fields,
-      routeRelationships
-    );
-
-    const result = await this.getParsedJSON(
-      `routes/${args.id}?${fieldsAndIncludeParams}`
-    );
-
-    if (isDocWithData(result, isMbtaRoute)) {
-      return result.data;
-    } else {
-      throw new MbtaRESTError();
-    }
-  }
-
-  private batchRouteLoadFn: BatchLoadFn<
-    BatchFieldConfig,
-    MbtaRoute
-  > = async configs => {
-    const batchIdsString = `&filter[id]=${configs
-      .map(({ id }) => id)
-      .join(",")}`;
-    const fields = configs.flatMap(config => config.fields);
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "route",
-      fields,
-      routeRelationships
-    );
-
-    const result = await this.getParsedJSON(
-      `routes?${fieldsAndIncludeParams}${batchIdsString}`
-    );
-
-    if (isCollectionResourceDoc(result, isMbtaRoute)) {
-      const mbtaRoutes = result.data;
-      return configs
-        .map(config => mbtaRoutes.find(mbtaRoute => mbtaRoute.id === config.id))
-        .filter(isNotUndefined);
-    } else {
-      throw new MbtaRESTError();
-    }
-  };
-
-  private batchRouteDataLoader = new DataLoader(this.batchRouteLoadFn);
+  private batchRouteDataLoader = new DataLoader<BatchFieldConfig, MbtaRoute>(
+    batchRouteLoadFn.bind(this)
+  );
 
   getBatchRoute(config: BatchFieldConfig) {
     return this.batchRouteDataLoader.load(config);
   }
 
-  private batchStopRoutesLoadFn: BatchLoadFn<
+  private batchStopRoutesDataLoader = new DataLoader<
     BatchFieldConfig,
     MbtaRoute[]
-  > = async configs => {
-    const fields = configs.flatMap(config => config.fields);
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "route",
-      fields,
-      routeRelationships
-    );
-    if (configs.length === 1) {
-      const [config] = configs;
-      const stopFilterString = `&filter[stop]=${config.id}`;
-      const result = await this.getParsedJSON(
-        `routes?${fieldsAndIncludeParams}${stopFilterString}`
-      );
-
-      if (isCollectionResourceDoc(result, isMbtaRoute)) {
-        return [result.data];
-      } else {
-        throw new MbtaRESTError();
-      }
-    } else {
-      const routesResult = await this.getParsedJSON(
-        `/routes?${fieldsAndIncludeParams}`
-      );
-      if (!isCollectionResourceDoc(routesResult, isMbtaRoute))
-        throw new MbtaRESTError();
-
-      const mbtaRoutes = routesResult.data;
-      const stopRequests = mbtaRoutes.map(mbtaRoute => {
-        return this.getParsedJSON(
-          `stops?fields=&include=route&filter[route]=${mbtaRoute.id}`
-        );
-      });
-
-      const stopResults = await Promise.all(stopRequests);
-      if (!isArrayOfCollectionResourceDocs(stopResults, isMbtaStop))
-        throw new MbtaRESTError();
-
-      const mbtaStops = stopResults.flatMap(result => result.data);
-
-      return configs.map(config => {
-        const configStops = mbtaStops.filter(
-          mbtaStop => mbtaStop.id === config.id
-        );
-
-        const stopRouteIds = configStops
-          .map(configStop => {
-            const routeRelationship = configStop.relationships?.route;
-            if (
-              !isRelationshipsWithData(routeRelationship) ||
-              !isResourceIdentifierObject(routeRelationship.data)
-            )
-              return null;
-
-            return routeRelationship.data.id;
-          })
-          .filter(isNotNull);
-
-        return mbtaRoutes.filter(
-          mbtaRoute =>
-            mbtaRoute.id !== undefined && stopRouteIds.includes(mbtaRoute.id)
-        );
-      });
-    }
-  };
-
-  private batchStopRoutesDataLoader = new DataLoader(
-    this.batchStopRoutesLoadFn
-  );
+  >(batchStopRoutesLoadFn.bind(this));
 
   getBatchStopRoutes(config: BatchFieldConfig) {
     return this.batchStopRoutesDataLoader.load(config);
   }
 
-  private async getParsedJSON(path: string): Promise<any> {
+  getParsedJSON(path: string): Promise<any> {
     return this.parseAsyncJSON(this.get(path));
   }
 
