@@ -2,7 +2,7 @@ import { IResolvers } from "graphql-tools";
 
 import { IContext } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
-import { Vehicle } from "../vehicles/types";
+import { Vehicle, VehiclesResolverArgs } from "../vehicles/types";
 import { mbtaVehicleToVehicle } from "../vehicles/resolvers";
 import { Stop } from "../stops/types";
 import { mbtaStopToStop } from "../stops/resolvers";
@@ -37,18 +37,38 @@ const resolvers: IResolvers<any, IContext> = {
   Route: {
     vehicles: async (
       { id }: Route,
-      args,
+      args: VehiclesResolverArgs,
       { dataSources },
       info
     ): Promise<Vehicle[]> => {
       if (!id) return [];
+
       const fields = getFieldsFromInfo(info);
+      const vehicleIdFilter = args.filter?.vehicleIdFilter;
+      const labelFilter = args.filter?.labelFilter;
+      const fieldsWithFilterInfo =
+        labelFilter && !fields.includes("label")
+          ? [...fields, "label"]
+          : fields;
+
       const mbtaVehicles = await dataSources.mbtaAPI.getBatchRouteVehicles({
         id,
-        fields
+        fields: fieldsWithFilterInfo
       });
 
-      return mbtaVehicles.map(mbtaVehicleToVehicle);
+      const vehicles = mbtaVehicles.map(mbtaVehicleToVehicle);
+
+      const vehicleIdFilteredVehicles = vehicleIdFilter
+        ? vehicles.filter(
+            vehicle => vehicle.id && vehicleIdFilter.includes(vehicle.id)
+          )
+        : vehicles;
+      const labelFilteredVehicles = labelFilter
+        ? vehicleIdFilteredVehicles.filter(
+            vehicle => vehicle.label && labelFilter.includes(vehicle.label)
+          )
+        : vehicleIdFilteredVehicles;
+      return labelFilteredVehicles;
     },
     stops: async (
       { id }: Route,

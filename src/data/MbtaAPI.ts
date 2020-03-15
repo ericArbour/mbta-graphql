@@ -37,9 +37,12 @@ export default class MbtaAPI extends RESTDataSource {
   protected getFieldsAndIncludeParams(
     pathType: string,
     fields: string[],
-    relationships: string[]
+    relationships: string[],
+    ignoreFields: string[] | undefined = []
   ): string {
-    const uniqueFields = [...new Set(fields)];
+    const uniqueFields = [...new Set(fields)].filter(
+      field => !ignoreFields?.includes(field)
+    );
     const relationshipsFields = uniqueFields.filter(field =>
       relationships.includes(field)
     );

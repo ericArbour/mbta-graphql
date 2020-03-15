@@ -19,6 +19,7 @@ import {
 } from "../routes/types";
 
 const routeRelationships: string[] = [];
+const ignoreFields = ["vehicles", "stops"];
 
 export async function getRoutes(
   this: MbtaAPI,
@@ -28,7 +29,8 @@ export async function getRoutes(
   const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
     "route",
     fields,
-    routeRelationships
+    routeRelationships,
+    ignoreFields
   );
   const routeIdFilter = args.filter?.routeIdFilter;
   const typeFilter = args.filter?.typeFilter;
