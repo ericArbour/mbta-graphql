@@ -97,7 +97,7 @@ export default gql`
     """
     See parent_station.
     """
-    child_stops(filter: ChildStopsFilter): [Stop!]!
+    child_stops(filter: NestedStopsFilter): [Stop!]!
     """
     The routes the stop belongs to.
     """
@@ -119,7 +119,7 @@ export default gql`
     locationFilter: LocationFilterInput
   }
 
-  input ChildStopsFilter {
+  input NestedStopsFilter {
     stopIdFilter: [String!]
     locationTypeFilter: [Int!]
   }

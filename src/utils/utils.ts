@@ -5,12 +5,14 @@ import {
 } from "graphql";
 import { ApolloError } from "apollo-server";
 
+import { isNotNullish } from "../types";
+
 export function getFieldsFromInfo(info: GraphQLResolveInfo): string[] {
   const selections = info.fieldNodes[0].selectionSet?.selections || [];
 
   // id field is always returned from MBTA api and never needs to be specified in fields
   return recursiveFieldsGetter(selections, info.fragments).filter(
-    field => field && field !== "id"
+    field => isNotNullish(field) && field !== "id"
   );
 }
 

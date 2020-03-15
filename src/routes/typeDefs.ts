@@ -70,7 +70,7 @@ export default gql`
     """
     The list of stops on the route.
     """
-    stops: [Stop!]!
+    stops(filter: NestedStopsFilter): [Stop!]!
   }
 
   input RoutesFilter {

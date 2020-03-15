@@ -1,10 +1,10 @@
 import { IResolvers } from "graphql-tools";
 
-import { IContext } from "../types";
+import { IContext, isNotNullish } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
 import { Vehicle, VehiclesResolverArgs } from "../vehicles/types";
 import { mbtaVehicleToVehicle } from "../vehicles/resolvers";
-import { Stop } from "../stops/types";
+import { Stop, NestedStopsResolverArgs } from "../stops/types";
 import { mbtaStopToStop } from "../stops/resolvers";
 
 import {
@@ -60,30 +60,57 @@ const resolvers: IResolvers<any, IContext> = {
 
       const vehicleIdFilteredVehicles = vehicleIdFilter
         ? vehicles.filter(
-            vehicle => vehicle.id && vehicleIdFilter.includes(vehicle.id)
+            vehicle =>
+              isNotNullish(vehicle.id) && vehicleIdFilter.includes(vehicle.id)
           )
         : vehicles;
+
       const labelFilteredVehicles = labelFilter
         ? vehicleIdFilteredVehicles.filter(
-            vehicle => vehicle.label && labelFilter.includes(vehicle.label)
+            vehicle =>
+              isNotNullish(vehicle.label) && labelFilter.includes(vehicle.label)
           )
         : vehicleIdFilteredVehicles;
+
       return labelFilteredVehicles;
     },
     stops: async (
       { id }: Route,
-      args,
+      args: NestedStopsResolverArgs,
       { dataSources },
       info
     ): Promise<Stop[]> => {
       if (!id) return [];
       const fields = getFieldsFromInfo(info);
+      const stopIdFilter = args.filter?.stopIdFilter;
+      const locationTypeFilter = args.filter?.locationTypeFilter;
+      const fieldsWithFilterInfo =
+        locationTypeFilter && !fields.includes("location_type")
+          ? [...fields, "location_type"]
+          : fields;
+
       const mbtaStops = await dataSources.mbtaAPI.getBatchRouteStops({
         id,
-        fields
+        fields: fieldsWithFilterInfo
       });
 
-      return mbtaStops.map(mbtaStopToStop);
+      const stops = mbtaStops.map(mbtaStopToStop);
+
+      const stopIdFilteredStops = stopIdFilter
+        ? stops.filter(
+            stop => isNotNullish(stop.id) && stopIdFilter.includes(stop.id)
+          )
+        : stops;
+
+      const locationTypeFilteredStops = locationTypeFilter
+        ? stopIdFilteredStops.filter(
+            stop =>
+              isNotNullish(stop.location_type) &&
+              locationTypeFilter.includes(stop.location_type)
+          )
+        : stopIdFilteredStops;
+
+      return locationTypeFilteredStops;
     }
   }
 };

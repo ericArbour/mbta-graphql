@@ -161,7 +161,7 @@ export async function batchStopRoutesLoadFn(
 
       return mbtaRoutes.filter(
         mbtaRoute =>
-          mbtaRoute.id !== undefined && stopRouteIds.includes(mbtaRoute.id)
+          isNotUndefined(mbtaRoute.id) && stopRouteIds.includes(mbtaRoute.id)
       );
     });
   }

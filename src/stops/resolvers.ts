@@ -4,6 +4,7 @@ import { getFieldsFromInfo } from "../utils/utils";
 import {
   IContext,
   isNotNull,
+  isNotNullish,
   isRelationshipsWithData,
   isResourceIdentifierObject,
   isResourceIdentifierObjectArray
@@ -16,7 +17,7 @@ import {
   Stop,
   StopsResolverArgs,
   StopResolverArgs,
-  ChildStopsResolverArgs
+  NestedStopsResolverArgs
 } from "./types";
 
 const resolvers: IResolvers<any, IContext> = {
@@ -47,7 +48,7 @@ const resolvers: IResolvers<any, IContext> = {
   Stop: {
     child_stops: async (
       { child_stops = [] }: Stop,
-      args: ChildStopsResolverArgs,
+      args: NestedStopsResolverArgs,
       { dataSources },
       info
     ): Promise<Stop[]> => {
@@ -60,7 +61,7 @@ const resolvers: IResolvers<any, IContext> = {
           ? [...fields, "location_type"]
           : fields;
 
-      const childStopIds = child_stops?.map(({ id }) => id).filter(isNotNull);
+      const childStopIds = child_stops.map(({ id }) => id).filter(isNotNull);
 
       const filteredChildStopIds = stopIdFilter
         ? childStopIds.filter(childStopId => stopIdFilter.includes(childStopId))
@@ -71,24 +72,24 @@ const resolvers: IResolvers<any, IContext> = {
         fields: fieldsWithFilterInfo
       });
 
-      const locationTypeFilteredChildMbtaStops = locationTypeFilter
-        ? childMbtaStops.filter(childMbtaStop => {
-            const locationType = childMbtaStop.attributes?.location_type;
-            if (locationType === null || locationType === undefined)
-              return false;
-            return locationTypeFilter.includes(locationType);
-          })
-        : childMbtaStops;
+      const childStops = childMbtaStops.map(mbtaStopToStop);
 
-      const stopIdFilteredChildMbtaStops = stopIdFilter
-        ? locationTypeFilteredChildMbtaStops.filter(childMbtaStop => {
-            const id = childMbtaStop.id;
-            if (id === undefined) return false;
-            return stopIdFilter.includes(id);
-          })
-        : locationTypeFilteredChildMbtaStops;
+      const stopIdFilteredChildStops = stopIdFilter
+        ? childStops.filter(
+            childStop =>
+              isNotNullish(childStop.id) && stopIdFilter.includes(childStop.id)
+          )
+        : childStops;
 
-      return stopIdFilteredChildMbtaStops.map(mbtaStopToStop);
+      const locationTypeFilteredChildStops = locationTypeFilter
+        ? stopIdFilteredChildStops.filter(
+            childStop =>
+              isNotNullish(childStop.location_type) &&
+              locationTypeFilter.includes(childStop.location_type)
+          )
+        : stopIdFilteredChildStops;
+
+      return locationTypeFilteredChildStops;
     },
     parent_station: async (
       parent: Stop,

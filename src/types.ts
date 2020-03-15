@@ -19,6 +19,10 @@ export function isNotNull<T>(x: T | null): x is T {
   return x !== null;
 }
 
+export function isNotNullish<T>(x: T | undefined | null): x is T {
+  return isNotNull(x) && isNotUndefined(x);
+}
+
 export function isResourceObject(a: any): a is JSONAPI.ResourceObject {
   return (
     typeof a === "object" &&

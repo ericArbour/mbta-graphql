@@ -55,7 +55,7 @@ type StopsFilter = {
   locationFilter?: LocationFilterInput;
 };
 
-type ChildStopsFilter = {
+type NestedStopsFilter = {
   stopIdFilter?: string[];
   locationTypeFilter?: number[];
 };
@@ -64,8 +64,8 @@ export type StopsResolverArgs = {
   filter?: StopsFilter;
 };
 
-export type ChildStopsResolverArgs = {
-  filter?: ChildStopsFilter;
+export type NestedStopsResolverArgs = {
+  filter?: NestedStopsFilter;
 };
 
 export type StopResolverArgs = {
