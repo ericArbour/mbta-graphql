@@ -101,7 +101,7 @@ export default gql`
     """
     The routes the stop belongs to.
     """
-    routes: [Route!]!
+    routes(filter: RoutesFilter): [Route!]!
   }
 
   input LocationFilterInput {

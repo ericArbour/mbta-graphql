@@ -9,7 +9,7 @@ import {
   isResourceIdentifierObject,
   isResourceIdentifierObjectArray
 } from "../types";
-import { Route } from "../routes/types";
+import { Route, RoutesResolverArgs } from "../routes/types";
 import { mbtaRouteToRoute } from "../routes/resolvers";
 
 import {
@@ -53,6 +53,7 @@ const resolvers: IResolvers<any, IContext> = {
       info
     ): Promise<Stop[]> => {
       if (!child_stops.length) return [];
+
       const fields = getFieldsFromInfo(info);
       const stopIdFilter = args.filter?.stopIdFilter;
       const locationTypeFilter = args.filter?.locationTypeFilter;
@@ -110,7 +111,7 @@ const resolvers: IResolvers<any, IContext> = {
     },
     routes: async (
       parent: Stop,
-      args,
+      args: RoutesResolverArgs,
       { dataSources },
       info
     ): Promise<Route[]> => {
@@ -118,12 +119,31 @@ const resolvers: IResolvers<any, IContext> = {
       if (!stopId) return [];
 
       const fields = getFieldsFromInfo(info);
-      const routes = await dataSources.mbtaAPI.getBatchStopRoutes({
+      const routeIdFilter = args.filter?.routeIdFilter;
+      const typeFilter = args.filter?.typeFilter;
+      const fieldsWithFilterInfo =
+        typeFilter && !fields.includes("type") ? [...fields, "type"] : fields;
+
+      const mbtaRoutes = await dataSources.mbtaAPI.getBatchStopRoutes({
         id: stopId,
-        fields
+        fields: fieldsWithFilterInfo
       });
 
-      return routes.map(mbtaRouteToRoute);
+      const routes = mbtaRoutes.map(mbtaRouteToRoute);
+
+      const routeIdFilteredRoutes = routeIdFilter
+        ? routes.filter(
+            route => isNotNullish(route.id) && routeIdFilter.includes(route.id)
+          )
+        : routes;
+
+      const typeFilteredRoutes = typeFilter
+        ? routeIdFilteredRoutes.filter(
+            route => isNotNullish(route.type) && typeFilter.includes(route.type)
+          )
+        : routeIdFilteredRoutes;
+
+      return typeFilteredRoutes;
     }
   }
 };
