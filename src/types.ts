@@ -11,16 +11,30 @@ export interface IContext {
   dataSources: IDataSources;
 }
 
+export function isUndefined<T>(x: T | undefined): x is undefined {
+  return x === undefined;
+}
+
 export function isNotUndefined<T>(x: T | undefined): x is T {
-  return x !== undefined;
+  return !isUndefined(x);
+}
+
+export function isNull<T>(x: T | null): x is null {
+  return x === null;
 }
 
 export function isNotNull<T>(x: T | null): x is T {
-  return x !== null;
+  return !isNull(x);
 }
 
-export function isNotNullish<T>(x: T | undefined | null): x is T {
-  return isNotNull(x) && isNotUndefined(x);
+export type Nullish = null | undefined;
+
+export function isNullish<T>(x: T | Nullish): x is Nullish {
+  return isNull(x) || isUndefined(x);
+}
+
+export function isNotNullish<T>(x: T | Nullish): x is T {
+  return !isNullish(x);
 }
 
 export function isResourceObject(a: any): a is JSONAPI.ResourceObject {

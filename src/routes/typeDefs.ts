@@ -8,19 +8,35 @@ import { gql } from "apollo-server";
 */
 
 export default gql`
+  enum RouteType {
+    """
+    Any light rail or street level system within a metropolitan area. Route type int in mbta api v3: 0.
+    """
+    LIGHT_RAIL
+    """
+    Any underground rail system within a metropolitan area. Route type int in mbta api v3: 1.
+    """
+    SUBWAY
+    """
+    Used for intercity or long-distance travel. Route type int in mbta api v3: 2.
+    """
+    RAIL
+    """
+    Used for short- and long-distance bus routes. Route type int in mbta api v3: 3.
+    """
+    BUS
+    """
+    Used for short- and long-distance boat service. Route type int in mbta api v3: 4.
+    """
+    FERRY
+  }
+
   """
   Vehicle represents the current status of a vehicle.
   """
   type Route {
     id: ID!
-    """
-    0: Light Rail - Any light rail or street level system within a metropolitan area.
-    1: Subway _ Any underground rail system within a metropolitan area.
-    2: Rail - Used for intercity or long-distance travel.
-    3: Bus - Used for short- and long-distance bus routes.
-    4: Ferry - Used for short- and long-distance boat service.
-    """
-    type: Int
+    type: RouteType
     """
     A legible color to use for text drawn against a background of the route’s color attribute.
     example: 000000

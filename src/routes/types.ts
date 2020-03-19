@@ -23,6 +23,14 @@ export function isMbtaRoute(a: any): a is MbtaRoute {
   return isResourceObject(a) && a.type === "route";
 }
 
+export enum RouteType {
+  LIGHT_RAIL = "LIGHT_RAIL",
+  SUBWAY = "SUBWAY",
+  RAIL = "RAIL",
+  BUS = "BUS",
+  FERRY = "FERRY"
+}
+
 export type Route = {
   id: string | null;
   type?: number | null;

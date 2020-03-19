@@ -1,6 +1,6 @@
 import { IResolvers } from "graphql-tools";
 
-import { IContext, isNotNullish } from "../types";
+import { IContext, Nullish, isNullish, isNotNullish } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
 import { Vehicle, VehiclesResolverArgs } from "../vehicles/types";
 import { mbtaVehicleToVehicle } from "../vehicles/resolvers";
@@ -10,6 +10,7 @@ import { mbtaStopToStop } from "../stops/resolvers";
 import {
   MbtaRoute,
   Route,
+  RouteType,
   RoutesResolverArgs,
   RouteResolverArgs
 } from "./types";
@@ -35,6 +36,24 @@ const resolvers: IResolvers<any, IContext> = {
     }
   },
   Route: {
+    type: (parent: Route, args, context, info): RouteType | Nullish => {
+      if (isNullish(parent.type)) return parent.type;
+
+      switch (parent.type) {
+        case 0:
+          return RouteType.LIGHT_RAIL;
+        case 1:
+          return RouteType.SUBWAY;
+        case 2:
+          return RouteType.RAIL;
+        case 3:
+          return RouteType.BUS;
+        case 4:
+          return RouteType.FERRY;
+        default:
+          return;
+      }
+    },
     vehicles: async (
       { id }: Route,
       args: VehiclesResolverArgs,
