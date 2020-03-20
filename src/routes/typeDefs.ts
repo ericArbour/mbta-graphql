@@ -41,34 +41,34 @@ export default gql`
     A legible color to use for text drawn against a background of the route’s color attribute.
     example: 000000
     """
-    text_color: String
+    textColor: String
     """
     Routes sort in ascending order
     """
-    sort_order: Int
+    sortOrder: Int
     """
     This will often be a short, abstract identifier like "32", "100X", or “Green” that riders use to identify a route, but which doesn’t give any indication of what places the route serves.
     example: Red
     """
-    short_name: String
+    shortName: String
     """
     The full name of a route. This name is generally more descriptive than the short_name and will often include the route’s destination or stop.
     example: Red Line
     """
-    long_name: String
+    longName: String
     """
     Specifies the fare type of the route, which can differ from the service category.
     example: Free
     """
-    fare_class: String
+    fareClass: String
     """
     The names of direction ids for this route in ascending ordering starting at 0 for the first index.
     """
-    direction_names: [String]
+    directionNames: [String]
     """
     The destinations for direction ids for this route in ascending ordering starting at 0 for the first index.
     """
-    direction_destinations: [String]
+    directionDestinations: [String]
     """
     Details about stops, schedule, and/or service.
     example: Rapid Transit

@@ -1,5 +1,5 @@
 import MbtaAPI from "../data/MbtaAPI";
-import { MbtaRESTError } from "../utils/utils";
+import { MbtaRESTError, objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
   isNotNull,
   isNotUndefined,
@@ -179,10 +179,11 @@ export async function batchStopRoutesLoadFn(
 function mbtaRouteResourceToMbtaRoute(
   mbtaRouteResource: MbtaRouteResource
 ): MbtaRoute {
-  const { id = null, attributes } = mbtaRouteResource;
+  const { id = null, attributes = {} } = mbtaRouteResource;
+  const camelCaseAttributes = objSnakeKeysToCamelKeys(attributes);
 
   return {
     id,
-    ...attributes
+    ...camelCaseAttributes
   };
 }

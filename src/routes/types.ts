@@ -37,13 +37,13 @@ export enum RouteType {
 export type MbtaRoute = {
   id: string | null;
   type?: number | null;
-  text_color?: string | null;
-  sort_order?: number | null;
-  short_name?: string | null;
-  long_name?: string | null;
-  fare_class?: string | null;
-  direction_names?: (string | null)[] | null;
-  direction_destinations?: (string | null)[] | null;
+  textColor?: string | null;
+  sortOrder?: number | null;
+  shortName?: string | null;
+  longName?: string | null;
+  fareClass?: string | null;
+  directionNames?: (string | null)[] | null;
+  directionDestinations?: (string | null)[] | null;
   description?: string | null;
   color?: string | null;
   vehicles?: Vehicle[];

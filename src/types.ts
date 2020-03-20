@@ -1,5 +1,6 @@
 import * as JSONAPI from "jsonapi-typescript";
 import * as JSON from "json-typescript";
+import { FragmentDefinitionNode } from "graphql";
 
 import MbtaAPI from "./data/MbtaAPI";
 
@@ -98,3 +99,13 @@ export function isResourceIdentifierObjectArray(
 export type BatchFieldConfig = { id: string; fields: string[] };
 
 export type BatchListFieldConfig = { ids: string[]; fields: string[] };
+
+export type FragmentMap = {
+  [key: string]: FragmentDefinitionNode;
+};
+
+export function isFragmentMap(
+  maybeFragmentMap: FragmentMap | undefined
+): maybeFragmentMap is FragmentMap {
+  return maybeFragmentMap !== undefined;
+}

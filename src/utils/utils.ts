@@ -1,29 +1,34 @@
-import {
-  GraphQLResolveInfo,
-  SelectionNode,
-  FragmentDefinitionNode
-} from "graphql";
+import { GraphQLResolveInfo, SelectionNode } from "graphql";
 import { ApolloError } from "apollo-server";
 
-import { isNotNullish } from "../types";
+import { isNotNullish, FragmentMap, isFragmentMap } from "../types";
+
+function snakeToCamel(str: string) {
+  return str.replace(/(_\w)/g, (match: string) => match[1].toUpperCase());
+}
+
+function camelToSnake(str: string) {
+  return str
+    .replace(/[\w]([A-Z])/g, (match: string) => match[0] + "_" + match[1])
+    .toLowerCase();
+}
+
+export function objSnakeKeysToCamelKeys(obj: object) {
+  return Object.entries(obj).reduce((newObj: { [key: string]: any }, entry) => {
+    const [key, value] = entry;
+    const camelKey = snakeToCamel(key);
+    newObj[camelKey] = value;
+    return newObj;
+  }, {});
+}
 
 export function getFieldsFromInfo(info: GraphQLResolveInfo): string[] {
   const selections = info.fieldNodes[0].selectionSet?.selections || [];
 
   // id field is always returned from MBTA api and never needs to be specified in fields
-  return recursiveFieldsGetter(selections, info.fragments).filter(
-    field => isNotNullish(field) && field !== "id"
-  );
-}
-
-type FragmentMap = {
-  [key: string]: FragmentDefinitionNode;
-};
-
-function isFragmentMap(
-  maybeFragmentMap: FragmentMap | undefined
-): maybeFragmentMap is FragmentMap {
-  return maybeFragmentMap !== undefined;
+  return recursiveFieldsGetter(selections, info.fragments)
+    .filter(field => isNotNullish(field) && field !== "id")
+    .map(field => camelToSnake(field));
 }
 
 function recursiveFieldsGetter(
