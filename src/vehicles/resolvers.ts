@@ -5,8 +5,7 @@ import { getFieldsFromInfo } from "../utils/utils";
 import { isRelationshipsWithData, isResourceIdentifierObject } from "../types";
 import { mbtaStopToStop } from "../stops/resolvers";
 import { Stop } from "../stops/types";
-import { Route } from "../routes/types";
-import { mbtaRouteToRoute } from "../routes/resolvers";
+import { MbtaRoute } from "../routes/types";
 
 import {
   MbtaVehicle,
@@ -63,17 +62,17 @@ const resolvers: IResolvers<any, IContext> = {
       args,
       { dataSources },
       info
-    ): Promise<Route | null> => {
+    ): Promise<MbtaRoute | null> => {
       const routeId = parent.route?.id;
       if (!routeId) return null;
 
       const fields = getFieldsFromInfo(info);
-      const route = await dataSources.mbtaAPI.getBatchRoute({
+      const mbtaRoute = await dataSources.mbtaAPI.getBatchRoute({
         id: routeId,
         fields
       });
 
-      return mbtaRouteToRoute(route);
+      return mbtaRoute;
     }
   }
 };

@@ -12,8 +12,9 @@ import {
 } from "../types";
 import { isMbtaStop } from "../stops/types";
 import {
+  MbtaRouteResource,
   MbtaRoute,
-  isMbtaRoute,
+  isMbtaRouteResource,
   RoutesResolverArgs,
   RouteResolverArgs
 } from "../routes/types";
@@ -44,8 +45,8 @@ export async function getRoutes(
 
   const result = await this.getParsedJSON(`routes?${queryString}`);
 
-  if (isCollectionResourceDoc(result, isMbtaRoute)) {
-    return result.data;
+  if (isCollectionResourceDoc(result, isMbtaRouteResource)) {
+    return result.data.map(mbtaRouteResourceToMbtaRoute);
   } else {
     throw new MbtaRESTError();
   }
@@ -66,8 +67,8 @@ export async function getRoute(
     `routes/${args.id}?${fieldsAndIncludeParams}`
   );
 
-  if (isDocWithData(result, isMbtaRoute)) {
-    return result.data;
+  if (isDocWithData(result, isMbtaRouteResource)) {
+    return mbtaRouteResourceToMbtaRoute(result.data);
   } else {
     throw new MbtaRESTError();
   }
@@ -89,11 +90,16 @@ export async function batchRouteLoadFn(
     `routes?${fieldsAndIncludeParams}${batchIdsString}`
   );
 
-  if (isCollectionResourceDoc(result, isMbtaRoute)) {
-    const mbtaRoutes = result.data;
+  if (isCollectionResourceDoc(result, isMbtaRouteResource)) {
+    const mbtaRouteResources = result.data;
     return configs
-      .map(config => mbtaRoutes.find(mbtaRoute => mbtaRoute.id === config.id))
-      .filter(isNotUndefined);
+      .map(config =>
+        mbtaRouteResources.find(
+          mbtaRouteResource => mbtaRouteResource.id === config.id
+        )
+      )
+      .filter(isNotUndefined)
+      .map(mbtaRouteResourceToMbtaRoute);
   } else {
     throw new MbtaRESTError();
   }
@@ -116,8 +122,8 @@ export async function batchStopRoutesLoadFn(
       `routes?${fieldsAndIncludeParams}${stopFilterString}`
     );
 
-    if (isCollectionResourceDoc(result, isMbtaRoute)) {
-      return [result.data];
+    if (isCollectionResourceDoc(result, isMbtaRouteResource)) {
+      return [result.data.map(mbtaRouteResourceToMbtaRoute)];
     } else {
       throw new MbtaRESTError();
     }
@@ -125,13 +131,13 @@ export async function batchStopRoutesLoadFn(
     const routesResult = await this.getParsedJSON(
       `/routes?${fieldsAndIncludeParams}`
     );
-    if (!isCollectionResourceDoc(routesResult, isMbtaRoute))
+    if (!isCollectionResourceDoc(routesResult, isMbtaRouteResource))
       throw new MbtaRESTError();
 
-    const mbtaRoutes = routesResult.data;
-    const stopRequests = mbtaRoutes.map(mbtaRoute => {
+    const mbtaRouteResources = routesResult.data;
+    const stopRequests = mbtaRouteResources.map(mbtaRouteResource => {
       return this.getParsedJSON(
-        `stops?fields=&include=route&filter[route]=${mbtaRoute.id}`
+        `stops?fields=&include=route&filter[route]=${mbtaRouteResource.id}`
       );
     });
 
@@ -139,11 +145,11 @@ export async function batchStopRoutesLoadFn(
     if (!isArrayOfCollectionResourceDocs(stopResults, isMbtaStop))
       throw new MbtaRESTError();
 
-    const mbtaStops = stopResults.flatMap(result => result.data);
+    const mbtaStopResources = stopResults.flatMap(result => result.data);
 
     return configs.map(config => {
-      const configStops = mbtaStops.filter(
-        mbtaStop => mbtaStop.id === config.id
+      const configStops = mbtaStopResources.filter(
+        mbtaStopResource => mbtaStopResource.id === config.id
       );
 
       const stopRouteIds = configStops
@@ -159,10 +165,24 @@ export async function batchStopRoutesLoadFn(
         })
         .filter(isNotNull);
 
-      return mbtaRoutes.filter(
-        mbtaRoute =>
-          isNotUndefined(mbtaRoute.id) && stopRouteIds.includes(mbtaRoute.id)
-      );
+      return mbtaRouteResources
+        .filter(
+          mbtaRouteResource =>
+            isNotUndefined(mbtaRouteResource.id) &&
+            stopRouteIds.includes(mbtaRouteResource.id)
+        )
+        .map(mbtaRouteResourceToMbtaRoute);
     });
   }
+}
+
+function mbtaRouteResourceToMbtaRoute(
+  mbtaRouteResource: MbtaRouteResource
+): MbtaRoute {
+  const { id = null, attributes } = mbtaRouteResource;
+
+  return {
+    id,
+    ...attributes
+  };
 }

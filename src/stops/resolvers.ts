@@ -9,8 +9,7 @@ import {
   isResourceIdentifierObject,
   isResourceIdentifierObjectArray
 } from "../types";
-import { Route, RoutesResolverArgs } from "../routes/types";
-import { mbtaRouteToRoute } from "../routes/resolvers";
+import { MbtaRoute, RoutesResolverArgs } from "../routes/types";
 
 import {
   MbtaStop,
@@ -114,7 +113,7 @@ const resolvers: IResolvers<any, IContext> = {
       args: RoutesResolverArgs,
       { dataSources },
       info
-    ): Promise<Route[]> => {
+    ): Promise<MbtaRoute[]> => {
       const stopId = parent.id;
       if (!stopId) return [];
 
@@ -129,19 +128,20 @@ const resolvers: IResolvers<any, IContext> = {
         fields: fieldsWithFilterInfo
       });
 
-      const routes = mbtaRoutes.map(mbtaRouteToRoute);
-
-      const routeIdFilteredRoutes = routeIdFilter
-        ? routes.filter(
-            route => isNotNullish(route.id) && routeIdFilter.includes(route.id)
+      const routeIdFilteredMbtaRoutes = routeIdFilter
+        ? mbtaRoutes.filter(
+            mbtaRoute =>
+              isNotNullish(mbtaRoute.id) && routeIdFilter.includes(mbtaRoute.id)
           )
-        : routes;
+        : mbtaRoutes;
 
       const typeFilteredRoutes = typeFilter
-        ? routeIdFilteredRoutes.filter(
-            route => isNotNullish(route.type) && typeFilter.includes(route.type)
+        ? routeIdFilteredMbtaRoutes.filter(
+            mbtaRoute =>
+              isNotNullish(mbtaRoute.type) &&
+              typeFilter.includes(mbtaRoute.type)
           )
-        : routeIdFilteredRoutes;
+        : routeIdFilteredMbtaRoutes;
 
       return typeFilteredRoutes;
     }

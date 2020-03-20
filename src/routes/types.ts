@@ -4,7 +4,7 @@ import { isResourceObject } from "../types";
 import { Vehicle } from "../vehicles/types";
 import { Stop } from "../stops/types";
 
-type MbtaRouteAttributes = {
+type MbtaRouteResourceAttributes = {
   type: number | null;
   text_color: string | null;
   sort_order: number | null;
@@ -17,9 +17,12 @@ type MbtaRouteAttributes = {
   color: string | null;
 };
 
-export type MbtaRoute = JSONAPI.ResourceObject<string, MbtaRouteAttributes>;
+export type MbtaRouteResource = JSONAPI.ResourceObject<
+  string,
+  MbtaRouteResourceAttributes
+>;
 
-export function isMbtaRoute(a: any): a is MbtaRoute {
+export function isMbtaRouteResource(a: any): a is MbtaRouteResource {
   return isResourceObject(a) && a.type === "route";
 }
 
@@ -31,7 +34,7 @@ export enum RouteType {
   FERRY = "FERRY"
 }
 
-export type Route = {
+export type MbtaRoute = {
   id: string | null;
   type?: number | null;
   text_color?: string | null;

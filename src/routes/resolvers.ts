@@ -9,7 +9,6 @@ import { mbtaStopToStop } from "../stops/resolvers";
 
 import {
   MbtaRoute,
-  Route,
   RouteType,
   RoutesResolverArgs,
   RouteResolverArgs
@@ -22,21 +21,21 @@ const resolvers: IResolvers<any, IContext> = {
       args: RoutesResolverArgs,
       { dataSources },
       info
-    ): Promise<Route[]> => {
+    ): Promise<MbtaRoute[]> => {
       const fields = getFieldsFromInfo(info);
       const mbtaRoutes = await dataSources.mbtaAPI.getRoutes(fields, args);
 
-      return mbtaRoutes.map(mbtaRouteToRoute);
+      return mbtaRoutes;
     },
     route: async (parent, args: RouteResolverArgs, { dataSources }, info) => {
       const fields = getFieldsFromInfo(info);
       const mbtaRoute = await dataSources.mbtaAPI.getRoute(fields, args);
 
-      return mbtaRouteToRoute(mbtaRoute);
+      return mbtaRoute;
     }
   },
   Route: {
-    type: (parent: Route, args, context, info): RouteType | Nullish => {
+    type: (parent: MbtaRoute, args, context, info): RouteType | Nullish => {
       if (isNullish(parent.type)) return parent.type;
 
       switch (parent.type) {
@@ -55,7 +54,7 @@ const resolvers: IResolvers<any, IContext> = {
       }
     },
     vehicles: async (
-      { id }: Route,
+      { id }: MbtaRoute,
       args: VehiclesResolverArgs,
       { dataSources },
       info
@@ -94,7 +93,7 @@ const resolvers: IResolvers<any, IContext> = {
       return labelFilteredVehicles;
     },
     stops: async (
-      { id }: Route,
+      { id }: MbtaRoute,
       args: NestedStopsResolverArgs,
       { dataSources },
       info
@@ -133,14 +132,5 @@ const resolvers: IResolvers<any, IContext> = {
     }
   }
 };
-
-export function mbtaRouteToRoute(mbtaRoute: MbtaRoute): Route {
-  const { id = null, attributes } = mbtaRoute;
-
-  return {
-    id,
-    ...attributes
-  };
-}
 
 export default resolvers;
