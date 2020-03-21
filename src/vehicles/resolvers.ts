@@ -1,7 +1,7 @@
 import { IResolvers } from "graphql-tools";
 
 import { IContext } from "../types";
-import { getFieldsFromInfo } from "../utils/utils";
+import { getFieldsFromInfo, objSnakeKeysToCamelKeys } from "../utils/utils";
 import { isRelationshipsWithData, isResourceIdentifierObject } from "../types";
 import { mbtaStopToStop } from "../stops/resolvers";
 import { Stop } from "../stops/types";
@@ -78,7 +78,7 @@ const resolvers: IResolvers<any, IContext> = {
 };
 
 export function mbtaVehicleToVehicle(mbtaVehicle: MbtaVehicle): Vehicle {
-  const { id = null, attributes, relationships } = mbtaVehicle;
+  const { id = null, attributes = {}, relationships } = mbtaVehicle;
   const stopRelationship = relationships?.stop;
   const routeRelationship = relationships?.route;
 
@@ -98,9 +98,11 @@ export function mbtaVehicleToVehicle(mbtaVehicle: MbtaVehicle): Vehicle {
     ? { id: routeRelationshipData.id }
     : null;
 
+  const camelCaseAttributes = objSnakeKeysToCamelKeys(attributes);
+
   return {
     id,
-    ...attributes,
+    ...camelCaseAttributes,
     stop,
     route
   };

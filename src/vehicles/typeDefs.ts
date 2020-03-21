@@ -35,7 +35,7 @@ export default gql`
     """
     Time at which vehicle information was last updated.
     """
-    updated_at: String
+    updatedAt: String
     """
     Meters per second
     """
@@ -57,12 +57,12 @@ export default gql`
     0 - Travel in one direction (e.g. outbound travel).
     1 - Travel in the opposite direction (e.g. inbound travel).
     """
-    direction_id: Int
+    directionId: Int
     """
     The stop sequence index of the current stop. The meaning of current_stop_sequence (i.e., the stop that it refers to) is determined by current_status. If current_status is missing IN_TRANSIT_TO is assumed.
     """
-    current_stop_sequence: Int
-    current_status: CurrentStopStatus
+    currentStopSequence: Int
+    currentStatus: CurrentStopStatus
     """
     in degrees, clockwise from True North, i.e., 0 is North and 90 is East.
     """

@@ -3,14 +3,14 @@ export const mbtaVehiclesResponse = JSON.stringify({
     {
       attributes: {
         bearing: 1,
-        current_status: "IN_TRANSIT_TO",
-        current_stop_sequence: 1,
-        direction_id: 1,
+        currentStatus: "IN_TRANSIT_TO",
+        currentStopSequence: 1,
+        directionId: 1,
         label: "Cool Train",
         latitude: 20,
         longitude: 20,
         speed: 30,
-        updated_at: "2020-02-28T13:27:44-05:00"
+        updatedAt: "2020-02-28T13:27:44-05:00"
       },
       id: "VEHICLE1",
       relationships: {
@@ -26,14 +26,14 @@ export const mbtaVehiclesResponse = JSON.stringify({
     {
       attributes: {
         bearing: 1,
-        current_status: "IN_TRANSIT_TO",
-        current_stop_sequence: 1,
-        direction_id: 1,
+        currentStatus: "IN_TRANSIT_TO",
+        currentStopSequence: 1,
+        directionId: 1,
         label: "Fast Train",
         latitude: 20,
         longitude: 20,
         speed: 30,
-        updated_at: "2020-02-28T13:27:44-05:00"
+        updatedAt: "2020-02-28T13:27:44-05:00"
       },
       id: "VEHICLE2",
       relationships: {
@@ -49,14 +49,14 @@ export const mbtaVehiclesResponse = JSON.stringify({
     {
       attributes: {
         bearing: 1,
-        current_status: "IN_TRANSIT_TO",
-        current_stop_sequence: 1,
-        direction_id: 1,
+        currentStatus: "IN_TRANSIT_TO",
+        currentStopSequence: 1,
+        directionId: 1,
         label: "Fun Train",
         latitude: 20,
         longitude: 20,
         speed: 30,
-        updated_at: "2020-02-28T13:27:44-05:00"
+        updatedAt: "2020-02-28T13:27:44-05:00"
       },
       id: "VEHICLE3",
       relationships: {
@@ -377,14 +377,14 @@ export const responseData = {
     {
       id: "VEHICLE1",
       bearing: 1,
-      current_status: "IN_TRANSIT_TO",
-      current_stop_sequence: 1,
-      direction_id: 1,
+      currentStatus: "IN_TRANSIT_TO",
+      currentStopSequence: 1,
+      directionId: 1,
       label: "Cool Train",
       latitude: 20,
       longitude: 20,
       speed: 30,
-      updated_at: "2020-02-28T13:27:44-05:00",
+      updatedAt: "2020-02-28T13:27:44-05:00",
       stop: {
         id: "STOP1",
         address: "123 Street",
@@ -456,14 +456,14 @@ export const responseData = {
     {
       id: "VEHICLE2",
       bearing: 1,
-      current_status: "IN_TRANSIT_TO",
-      current_stop_sequence: 1,
-      direction_id: 1,
+      currentStatus: "IN_TRANSIT_TO",
+      currentStopSequence: 1,
+      directionId: 1,
       label: "Fast Train",
       latitude: 20,
       longitude: 20,
       speed: 30,
-      updated_at: "2020-02-28T13:27:44-05:00",
+      updatedAt: "2020-02-28T13:27:44-05:00",
       stop: {
         id: "STOP2",
         address: "123 Street",
@@ -518,14 +518,14 @@ export const responseData = {
     {
       id: "VEHICLE3",
       bearing: 1,
-      current_status: "IN_TRANSIT_TO",
-      current_stop_sequence: 1,
-      direction_id: 1,
+      currentStatus: "IN_TRANSIT_TO",
+      currentStopSequence: 1,
+      directionId: 1,
       label: "Fun Train",
       latitude: 20,
       longitude: 20,
       speed: 30,
-      updated_at: "2020-02-28T13:27:44-05:00",
+      updatedAt: "2020-02-28T13:27:44-05:00",
       stop: {
         id: "STOP3",
         address: "123 Street",

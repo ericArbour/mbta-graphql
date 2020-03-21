@@ -20,8 +20,8 @@ describe("Vehicle query", () => {
       query GetVehicle {
         vehicle(id: "VEHICLE1") {
           id
-          current_status
-          updated_at
+          currentStatus
+          updatedAt
         }
       }
     `;

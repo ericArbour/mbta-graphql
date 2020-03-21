@@ -23,14 +23,14 @@ describe("Full graph query", () => {
       query FullGraph {
         vehicles {
           id
-          updated_at
+          updatedAt
           speed
           longitude
           latitude
           label
-          direction_id
-          current_stop_sequence
-          current_status
+          directionId
+          currentStopSequence
+          currentStatus
           bearing
           stop {
             ...StopFields
