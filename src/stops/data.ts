@@ -4,6 +4,7 @@ import MbtaAPI from "../data/MbtaAPI";
 import { MbtaRESTError } from "../utils/utils";
 import {
   isNotUndefined,
+  Nullish,
   isCollectionResourceDoc,
   isArrayOfCollectionResourceDocs,
   isDocWithData,
@@ -15,7 +16,8 @@ import {
   StopsResolverArgs,
   StopResolverArgs,
   MbtaStop,
-  isMbtaStop
+  isMbtaStop,
+  LocationType
 } from "./types";
 
 const stopRelationships: string[] = ["child_stops", "parent_station", "route"];
@@ -37,7 +39,9 @@ export async function getStops(
     ? `&filter[id]=${stopIdFilter.join(",")}`
     : "";
   const locationTypeFilterString = locationTypeFilter?.length
-    ? `&filter[location_type]=${locationTypeFilter.join(",")}`
+    ? `&filter[location_type]=${locationTypeFilter
+        .map(locationTypeToMbtaLocationType)
+        .join(",")}`
     : "";
   const locationFilterString = locationFilter
     ? `&filter[latitude]=${locationFilter.latitude}&filter[longitude]=${locationFilter.longitude}&filter[radius]=${locationFilter.radius}`
@@ -186,5 +190,39 @@ export async function batchRouteStopsLoadFn(
     } else {
       throw new MbtaRESTError();
     }
+  }
+}
+
+export function mbtaLocationTypeToLocationType(
+  mbtaLocationType: number | Nullish
+) {
+  switch (mbtaLocationType) {
+    case 0:
+      return LocationType.STOP;
+    case 1:
+      return LocationType.STATION;
+    case 2:
+      return LocationType.ENTRANCE_OR_EXIT;
+    case 3:
+      return LocationType.GENERIC_NODE;
+    case 4:
+      return LocationType.BOARDING_AREA;
+    default:
+      return LocationType.STOP;
+  }
+}
+
+export function locationTypeToMbtaLocationType(locationType: LocationType) {
+  switch (locationType) {
+    case LocationType.STOP:
+      return 0;
+    case LocationType.STATION:
+      return 1;
+    case LocationType.ENTRANCE_OR_EXIT:
+      return 2;
+    case LocationType.GENERIC_NODE:
+      return 3;
+    case LocationType.BOARDING_AREA:
+      return 4;
   }
 }

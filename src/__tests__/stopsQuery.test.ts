@@ -16,7 +16,7 @@ describe("Stops query", () => {
     const GET_STOPS = gql`
       query GetStops {
         stops {
-          vehicle_type
+          vehicleType
           description
         }
       }
@@ -46,7 +46,9 @@ describe("Stops query", () => {
   it("allows filtering by location types", async () => {
     const GET_STOPS = gql`
       query GetStops {
-        stops(filter: { locationTypeFilter: [0, 1, 2] }) {
+        stops(
+          filter: { locationTypeFilter: [STOP, STATION, ENTRANCE_OR_EXIT] }
+        ) {
           id
         }
       }
@@ -82,7 +84,7 @@ describe("Stops query", () => {
       query GetStops {
         stops(
           filter: {
-            locationTypeFilter: [1]
+            locationTypeFilter: [STATION]
             locationFilter: { latitude: 70, longitude: 40, radius: 1 }
           }
         ) {

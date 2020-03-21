@@ -7,6 +7,29 @@ import { gql } from "apollo-server";
 */
 
 export default gql`
+  enum LocationType {
+    """
+    A location where passengers board or disembark from a transit vehicle. Is called a platform when defined within a parent_station. Location type in mbta api v3:  0 (or blank).
+    """
+    STOP
+    """
+    A physical structure or area that contains one or more platform. Location type in mbta api v3:  1.
+    """
+    STATION
+    """
+    A location where passengers can enter or exit a station from the street. If an entrance/exit belongs to multiple stations, it can be linked by pathways to both, but the data provider must pick one of them as parent. Location type in mbta api v3:  2.
+    """
+    ENTRANCE_OR_EXIT
+    """
+    A location within a station, not matching any other location_type, which can be used to link together pathways define in pathways.txt. Location type in mbta api v3:  3.
+    """
+    GENERIC_NODE
+    """
+    A specific location on a platform, where passengers can board and/or alight vehicles. Location type in mbta api v3:  4.
+    """
+    BOARDING_AREA
+  }
+
   """
   Stop represents a physical location where the transit system can pick up or drop off passengers.
   """
@@ -27,30 +50,25 @@ export default gql`
     1 - Station entrance is wheelchair accessible.
     2 - No accessible path from station entrance to stops/platforms.
     """
-    wheelchair_boarding: Int
+    wheelchairBoarding: Int
     """
-    The type of transportation used at the stop. vehicle_type will be a valid routes route_type value. Valid options are:
-    0 - Tram, Streetcar, Light rail. Any light rail or street level system within a metropolitan area.
-    1 - Subway, Metro. Any underground rail system within a metropolitan area.
-    2 - Rail. Used for intercity or long-distance travel.
-    3 - Bus. Used for short- and long-distance bus routes.
-    4 - Ferry. Used for short- and long-distance boat service.
+    The type of transportation used at the stop.
     """
-    vehicle_type: Int
+    vehicleType: RouteType
     """
     A textual description of the platform or track.
     example: Red Line
     """
-    platform_name: String
+    platformName: String
     """
     A short code representing the platform/track (like a number or letter).
     example: 5
     """
-    platform_code: String
+    platformCode: String
     """
     The street on which the stop is located.
     """
-    on_street: String
+    onStreet: String
     """
     ame of a stop or station in the local and tourist vernacular.
     """
@@ -68,14 +86,9 @@ export default gql`
     """
     longitude: Float
     """
-      Type of the location:
-    • 0 (or blank): Stop (or Platform). A location where passengers board or disembark from a transit vehicle. Is called a platform when defined within a parent_station.
-    • 1: Station. A physical structure or area that contains one or more platform.
-    • 2: Entrance/Exit. A location where passengers can enter or exit a station from the street. If an entrance/exit belongs to multiple stations, it can be linked by pathways to both, but the data provider must pick one of them as parent.
-    • 3: Generic Node. A location within a station, not matching any other location_type, which can be used to link together pathways define in pathways.txt.
-    • 4: Boarding Area. A specific location on a platform, where passengers can board and/or alight vehicles.
+    Type of the location.
     """
-    location_type: Int
+    locationType: LocationType
     """
     Description of the stop.
     example: Alewife - Red Line
@@ -84,7 +97,7 @@ export default gql`
     """
     The cross street at which the stop is located.
     """
-    at_street: String
+    atStreet: String
     """
     A street address for the station.
     """
@@ -93,11 +106,11 @@ export default gql`
     For stops location within stations, the parent_station's stop_id represents the whole facility and the child stop represents a specific boarding area, entrance, or generic node.
     All subway, Commuter Rail, and CapeFLYER stops have a parent station, as do some bus and Silver Line facilities, such as Dudley.
     """
-    parent_station: Stop
+    parentStation: Stop
     """
     See parent_station.
     """
-    child_stops(filter: NestedStopsFilter): [Stop!]!
+    childStops(filter: NestedStopsFilter): [Stop!]!
     """
     The routes the stop belongs to.
     """
@@ -115,13 +128,13 @@ export default gql`
 
   input StopsFilter {
     stopIdFilter: [String!]
-    locationTypeFilter: [Int!]
+    locationTypeFilter: [LocationType!]
     locationFilter: LocationFilterInput
   }
 
   input NestedStopsFilter {
     stopIdFilter: [String!]
-    locationTypeFilter: [Int!]
+    locationTypeFilter: [LocationType!]
   }
 
   extend type Query {

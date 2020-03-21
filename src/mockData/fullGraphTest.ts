@@ -3,14 +3,14 @@ export const mbtaVehiclesResponse = JSON.stringify({
     {
       attributes: {
         bearing: 1,
-        currentStatus: "IN_TRANSIT_TO",
-        currentStopSequence: 1,
-        directionId: 1,
+        current_status: "IN_TRANSIT_TO",
+        current_stop_sequence: 1,
+        direction_id: 1,
         label: "Cool Train",
         latitude: 20,
         longitude: 20,
         speed: 30,
-        updatedAt: "2020-02-28T13:27:44-05:00"
+        updated_at: "2020-02-28T13:27:44-05:00"
       },
       id: "VEHICLE1",
       relationships: {
@@ -26,14 +26,14 @@ export const mbtaVehiclesResponse = JSON.stringify({
     {
       attributes: {
         bearing: 1,
-        currentStatus: "IN_TRANSIT_TO",
-        currentStopSequence: 1,
-        directionId: 1,
+        current_status: "IN_TRANSIT_TO",
+        current_stop_sequence: 1,
+        direction_id: 1,
         label: "Fast Train",
         latitude: 20,
         longitude: 20,
         speed: 30,
-        updatedAt: "2020-02-28T13:27:44-05:00"
+        updated_at: "2020-02-28T13:27:44-05:00"
       },
       id: "VEHICLE2",
       relationships: {
@@ -49,14 +49,14 @@ export const mbtaVehiclesResponse = JSON.stringify({
     {
       attributes: {
         bearing: 1,
-        currentStatus: "IN_TRANSIT_TO",
-        currentStopSequence: 1,
-        directionId: 1,
+        current_status: "IN_TRANSIT_TO",
+        current_stop_sequence: 1,
+        direction_id: 1,
         label: "Fun Train",
         latitude: 20,
         longitude: 20,
         speed: 30,
-        updatedAt: "2020-02-28T13:27:44-05:00"
+        updated_at: "2020-02-28T13:27:44-05:00"
       },
       id: "VEHICLE3",
       relationships: {
@@ -372,7 +372,7 @@ export const mbtaParentStopsResponse = JSON.stringify({
   ]
 });
 
-export const responseData = {
+export const result = {
   vehicles: [
     {
       id: "VEHICLE1",
@@ -388,67 +388,67 @@ export const responseData = {
       stop: {
         id: "STOP1",
         address: "123 Street",
-        at_street: null,
+        atStreet: null,
         description: null,
         latitude: 42,
-        location_type: 1,
+        locationType: "STATION",
         longitude: -71,
         municipality: "Cambridge",
         name: "First Stop",
-        on_street: null,
-        platform_code: null,
-        platform_name: null,
-        vehicle_type: null,
-        wheelchair_boarding: 1,
-        parent_station: null,
-        child_stops: [
+        onStreet: null,
+        platformCode: null,
+        platformName: null,
+        vehicleType: null,
+        wheelchairBoarding: 1,
+        parentStation: null,
+        childStops: [
           {
             id: "STOP4",
             address: "123 Street",
-            at_street: null,
+            atStreet: null,
             description: null,
             latitude: 42,
-            location_type: 1,
+            locationType: "STATION",
             longitude: -71,
             municipality: "Cambridge",
             name: "Fourth Stop",
-            on_street: null,
-            platform_code: null,
-            platform_name: null,
-            vehicle_type: null,
-            wheelchair_boarding: 1
+            onStreet: null,
+            platformCode: null,
+            platformName: null,
+            vehicleType: null,
+            wheelchairBoarding: 1
           },
           {
             id: "STOP5",
             address: "123 Street",
-            at_street: null,
+            atStreet: null,
             description: null,
             latitude: 42,
-            location_type: 1,
+            locationType: "STATION",
             longitude: -71,
             municipality: "Cambridge",
             name: "Fifth Stop",
-            on_street: null,
-            platform_code: null,
-            platform_name: null,
-            vehicle_type: null,
-            wheelchair_boarding: 1
+            onStreet: null,
+            platformCode: null,
+            platformName: null,
+            vehicleType: null,
+            wheelchairBoarding: 1
           },
           {
             id: "STOP6",
             address: "123 Street",
-            at_street: null,
+            atStreet: null,
             description: null,
             latitude: 42,
-            location_type: 1,
+            locationType: "STATION",
             longitude: -71,
             municipality: "Cambridge",
             name: "Sixth Stop",
-            on_street: null,
-            platform_code: null,
-            platform_name: null,
-            vehicle_type: null,
-            wheelchair_boarding: 1
+            onStreet: null,
+            platformCode: null,
+            platformName: null,
+            vehicleType: null,
+            wheelchairBoarding: 1
           }
         ]
       }
@@ -467,50 +467,50 @@ export const responseData = {
       stop: {
         id: "STOP2",
         address: "123 Street",
-        at_street: null,
+        atStreet: null,
         description: null,
         latitude: 42,
-        location_type: 1,
+        locationType: "STATION",
         longitude: -71,
         municipality: "Cambridge",
         name: "Second Stop",
-        on_street: null,
-        platform_code: null,
-        platform_name: null,
-        vehicle_type: null,
-        wheelchair_boarding: 1,
-        parent_station: {
+        onStreet: null,
+        platformCode: null,
+        platformName: null,
+        vehicleType: null,
+        wheelchairBoarding: 1,
+        parentStation: {
           id: "STOP8",
           address: "123 Street",
-          at_street: null,
+          atStreet: null,
           description: null,
           latitude: 42,
-          location_type: 1,
+          locationType: "STATION",
           longitude: -71,
           municipality: "Cambridge",
           name: "Eighth Stop",
-          on_street: null,
-          platform_code: null,
-          platform_name: null,
-          vehicle_type: null,
-          wheelchair_boarding: 1
+          onStreet: null,
+          platformCode: null,
+          platformName: null,
+          vehicleType: null,
+          wheelchairBoarding: 1
         },
-        child_stops: [
+        childStops: [
           {
             id: "STOP7",
             address: "123 Street",
-            at_street: null,
+            atStreet: null,
             description: null,
             latitude: 42,
-            location_type: 1,
+            locationType: "STATION",
             longitude: -71,
             municipality: "Cambridge",
             name: "Seventh Stop",
-            on_street: null,
-            platform_code: null,
-            platform_name: null,
-            vehicle_type: null,
-            wheelchair_boarding: 1
+            onStreet: null,
+            platformCode: null,
+            platformName: null,
+            vehicleType: null,
+            wheelchairBoarding: 1
           }
         ]
       }
@@ -529,35 +529,35 @@ export const responseData = {
       stop: {
         id: "STOP3",
         address: "123 Street",
-        at_street: null,
+        atStreet: null,
         description: null,
         latitude: 42,
-        location_type: 1,
+        locationType: "STATION",
         longitude: -71,
         municipality: "Cambridge",
         name: "Third Stop",
-        on_street: null,
-        platform_code: null,
-        platform_name: null,
-        vehicle_type: null,
-        wheelchair_boarding: 1,
-        parent_station: {
+        onStreet: null,
+        platformCode: null,
+        platformName: null,
+        vehicleType: null,
+        wheelchairBoarding: 1,
+        parentStation: {
           id: "STOP9",
           address: "123 Street",
-          at_street: null,
+          atStreet: null,
           description: null,
           latitude: 42,
-          location_type: 1,
+          locationType: "STATION",
           longitude: -71,
           municipality: "Cambridge",
           name: "Ninth Stop",
-          on_street: null,
-          platform_code: null,
-          platform_name: null,
-          vehicle_type: null,
-          wheelchair_boarding: 1
+          onStreet: null,
+          platformCode: null,
+          platformName: null,
+          vehicleType: null,
+          wheelchairBoarding: 1
         },
-        child_stops: []
+        childStops: []
       }
     }
   ]

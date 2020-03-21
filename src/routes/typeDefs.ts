@@ -36,6 +36,9 @@ export default gql`
   """
   type Route {
     id: ID!
+    """
+    The type of transportation used on the route.
+    """
     type: RouteType
     """
     A legible color to use for text drawn against a background of the route’s color attribute.
@@ -91,7 +94,7 @@ export default gql`
 
   input RoutesFilter {
     routeIdFilter: [String!]
-    typeFilter: [Int!]
+    typeFilter: [RouteType!]
   }
 
   extend type Query {

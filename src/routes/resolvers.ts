@@ -1,10 +1,11 @@
 import { IResolvers } from "graphql-tools";
 
-import { IContext, Nullish, isNullish, isNotNullish } from "../types";
+import { IContext, isNotNullish } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
 import { MbtaVehicle, VehiclesResolverArgs } from "../vehicles/types";
 import { Stop, NestedStopsResolverArgs } from "../stops/types";
 import { mbtaStopToStop } from "../stops/resolvers";
+import { mbtaLocationTypeToLocationType } from "../stops/data";
 
 import {
   MbtaRoute,
@@ -12,6 +13,7 @@ import {
   RoutesResolverArgs,
   RouteResolverArgs
 } from "./types";
+import { mbtaRouteTypeToRouteType } from "./data";
 
 const resolvers: IResolvers<any, IContext> = {
   Query: {
@@ -34,23 +36,8 @@ const resolvers: IResolvers<any, IContext> = {
     }
   },
   Route: {
-    type: (parent: MbtaRoute, args, context, info): RouteType | Nullish => {
-      if (isNullish(parent.type)) return parent.type;
-
-      switch (parent.type) {
-        case 0:
-          return RouteType.LIGHT_RAIL;
-        case 1:
-          return RouteType.SUBWAY;
-        case 2:
-          return RouteType.RAIL;
-        case 3:
-          return RouteType.BUS;
-        case 4:
-          return RouteType.FERRY;
-        default:
-          return;
-      }
+    type: ({ type }: MbtaRoute, args, context, info): RouteType | null => {
+      return mbtaRouteTypeToRouteType(type);
     },
     vehicles: async (
       { id }: MbtaRoute,
@@ -122,8 +109,10 @@ const resolvers: IResolvers<any, IContext> = {
       const locationTypeFilteredStops = locationTypeFilter
         ? stopIdFilteredStops.filter(
             stop =>
-              isNotNullish(stop.location_type) &&
-              locationTypeFilter.includes(stop.location_type)
+              isNotNullish(stop.locationType) &&
+              locationTypeFilter.includes(
+                mbtaLocationTypeToLocationType(stop.locationType)
+              )
           )
         : stopIdFilteredStops;
 

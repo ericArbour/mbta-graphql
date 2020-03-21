@@ -18,7 +18,7 @@ describe("Queries with fragments", () => {
       query GetStop {
         stop(id: "STOP1") {
           id
-          wheelchair_boarding
+          wheelchairBoarding
           ...StopFields
         }
       }
@@ -38,7 +38,7 @@ describe("Queries with fragments", () => {
       query GetStop {
         stop(id: "STOP1") {
           id
-          wheelchair_boarding
+          wheelchairBoarding
           ...TopStopFields
         }
       }
@@ -62,7 +62,7 @@ describe("Queries with fragments", () => {
       query GetStop {
         stop(id: "STOP1") {
           id
-          wheelchair_boarding
+          wheelchairBoarding
           ...FirstStopFields
         }
       }
@@ -75,7 +75,7 @@ describe("Queries with fragments", () => {
         ...ThirdStopFields
       }
       fragment ThirdStopFields on Stop {
-        location_type
+        locationType
       }
     `;
     await query({ query: GET_STOP });
@@ -91,10 +91,10 @@ describe("Queries with fragments", () => {
       query GetStop {
         stop(id: "STOP1") {
           ...CommonStopFields
-          parent_station {
+          parentStation {
             ...CommonStopFields
           }
-          child_stops {
+          childStops {
             ...CommonStopFields
           }
         }

@@ -2,6 +2,7 @@ import MbtaAPI from "../data/MbtaAPI";
 import { MbtaRESTError, objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
   isNotNull,
+  Nullish,
   isNotUndefined,
   isCollectionResourceDoc,
   isArrayOfCollectionResourceDocs,
@@ -15,6 +16,7 @@ import { isMbtaStop } from "../stops/types";
 import {
   MbtaRouteResource,
   MbtaRoute,
+  RouteType,
   isMbtaRouteResource,
   RoutesResolverArgs,
   RouteResolverArgs
@@ -174,6 +176,23 @@ export async function batchStopRoutesLoadFn(
         )
         .map(mbtaRouteResourceToMbtaRoute);
     });
+  }
+}
+
+export function mbtaRouteTypeToRouteType(type: number | Nullish) {
+  switch (type) {
+    case 0:
+      return RouteType.LIGHT_RAIL;
+    case 1:
+      return RouteType.SUBWAY;
+    case 2:
+      return RouteType.RAIL;
+    case 3:
+      return RouteType.BUS;
+    case 4:
+      return RouteType.FERRY;
+    default:
+      return null;
   }
 }
 

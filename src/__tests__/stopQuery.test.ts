@@ -25,7 +25,7 @@ describe("Stop query", () => {
       query GetStop {
         stop(id: "STOP1") {
           name
-          vehicle_type
+          vehicleType
         }
       }
     `;
@@ -48,18 +48,20 @@ describe("Stop query", () => {
       query GetStop {
         stop2: stop(id: "STOP2") {
           id
-          parent_station {
+          parentStation {
             id
-            me: child_stops(filter: { stopIdFilter: ["STOP2"] }) {
+            me: childStops(filter: { stopIdFilter: ["STOP2"] }) {
               id
             }
-            siblingStations: child_stops(filter: { locationTypeFilter: [1] }) {
+            siblingStations: childStops(
+              filter: { locationTypeFilter: [STATION] }
+            ) {
               id
             }
           }
-          child_stops {
+          childStops {
             id
-            child_stops {
+            childStops {
               id
             }
           }
@@ -73,14 +75,14 @@ describe("Stop query", () => {
         description
         longitude
         latitude
-        vehicle_type
-        child_stops {
+        vehicleType
+        childStops {
           ...ChildStopFields
         }
       }
       fragment ChildStopFields on Stop {
         name
-        child_stops {
+        childStops {
           name
         }
       }

@@ -8,7 +8,7 @@ import {
   mbtaStopsResponse,
   mbtaChildStopsResponse,
   mbtaParentStopsResponse,
-  responseData
+  result
 } from "../mockData/fullGraphTest";
 
 describe("Full graph query", () => {
@@ -34,10 +34,10 @@ describe("Full graph query", () => {
           bearing
           stop {
             ...StopFields
-            parent_station {
+            parentStation {
               ...StopFields
             }
-            child_stops {
+            childStops {
               ...StopFields
             }
           }
@@ -45,18 +45,18 @@ describe("Full graph query", () => {
       }
       fragment StopFields on Stop {
         id
-        wheelchair_boarding
-        vehicle_type
-        platform_name
-        platform_code
-        on_street
+        wheelchairBoarding
+        vehicleType
+        platformName
+        platformCode
+        onStreet
         name
         municipality
         latitude
         longitude
-        location_type
+        locationType
         description
-        at_street
+        atStreet
         address
       }
     `;
@@ -81,6 +81,6 @@ describe("Full graph query", () => {
       4,
       "stops?fields[stop]=wheelchair_boarding,vehicle_type,platform_name,platform_code,on_street,name,municipality,latitude,longitude,location_type,description,at_street,address&filter[id]=STOP8,STOP9"
     );
-    expect(res.data).toEqual(responseData);
+    expect(res.data).toEqual(result);
   });
 });

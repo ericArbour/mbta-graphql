@@ -1,6 +1,6 @@
 import { IResolvers, FilterToSchema } from "graphql-tools";
 
-import { getFieldsFromInfo } from "../utils/utils";
+import { getFieldsFromInfo, objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
   IContext,
   isNotNull,
@@ -9,15 +9,18 @@ import {
   isResourceIdentifierObject,
   isResourceIdentifierObjectArray
 } from "../types";
-import { MbtaRoute, RoutesResolverArgs } from "../routes/types";
+import { MbtaRoute, RouteType, RoutesResolverArgs } from "../routes/types";
+import { mbtaRouteTypeToRouteType } from "../routes/data";
 
 import {
   MbtaStop,
   Stop,
+  LocationType,
   StopsResolverArgs,
   StopResolverArgs,
   NestedStopsResolverArgs
 } from "./types";
+import { mbtaLocationTypeToLocationType } from "./data";
 
 const resolvers: IResolvers<any, IContext> = {
   Query: {
@@ -45,13 +48,29 @@ const resolvers: IResolvers<any, IContext> = {
     }
   },
   Stop: {
-    child_stops: async (
-      { child_stops = [] }: Stop,
+    locationType: (
+      { locationType }: Stop,
+      args,
+      context,
+      info
+    ): LocationType => {
+      return mbtaLocationTypeToLocationType(locationType);
+    },
+    vehicleType: (
+      { vehicleType }: Stop,
+      args,
+      context,
+      info
+    ): RouteType | null => {
+      return mbtaRouteTypeToRouteType(vehicleType);
+    },
+    childStops: async (
+      { childStops = [] }: Stop,
       args: NestedStopsResolverArgs,
       { dataSources },
       info
     ): Promise<Stop[]> => {
-      if (!child_stops.length) return [];
+      if (!childStops.length) return [];
 
       const fields = getFieldsFromInfo(info);
       const stopIdFilter = args.filter?.stopIdFilter;
@@ -61,7 +80,7 @@ const resolvers: IResolvers<any, IContext> = {
           ? [...fields, "location_type"]
           : fields;
 
-      const childStopIds = child_stops.map(({ id }) => id).filter(isNotNull);
+      const childStopIds = childStops.map(({ id }) => id).filter(isNotNull);
 
       const filteredChildStopIds = stopIdFilter
         ? childStopIds.filter(childStopId => stopIdFilter.includes(childStopId))
@@ -72,32 +91,34 @@ const resolvers: IResolvers<any, IContext> = {
         fields: fieldsWithFilterInfo
       });
 
-      const childStops = childMbtaStops.map(mbtaStopToStop);
+      const childStops2 = childMbtaStops.map(mbtaStopToStop);
 
       const stopIdFilteredChildStops = stopIdFilter
-        ? childStops.filter(
+        ? childStops2.filter(
             childStop =>
               isNotNullish(childStop.id) && stopIdFilter.includes(childStop.id)
           )
-        : childStops;
+        : childStops2;
 
       const locationTypeFilteredChildStops = locationTypeFilter
         ? stopIdFilteredChildStops.filter(
             childStop =>
-              isNotNullish(childStop.location_type) &&
-              locationTypeFilter.includes(childStop.location_type)
+              isNotNullish(childStop.locationType) &&
+              locationTypeFilter.includes(
+                mbtaLocationTypeToLocationType(childStop.locationType)
+              )
           )
         : stopIdFilteredChildStops;
 
       return locationTypeFilteredChildStops;
     },
-    parent_station: async (
+    parentStation: async (
       parent: Stop,
       args,
       { dataSources },
       info
     ): Promise<Stop | null> => {
-      const stopId = parent.parent_station?.id;
+      const stopId = parent.parentStation?.id;
       if (!stopId) return null;
 
       const fields = getFieldsFromInfo(info);
@@ -149,7 +170,7 @@ const resolvers: IResolvers<any, IContext> = {
 };
 
 export function mbtaStopToStop(mbtaStop: MbtaStop): Stop {
-  const { id = null, attributes, relationships } = mbtaStop;
+  const { id = null, attributes = {}, relationships } = mbtaStop;
   const childStopsRelationship = relationships?.child_stops;
   const parentStationRelationship = relationships?.parent_station;
 
@@ -172,11 +193,13 @@ export function mbtaStopToStop(mbtaStop: MbtaStop): Stop {
     ? { id: parentStationRelationshipData.id }
     : null;
 
+  const camelCaseAttributes = objSnakeKeysToCamelKeys(attributes);
+
   return {
     id,
-    ...attributes,
-    child_stops: childStops,
-    parent_station: parentStation
+    ...camelCaseAttributes,
+    childStops,
+    parentStation
   };
 }
 

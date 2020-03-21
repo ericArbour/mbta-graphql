@@ -189,19 +189,19 @@ export const response5 = JSON.stringify({
 export const result = {
   stop2: {
     id: "STOP2",
-    parent_station: {
+    parentStation: {
       id: "STOP1",
       me: [{ id: "STOP2" }],
       siblingStations: [{ id: "STOP3" }]
     },
-    child_stops: [
+    childStops: [
       {
         id: "STOP4",
-        child_stops: []
+        childStops: []
       },
       {
         id: "STOP5",
-        child_stops: [{ id: "STOP6" }]
+        childStops: [{ id: "STOP6" }]
       }
     ]
   },
@@ -210,11 +210,11 @@ export const result = {
     description: "It's a stop",
     longitude: 40,
     latitude: 50,
-    vehicle_type: 1,
-    child_stops: [
+    vehicleType: "SUBWAY",
+    childStops: [
       {
         name: "Stop Eight",
-        child_stops: []
+        childStops: []
       }
     ]
   }

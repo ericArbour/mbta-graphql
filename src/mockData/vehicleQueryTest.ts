@@ -37,7 +37,7 @@ export const response2 = JSON.stringify({
 export const result = {
   vehicle: {
     stop: {
-      location_type: 1
+      locationType: "STATION"
     }
   }
 };

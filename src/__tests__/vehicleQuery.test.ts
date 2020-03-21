@@ -38,7 +38,7 @@ describe("Vehicle query", () => {
       query GetVehicle {
         vehicle(id: "VEHICLE1") {
           stop {
-            location_type
+            locationType
           }
         }
       }
