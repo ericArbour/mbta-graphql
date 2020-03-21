@@ -1,5 +1,5 @@
 import MbtaAPI from "../data/MbtaAPI";
-import { MbtaRESTError } from "../utils/utils";
+import { MbtaRESTError, objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
   isCollectionResourceDoc,
   isDocWithData,
@@ -7,12 +7,14 @@ import {
   isResourceIdentifierObject,
   BatchFieldConfig
 } from "../types";
+
 import {
+  MbtaVehicleResource,
   MbtaVehicle,
-  isMbtaVehicle,
+  isMbtaVehicleResource,
   VehiclesResolverArgs,
   VehicleResolverArgs
-} from "../vehicles/types";
+} from "./types";
 
 const vehicleRelationships: string[] = ["stop"];
 
@@ -38,8 +40,8 @@ export async function getVehicles(
 
   const result = await this.getParsedJSON(`vehicles?${queryString}`);
 
-  if (isCollectionResourceDoc(result, isMbtaVehicle)) {
-    return result.data;
+  if (isCollectionResourceDoc(result, isMbtaVehicleResource)) {
+    return result.data.map(mbtaVehicleResourceToMbtaVehicle);
   } else {
     throw new MbtaRESTError();
   }
@@ -60,8 +62,8 @@ export async function getVehicle(
     `vehicles/${args.id}?${fieldsAndIncludeParams}`
   );
 
-  if (isDocWithData(result, isMbtaVehicle)) {
-    return result.data;
+  if (isDocWithData(result, isMbtaVehicleResource)) {
+    return mbtaVehicleResourceToMbtaVehicle(result.data);
   } else {
     throw new MbtaRESTError();
   }
@@ -83,8 +85,8 @@ export async function batchRouteVehiclesLoadFn(
       `vehicles?${fieldsAndIncludeParams}${routeFilterString}`
     );
 
-    if (isCollectionResourceDoc(result, isMbtaVehicle)) {
-      return [result.data];
+    if (isCollectionResourceDoc(result, isMbtaVehicleResource)) {
+      return [result.data.map(mbtaVehicleResourceToMbtaVehicle)];
     } else {
       throw new MbtaRESTError();
     }
@@ -99,25 +101,65 @@ export async function batchRouteVehiclesLoadFn(
       `vehicles?${fieldsAndIncludeParams}`
     );
 
-    if (isCollectionResourceDoc(result, isMbtaVehicle)) {
-      const mbtaVehicles = result.data;
-      return configs.map(config =>
-        mbtaVehicles.filter(mbtaVehicle => {
-          const routeRelationship = mbtaVehicle.relationships?.route;
-          const routeRelationshipData = isRelationshipsWithData(
-            routeRelationship
-          )
-            ? routeRelationship.data
-            : null;
-          const routeId = isResourceIdentifierObject(routeRelationshipData)
-            ? routeRelationshipData.id
-            : null;
+    if (isCollectionResourceDoc(result, isMbtaVehicleResource)) {
+      const mbtaVehicleResources = result.data;
 
-          return routeId === config.id;
-        })
-      );
+      return configs.map(config => {
+        const mbtaVehicleResourcesForRoute = mbtaVehicleResources.filter(
+          mbtaVehicleResource => {
+            const routeRelationship = mbtaVehicleResource.relationships?.route;
+            const routeRelationshipData = isRelationshipsWithData(
+              routeRelationship
+            )
+              ? routeRelationship.data
+              : null;
+            const routeId = isResourceIdentifierObject(routeRelationshipData)
+              ? routeRelationshipData.id
+              : null;
+
+            return routeId === config.id;
+          }
+        );
+
+        return mbtaVehicleResourcesForRoute.map(
+          mbtaVehicleResourceToMbtaVehicle
+        );
+      });
     } else {
       throw new MbtaRESTError();
     }
   }
+}
+
+function mbtaVehicleResourceToMbtaVehicle(
+  mbtaVehicleResource: MbtaVehicleResource
+): MbtaVehicle {
+  const { id = null, attributes = {}, relationships } = mbtaVehicleResource;
+  const stopRelationship = relationships?.stop;
+  const routeRelationship = relationships?.route;
+
+  const stopRelationshipData = isRelationshipsWithData(stopRelationship)
+    ? stopRelationship?.data
+    : null;
+  const stop = isResourceIdentifierObject(stopRelationshipData)
+    ? {
+        id: stopRelationshipData.id
+      }
+    : null;
+
+  const routeRelationshipData = isRelationshipsWithData(routeRelationship)
+    ? routeRelationship.data
+    : null;
+  const route = isResourceIdentifierObject(routeRelationshipData)
+    ? { id: routeRelationshipData.id }
+    : null;
+
+  const camelCaseAttributes = objSnakeKeysToCamelKeys(attributes);
+
+  return {
+    id,
+    ...camelCaseAttributes,
+    stop,
+    route
+  };
 }

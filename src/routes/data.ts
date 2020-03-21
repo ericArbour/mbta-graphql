@@ -11,13 +11,14 @@ import {
   BatchFieldConfig
 } from "../types";
 import { isMbtaStop } from "../stops/types";
+
 import {
   MbtaRouteResource,
   MbtaRoute,
   isMbtaRouteResource,
   RoutesResolverArgs,
   RouteResolverArgs
-} from "../routes/types";
+} from "./types";
 
 const routeRelationships: string[] = [];
 const ignoreFields = ["vehicles", "stops"];

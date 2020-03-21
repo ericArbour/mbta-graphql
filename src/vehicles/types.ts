@@ -22,22 +22,25 @@ type MbtaVehicleAttributes = {
   bearing: number | null;
 };
 
-export type MbtaVehicle = JSONAPI.ResourceObject<string, MbtaVehicleAttributes>;
+export type MbtaVehicleResource = JSONAPI.ResourceObject<
+  string,
+  MbtaVehicleAttributes
+>;
 
-export function isMbtaVehicle(a: any): a is MbtaVehicle {
+export function isMbtaVehicleResource(a: any): a is MbtaVehicleResource {
   return isResourceObject(a) && a.type === "vehicle";
 }
 
-export type Vehicle = {
+export type MbtaVehicle = {
   id: string | null;
-  updated_at?: string | null;
+  updatedAt?: string | null;
   speed?: number | null;
   longitude?: number | null;
   latitude?: number | null;
   label?: string | null;
-  direction_id?: number | null;
-  current_stop_sequence?: number | null;
-  current_status?: VehicleCurrentStopStatus | null;
+  directionId?: number | null;
+  currentStopSequence?: number | null;
+  currentStatus?: VehicleCurrentStopStatus | null;
   bearing?: number | null;
   stop?: Stop | null;
   route?: MbtaRoute | null;

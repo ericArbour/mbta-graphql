@@ -10,12 +10,13 @@ import {
   BatchFieldConfig,
   BatchListFieldConfig
 } from "../types";
+
 import {
   StopsResolverArgs,
   StopResolverArgs,
   MbtaStop,
   isMbtaStop
-} from "../stops/types";
+} from "./types";
 
 const stopRelationships: string[] = ["child_stops", "parent_station", "route"];
 

@@ -2,8 +2,7 @@ import { IResolvers } from "graphql-tools";
 
 import { IContext, Nullish, isNullish, isNotNullish } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
-import { Vehicle, VehiclesResolverArgs } from "../vehicles/types";
-import { mbtaVehicleToVehicle } from "../vehicles/resolvers";
+import { MbtaVehicle, VehiclesResolverArgs } from "../vehicles/types";
 import { Stop, NestedStopsResolverArgs } from "../stops/types";
 import { mbtaStopToStop } from "../stops/resolvers";
 
@@ -58,7 +57,7 @@ const resolvers: IResolvers<any, IContext> = {
       args: VehiclesResolverArgs,
       { dataSources },
       info
-    ): Promise<Vehicle[]> => {
+    ): Promise<MbtaVehicle[]> => {
       if (!id) return [];
 
       const fields = getFieldsFromInfo(info);
@@ -74,23 +73,23 @@ const resolvers: IResolvers<any, IContext> = {
         fields: fieldsWithFilterInfo
       });
 
-      const vehicles = mbtaVehicles.map(mbtaVehicleToVehicle);
-
-      const vehicleIdFilteredVehicles = vehicleIdFilter
-        ? vehicles.filter(
-            vehicle =>
-              isNotNullish(vehicle.id) && vehicleIdFilter.includes(vehicle.id)
+      const vehicleIdFilteredMbtaVehicles = vehicleIdFilter
+        ? mbtaVehicles.filter(
+            mbtaVehicle =>
+              isNotNullish(mbtaVehicle.id) &&
+              vehicleIdFilter.includes(mbtaVehicle.id)
           )
-        : vehicles;
+        : mbtaVehicles;
 
-      const labelFilteredVehicles = labelFilter
-        ? vehicleIdFilteredVehicles.filter(
-            vehicle =>
-              isNotNullish(vehicle.label) && labelFilter.includes(vehicle.label)
+      const labelFilteredMbtaVehicles = labelFilter
+        ? vehicleIdFilteredMbtaVehicles.filter(
+            mbtaVehicle =>
+              isNotNullish(mbtaVehicle.label) &&
+              labelFilter.includes(mbtaVehicle.label)
           )
-        : vehicleIdFilteredVehicles;
+        : vehicleIdFilteredMbtaVehicles;
 
-      return labelFilteredVehicles;
+      return labelFilteredMbtaVehicles;
     },
     stops: async (
       { id }: MbtaRoute,
