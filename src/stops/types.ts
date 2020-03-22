@@ -1,6 +1,10 @@
 import * as JSONAPI from "jsonapi-typescript";
 
-import { isResourceObject } from "../types";
+import {
+  isResourceObject,
+  isSingleResourceDoc,
+  isCollectionResourceDoc
+} from "../types";
 
 type MbtaStopAttributes = {
   wheelchair_boarding: number | null;
@@ -25,6 +29,18 @@ export type MbtaStopResource = JSONAPI.ResourceObject<
 
 export function isMbtaStopResource(x: unknown): x is MbtaStopResource {
   return isResourceObject(x) && x.type === "stop";
+}
+
+export function isMbtaStopResourceDoc(
+  x: unknown
+): x is JSONAPI.SingleResourceDoc<string, MbtaStopAttributes> {
+  return isSingleResourceDoc(isMbtaStopResource, x);
+}
+
+export function isMbtaStopResourceCollection(
+  x: unknown
+): x is JSONAPI.CollectionResourceDoc<string, MbtaStopAttributes> {
+  return isCollectionResourceDoc(isMbtaStopResource, x);
 }
 
 export enum LocationType {

@@ -53,15 +53,14 @@ export function isResourceObject(x: unknown): x is JSONAPI.ResourceObject {
   );
 }
 
-export function isDocWithData<A extends { [k: string]: JSON.Value }>(
+export function isSingleResourceDoc<A extends { [k: string]: JSON.Value }>(
   isType: (x: unknown) => x is JSONAPI.ResourceObject<string, A>,
   x: unknown
-): x is JSONAPI.DocWithData<JSONAPI.ResourceObject<string, A>> {
+): x is JSONAPI.SingleResourceDoc<string, A> {
   if (!isObject(x)) return false;
   const test = x;
 
-  const data = (x as JSONAPI.DocWithData<JSONAPI.ResourceObject<string, A>>)
-    .data;
+  const data = (x as JSONAPI.SingleResourceDoc<string, A>).data;
 
   return isType(data);
 }
@@ -75,17 +74,6 @@ export function isCollectionResourceDoc<A extends { [k: string]: JSON.Value }>(
   const data = (x as JSONAPI.CollectionResourceDoc<string, A>).data;
 
   return Array.isArray(data) && data.every(isType);
-}
-
-export function isCollectionResourceDocsArray<
-  A extends { [k: string]: JSON.Value }
->(
-  isType: (x: unknown) => x is JSONAPI.ResourceObject<string, A>,
-  xs: unknown
-): xs is JSONAPI.CollectionResourceDoc<string, A>[] {
-  if (!Array.isArray(xs)) return false;
-
-  return xs.every(x => isCollectionResourceDoc(isType, x));
 }
 
 export function isRelationshipsWithData(

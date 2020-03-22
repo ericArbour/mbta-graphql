@@ -5,12 +5,9 @@ import { MbtaRESTError, objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
   isNotUndefined,
   Nullish,
-  isCollectionResourceDoc,
-  isCollectionResourceDocsArray,
   isRelationshipsWithData,
   isResourceIdentifierObject,
   isResourceIdentifierObjectArray,
-  isDocWithData,
   BatchFieldConfig,
   BatchListFieldConfig
 } from "../types";
@@ -20,7 +17,8 @@ import {
   MbtaStopResource,
   StopsResolverArgs,
   StopResolverArgs,
-  isMbtaStopResource,
+  isMbtaStopResourceDoc,
+  isMbtaStopResourceCollection,
   LocationType
 } from "./types";
 
@@ -52,13 +50,12 @@ export async function getStops(
     : "";
   const queryString = `${fieldsAndIncludeParams}${stopIdFilterString}${locationTypeFilterString}${locationFilterString}`;
 
-  const result = await this.getParsedJSON(`stops?${queryString}`);
+  const result = await this.getTypedParsedJSON(
+    `stops?${queryString}`,
+    isMbtaStopResourceCollection
+  );
 
-  if (isCollectionResourceDoc(isMbtaStopResource, result)) {
-    return result.data.map(mbtaStopResourceToMbtaStop);
-  } else {
-    throw new MbtaRESTError();
-  }
+  return result.data.map(mbtaStopResourceToMbtaStop);
 }
 
 export async function getStop(
@@ -72,15 +69,12 @@ export async function getStop(
     stopRelationships
   );
 
-  const result = await this.getParsedJSON(
-    `stops/${args.id}?${fieldsAndIncludeParams}`
+  const result = await this.getTypedParsedJSON(
+    `stops/${args.id}?${fieldsAndIncludeParams}`,
+    isMbtaStopResourceDoc
   );
 
-  if (isDocWithData(isMbtaStopResource, result)) {
-    return mbtaStopResourceToMbtaStop(result.data);
-  } else {
-    throw new MbtaRESTError();
-  }
+  return mbtaStopResourceToMbtaStop(result.data);
 }
 
 export async function batchStopLoadFn(
@@ -100,26 +94,22 @@ export async function batchStopLoadFn(
 
   const requests = stopIdsChunks.map(chunkOfstopIds => {
     const batchIdsString = `&filter[id]=${chunkOfstopIds.join(",")}`;
-    return this.getParsedJSON(
-      `stops?${fieldsAndIncludeParams}${batchIdsString}`
+    return this.getTypedParsedJSON(
+      `stops?${fieldsAndIncludeParams}${batchIdsString}`,
+      isMbtaStopResourceCollection
     );
   });
-
   const results = await Promise.all(requests);
 
-  if (isCollectionResourceDocsArray(isMbtaStopResource, results)) {
-    const mbtaStopResources = results.flatMap(result => result.data);
-    return configs
-      .map(config =>
-        mbtaStopResources.find(
-          mbtaStopResource => mbtaStopResource.id === config.id
-        )
+  const mbtaStopResources = results.flatMap(result => result.data);
+  return configs
+    .map(config =>
+      mbtaStopResources.find(
+        mbtaStopResource => mbtaStopResource.id === config.id
       )
-      .filter(isNotUndefined)
-      .map(mbtaStopResourceToMbtaStop);
-  } else {
-    throw new MbtaRESTError();
-  }
+    )
+    .filter(isNotUndefined)
+    .map(mbtaStopResourceToMbtaStop);
 }
 
 export async function batchChildStopsLoadFn(
@@ -139,26 +129,22 @@ export async function batchChildStopsLoadFn(
 
   const requests = childIdsChunks.map(childIds => {
     const childIdsString = `&filter[id]=${childIds.join(",")}`;
-    return this.getParsedJSON(
-      `stops?${fieldsAndIncludeParams}${childIdsString}`
+    return this.getTypedParsedJSON(
+      `stops?${fieldsAndIncludeParams}${childIdsString}`,
+      isMbtaStopResourceCollection
     );
   });
-
   const results = await Promise.all(requests);
 
-  if (isCollectionResourceDocsArray(isMbtaStopResource, results)) {
-    const mbtaStopResources = results.flatMap(result => result.data);
-    return configs.map(config =>
-      config.ids
-        .map(id =>
-          mbtaStopResources.find(mbtaStopResource => mbtaStopResource.id === id)
-        )
-        .filter(isNotUndefined)
-        .map(mbtaStopResourceToMbtaStop)
-    );
-  } else {
-    throw new MbtaRESTError();
-  }
+  const mbtaStopResources = results.flatMap(result => result.data);
+  return configs.map(config =>
+    config.ids
+      .map(id =>
+        mbtaStopResources.find(mbtaStopResource => mbtaStopResource.id === id)
+      )
+      .filter(isNotUndefined)
+      .map(mbtaStopResourceToMbtaStop)
+  );
 }
 
 export async function batchRouteStopsLoadFn(
@@ -173,15 +159,12 @@ export async function batchRouteStopsLoadFn(
       stopRelationships
     );
     const routeFilterString = `&filter[route]=${config.id}`;
-    const result = await this.getParsedJSON(
-      `stops?${fieldsAndIncludeParams}${routeFilterString}`
+    const result = await this.getTypedParsedJSON(
+      `stops?${fieldsAndIncludeParams}${routeFilterString}`,
+      isMbtaStopResourceCollection
     );
 
-    if (isCollectionResourceDoc(isMbtaStopResource, result)) {
-      return [result.data.map(mbtaStopResourceToMbtaStop)];
-    } else {
-      throw new MbtaRESTError();
-    }
+    return [result.data.map(mbtaStopResourceToMbtaStop)];
   } else {
     const fields = configs.flatMap(config => config.fields);
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
@@ -189,19 +172,17 @@ export async function batchRouteStopsLoadFn(
       fields,
       stopRelationships
     );
+
     const requests = configs.map(config => {
       const routeFilterString = `&filter[route]=${config.id}`;
-      return this.getParsedJSON(
-        `stops?${fieldsAndIncludeParams}${routeFilterString}`
+      return this.getTypedParsedJSON(
+        `stops?${fieldsAndIncludeParams}${routeFilterString}`,
+        isMbtaStopResourceCollection
       );
     });
     const results = await Promise.all(requests);
 
-    if (isCollectionResourceDocsArray(isMbtaStopResource, results)) {
-      return results.map(result => result.data.map(mbtaStopResourceToMbtaStop));
-    } else {
-      throw new MbtaRESTError();
-    }
+    return results.map(result => result.data.map(mbtaStopResourceToMbtaStop));
   }
 }
 

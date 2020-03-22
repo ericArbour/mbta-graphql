@@ -1,6 +1,10 @@
 import * as JSONAPI from "jsonapi-typescript";
 
-import { isResourceObject } from "../types";
+import {
+  isResourceObject,
+  isCollectionResourceDoc,
+  isSingleResourceDoc
+} from "../types";
 import { MbtaVehicle } from "../vehicles/types";
 import { MbtaStop } from "../stops/types";
 
@@ -24,6 +28,18 @@ export type MbtaRouteResource = JSONAPI.ResourceObject<
 
 export function isMbtaRouteResource(x: unknown): x is MbtaRouteResource {
   return isResourceObject(x) && x.type === "route";
+}
+
+export function isMbtaRouteResourceDoc(
+  x: unknown
+): x is JSONAPI.SingleResourceDoc<string, MbtaRouteResourceAttributes> {
+  return isSingleResourceDoc(isMbtaRouteResource, x);
+}
+
+export function isMbtaRouteResourceCollection(
+  x: unknown
+): x is JSONAPI.CollectionResourceDoc<string, MbtaRouteResourceAttributes> {
+  return isCollectionResourceDoc(isMbtaRouteResource, x);
 }
 
 export enum RouteType {

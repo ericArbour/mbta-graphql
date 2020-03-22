@@ -1,8 +1,6 @@
 import MbtaAPI from "../data/MbtaAPI";
 import { MbtaRESTError, objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
-  isCollectionResourceDoc,
-  isDocWithData,
   isRelationshipsWithData,
   isResourceIdentifierObject,
   BatchFieldConfig
@@ -11,7 +9,8 @@ import {
 import {
   MbtaVehicleResource,
   MbtaVehicle,
-  isMbtaVehicleResource,
+  isMbtaVehicleResourceDoc,
+  isMbtaVehicleResourceCollection,
   VehiclesResolverArgs,
   VehicleResolverArgs
 } from "./types";
@@ -38,13 +37,12 @@ export async function getVehicles(
     : "";
   const queryString = `${fieldsAndIncludeParams}${vehicleIdFilterString}${labelFilterString}`;
 
-  const result = await this.getParsedJSON(`vehicles?${queryString}`);
+  const result = await this.getTypedParsedJSON(
+    `vehicles?${queryString}`,
+    isMbtaVehicleResourceCollection
+  );
 
-  if (isCollectionResourceDoc(isMbtaVehicleResource, result)) {
-    return result.data.map(mbtaVehicleResourceToMbtaVehicle);
-  } else {
-    throw new MbtaRESTError();
-  }
+  return result.data.map(mbtaVehicleResourceToMbtaVehicle);
 }
 
 export async function getVehicle(
@@ -58,15 +56,12 @@ export async function getVehicle(
     vehicleRelationships
   );
 
-  const result = await this.getParsedJSON(
-    `vehicles/${args.id}?${fieldsAndIncludeParams}`
+  const result = await this.getTypedParsedJSON(
+    `vehicles/${args.id}?${fieldsAndIncludeParams}`,
+    isMbtaVehicleResourceDoc
   );
 
-  if (isDocWithData(isMbtaVehicleResource, result)) {
-    return mbtaVehicleResourceToMbtaVehicle(result.data);
-  } else {
-    throw new MbtaRESTError();
-  }
+  return mbtaVehicleResourceToMbtaVehicle(result.data);
 }
 
 export async function batchRouteVehiclesLoadFn(
@@ -81,15 +76,12 @@ export async function batchRouteVehiclesLoadFn(
       vehicleRelationships
     );
     const routeFilterString = `&filter[route]=${config.id}`;
-    const result = await this.getParsedJSON(
-      `vehicles?${fieldsAndIncludeParams}${routeFilterString}`
+    const result = await this.getTypedParsedJSON(
+      `vehicles?${fieldsAndIncludeParams}${routeFilterString}`,
+      isMbtaVehicleResourceCollection
     );
 
-    if (isCollectionResourceDoc(isMbtaVehicleResource, result)) {
-      return [result.data.map(mbtaVehicleResourceToMbtaVehicle)];
-    } else {
-      throw new MbtaRESTError();
-    }
+    return [result.data.map(mbtaVehicleResourceToMbtaVehicle)];
   } else {
     const fields = configs.flatMap(config => config.fields);
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
@@ -97,37 +89,32 @@ export async function batchRouteVehiclesLoadFn(
       [...fields, "route"],
       vehicleRelationships
     );
-    const result = await this.getParsedJSON(
-      `vehicles?${fieldsAndIncludeParams}`
+    const result = await this.getTypedParsedJSON(
+      `vehicles?${fieldsAndIncludeParams}`,
+      isMbtaVehicleResourceCollection
     );
 
-    if (isCollectionResourceDoc(isMbtaVehicleResource, result)) {
-      const mbtaVehicleResources = result.data;
+    const mbtaVehicleResources = result.data;
 
-      return configs.map(config => {
-        const mbtaVehicleResourcesForRoute = mbtaVehicleResources.filter(
-          mbtaVehicleResource => {
-            const routeRelationship = mbtaVehicleResource.relationships?.route;
-            const routeRelationshipData = isRelationshipsWithData(
-              routeRelationship
-            )
-              ? routeRelationship.data
-              : null;
-            const routeId = isResourceIdentifierObject(routeRelationshipData)
-              ? routeRelationshipData.id
-              : null;
+    return configs.map(config => {
+      const mbtaVehicleResourcesForRoute = mbtaVehicleResources.filter(
+        mbtaVehicleResource => {
+          const routeRelationship = mbtaVehicleResource.relationships?.route;
+          const routeRelationshipData = isRelationshipsWithData(
+            routeRelationship
+          )
+            ? routeRelationship.data
+            : null;
+          const routeId = isResourceIdentifierObject(routeRelationshipData)
+            ? routeRelationshipData.id
+            : null;
 
-            return routeId === config.id;
-          }
-        );
+          return routeId === config.id;
+        }
+      );
 
-        return mbtaVehicleResourcesForRoute.map(
-          mbtaVehicleResourceToMbtaVehicle
-        );
-      });
-    } else {
-      throw new MbtaRESTError();
-    }
+      return mbtaVehicleResourcesForRoute.map(mbtaVehicleResourceToMbtaVehicle);
+    });
   }
 }
 

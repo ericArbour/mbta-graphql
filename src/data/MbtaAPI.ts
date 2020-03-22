@@ -2,6 +2,7 @@ import { RESTDataSource, RequestOptions } from "apollo-datasource-rest";
 import DataLoader from "dataloader";
 
 import { BatchFieldConfig, BatchListFieldConfig } from "../types";
+import { MbtaRESTError } from "../utils/utils";
 import { MbtaVehicle } from "../vehicles/types";
 import {
   getVehicles,
@@ -123,12 +124,19 @@ export default class MbtaAPI extends RESTDataSource {
     return this.batchStopRoutesDataLoader.load(config);
   }
 
-  getParsedJSON(path: string): Promise<unknown> {
-    return this.parseAsyncJSON(this.get(path));
-  }
+  async getTypedParsedJSON<T>(
+    path: string,
+    isType: (x: unknown) => x is T
+  ): Promise<T> | never {
+    const json = await this.get(path);
 
-  private async parseAsyncJSON(promise: Promise<string>): Promise<unknown> {
-    const jsonString = await promise;
-    return JSON.parse(jsonString);
+    try {
+      const result = JSON.parse(json);
+      if (isType(result)) return result;
+
+      throw new MbtaRESTError();
+    } catch (e) {
+      throw new MbtaRESTError();
+    }
   }
 }
