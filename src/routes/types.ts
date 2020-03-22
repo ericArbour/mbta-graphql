@@ -52,7 +52,7 @@ export type MbtaRoute = {
 
 export type RoutesFilter = {
   routeIdFilter?: string[];
-  typeFilter?: number[];
+  typeFilter?: RouteType[];
 };
 
 export type RoutesResolverArgs = {

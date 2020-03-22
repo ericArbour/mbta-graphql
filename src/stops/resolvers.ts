@@ -157,11 +157,10 @@ const resolvers: IResolvers<any, IContext> = {
         : mbtaRoutes;
 
       const typeFilteredRoutes = typeFilter
-        ? routeIdFilteredMbtaRoutes.filter(
-            mbtaRoute =>
-              isNotNullish(mbtaRoute.type) &&
-              typeFilter.includes(mbtaRoute.type)
-          )
+        ? routeIdFilteredMbtaRoutes.filter(mbtaRoute => {
+            const routeType = mbtaRouteTypeToRouteType(mbtaRoute.type);
+            return isNotNullish(routeType) && typeFilter.includes(routeType);
+          })
         : routeIdFilteredMbtaRoutes;
 
       return typeFilteredRoutes;

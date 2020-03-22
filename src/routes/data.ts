@@ -42,7 +42,7 @@ export async function getRoutes(
     ? `&filter[id]=${routeIdFilter.join(",")}`
     : "";
   const typeFilterString = typeFilter?.length
-    ? `&filter[type]=${typeFilter.join(",")}`
+    ? `&filter[type]=${typeFilter.map(routeTypeToMbtaRouteType).join(",")}`
     : "";
   const queryString = `${fieldsAndIncludeParams}${routeIdFilterString}${typeFilterString}`;
 
@@ -179,7 +179,9 @@ export async function batchStopRoutesLoadFn(
   }
 }
 
-export function mbtaRouteTypeToRouteType(type: number | Nullish) {
+export function mbtaRouteTypeToRouteType(
+  type: number | Nullish
+): RouteType | null {
   switch (type) {
     case 0:
       return RouteType.LIGHT_RAIL;
@@ -193,6 +195,21 @@ export function mbtaRouteTypeToRouteType(type: number | Nullish) {
       return RouteType.FERRY;
     default:
       return null;
+  }
+}
+
+export function routeTypeToMbtaRouteType(type: RouteType): number {
+  switch (type) {
+    case RouteType.LIGHT_RAIL:
+      return 0;
+    case RouteType.SUBWAY:
+      return 1;
+    case RouteType.RAIL:
+      return 2;
+    case RouteType.BUS:
+      return 3;
+    case RouteType.FERRY:
+      return 4;
   }
 }
 
