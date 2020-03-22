@@ -11,7 +11,7 @@ import {
   isResourceIdentifierObject,
   BatchFieldConfig
 } from "../types";
-import { isMbtaStop } from "../stops/types";
+import { isMbtaStopResource } from "../stops/types";
 
 import {
   MbtaRouteResource,
@@ -145,7 +145,7 @@ export async function batchStopRoutesLoadFn(
     });
 
     const stopResults = await Promise.all(stopRequests);
-    if (!isArrayOfCollectionResourceDocs(stopResults, isMbtaStop))
+    if (!isArrayOfCollectionResourceDocs(stopResults, isMbtaStopResource))
       throw new MbtaRESTError();
 
     const mbtaStopResources = stopResults.flatMap(result => result.data);

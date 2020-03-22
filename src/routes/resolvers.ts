@@ -3,8 +3,7 @@ import { IResolvers } from "graphql-tools";
 import { IContext, isNotNullish } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
 import { MbtaVehicle, VehiclesResolverArgs } from "../vehicles/types";
-import { Stop, NestedStopsResolverArgs } from "../stops/types";
-import { mbtaStopToStop } from "../stops/resolvers";
+import { MbtaStop, NestedStopsResolverArgs } from "../stops/types";
 import { mbtaLocationTypeToLocationType } from "../stops/data";
 
 import {
@@ -83,7 +82,7 @@ const resolvers: IResolvers<any, IContext> = {
       args: NestedStopsResolverArgs,
       { dataSources },
       info
-    ): Promise<Stop[]> => {
+    ): Promise<MbtaStop[]> => {
       if (!id) return [];
       const fields = getFieldsFromInfo(info);
       const stopIdFilter = args.filter?.stopIdFilter;
@@ -98,25 +97,24 @@ const resolvers: IResolvers<any, IContext> = {
         fields: fieldsWithFilterInfo
       });
 
-      const stops = mbtaStops.map(mbtaStopToStop);
-
-      const stopIdFilteredStops = stopIdFilter
-        ? stops.filter(
-            stop => isNotNullish(stop.id) && stopIdFilter.includes(stop.id)
+      const stopIdFilteredMbtaStops = stopIdFilter
+        ? mbtaStops.filter(
+            mbtaStop =>
+              isNotNullish(mbtaStop.id) && stopIdFilter.includes(mbtaStop.id)
           )
-        : stops;
+        : mbtaStops;
 
-      const locationTypeFilteredStops = locationTypeFilter
-        ? stopIdFilteredStops.filter(
-            stop =>
-              isNotNullish(stop.locationType) &&
+      const locationTypeFilteredMbtaStops = locationTypeFilter
+        ? stopIdFilteredMbtaStops.filter(
+            mbtaStop =>
+              isNotNullish(mbtaStop.locationType) &&
               locationTypeFilter.includes(
-                mbtaLocationTypeToLocationType(stop.locationType)
+                mbtaLocationTypeToLocationType(mbtaStop.locationType)
               )
           )
-        : stopIdFilteredStops;
+        : stopIdFilteredMbtaStops;
 
-      return locationTypeFilteredStops;
+      return locationTypeFilteredMbtaStops;
     }
   }
 };

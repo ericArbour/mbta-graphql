@@ -18,9 +18,12 @@ type MbtaStopAttributes = {
   address: string | null;
 };
 
-export type MbtaStop = JSONAPI.ResourceObject<string, MbtaStopAttributes>;
+export type MbtaStopResource = JSONAPI.ResourceObject<
+  string,
+  MbtaStopAttributes
+>;
 
-export function isMbtaStop(a: any): a is MbtaStop {
+export function isMbtaStopResource(a: any): a is MbtaStopResource {
   return isResourceObject(a) && a.type === "stop";
 }
 
@@ -32,7 +35,7 @@ export enum LocationType {
   BOARDING_AREA = "BOARDING_AREA"
 }
 
-export type Stop = {
+export type MbtaStop = {
   id: string | null;
   wheelchairBoarding?: number | null;
   vehicleType?: number | null;
@@ -47,8 +50,8 @@ export type Stop = {
   description?: string | null;
   atStreet?: string | null;
   address?: string | null;
-  parentStation?: Stop | null;
-  childStops?: Stop[];
+  parentStation?: MbtaStop | null;
+  childStops?: MbtaStop[];
 };
 
 type LocationFilterInput = {

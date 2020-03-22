@@ -1,14 +1,11 @@
 import { IResolvers } from "graphql-tools";
 
 import { IContext } from "../types";
-import { getFieldsFromInfo, objSnakeKeysToCamelKeys } from "../utils/utils";
-import { isRelationshipsWithData, isResourceIdentifierObject } from "../types";
-import { mbtaStopToStop } from "../stops/resolvers";
-import { Stop } from "../stops/types";
+import { getFieldsFromInfo } from "../utils/utils";
+import { MbtaStop } from "../stops/types";
 import { MbtaRoute } from "../routes/types";
 
 import {
-  MbtaVehicleResource,
   MbtaVehicle,
   VehiclesResolverArgs,
   VehicleResolverArgs
@@ -43,17 +40,15 @@ const resolvers: IResolvers<any, IContext> = {
       args: VehiclesResolverArgs,
       { dataSources },
       info
-    ): Promise<Stop | null> => {
+    ): Promise<MbtaStop | null> => {
       const stopId = parent?.stop?.id;
       if (!stopId) return null;
 
       const fields = getFieldsFromInfo(info);
-      const stop = await dataSources.mbtaAPI.getBatchStop({
+      return await dataSources.mbtaAPI.getBatchStop({
         id: stopId,
         fields
       });
-
-      return mbtaStopToStop(stop);
     },
     route: async (
       parent: MbtaVehicle,

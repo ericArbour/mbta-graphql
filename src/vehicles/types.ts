@@ -1,7 +1,7 @@
 import * as JSONAPI from "jsonapi-typescript";
 
 import { isResourceObject } from "../types";
-import { Stop } from "../stops/types";
+import { MbtaStop } from "../stops/types";
 import { MbtaRoute } from "../routes/types";
 
 enum VehicleCurrentStopStatus {
@@ -42,7 +42,7 @@ export type MbtaVehicle = {
   currentStopSequence?: number | null;
   currentStatus?: VehicleCurrentStopStatus | null;
   bearing?: number | null;
-  stop?: Stop | null;
+  stop?: MbtaStop | null;
   route?: MbtaRoute | null;
 };
 

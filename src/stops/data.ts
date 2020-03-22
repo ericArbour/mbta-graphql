@@ -1,22 +1,26 @@
 import chunk from "lodash.chunk";
 
 import MbtaAPI from "../data/MbtaAPI";
-import { MbtaRESTError } from "../utils/utils";
+import { MbtaRESTError, objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
   isNotUndefined,
   Nullish,
   isCollectionResourceDoc,
   isArrayOfCollectionResourceDocs,
+  isRelationshipsWithData,
+  isResourceIdentifierObject,
+  isResourceIdentifierObjectArray,
   isDocWithData,
   BatchFieldConfig,
   BatchListFieldConfig
 } from "../types";
 
 import {
+  MbtaStop,
+  MbtaStopResource,
   StopsResolverArgs,
   StopResolverArgs,
-  MbtaStop,
-  isMbtaStop,
+  isMbtaStopResource,
   LocationType
 } from "./types";
 
@@ -50,8 +54,8 @@ export async function getStops(
 
   const result = await this.getParsedJSON(`stops?${queryString}`);
 
-  if (isCollectionResourceDoc(result, isMbtaStop)) {
-    return result.data;
+  if (isCollectionResourceDoc(result, isMbtaStopResource)) {
+    return result.data.map(mbtaStopResourceToMbtaStop);
   } else {
     throw new MbtaRESTError();
   }
@@ -72,8 +76,8 @@ export async function getStop(
     `stops/${args.id}?${fieldsAndIncludeParams}`
   );
 
-  if (isDocWithData(result, isMbtaStop)) {
-    return result.data;
+  if (isDocWithData(result, isMbtaStopResource)) {
+    return mbtaStopResourceToMbtaStop(result.data);
   } else {
     throw new MbtaRESTError();
   }
@@ -103,11 +107,16 @@ export async function batchStopLoadFn(
 
   const results = await Promise.all(requests);
 
-  if (isArrayOfCollectionResourceDocs(results, isMbtaStop)) {
-    const mbtaStops = results.flatMap(result => result.data);
+  if (isArrayOfCollectionResourceDocs(results, isMbtaStopResource)) {
+    const mbtaStopResources = results.flatMap(result => result.data);
     return configs
-      .map(config => mbtaStops.find(mbtaStop => mbtaStop.id === config.id))
-      .filter(isNotUndefined);
+      .map(config =>
+        mbtaStopResources.find(
+          mbtaStopResource => mbtaStopResource.id === config.id
+        )
+      )
+      .filter(isNotUndefined)
+      .map(mbtaStopResourceToMbtaStop);
   } else {
     throw new MbtaRESTError();
   }
@@ -137,12 +146,15 @@ export async function batchChildStopsLoadFn(
 
   const results = await Promise.all(requests);
 
-  if (isArrayOfCollectionResourceDocs(results, isMbtaStop)) {
-    const mbtaStops = results.flatMap(result => result.data);
+  if (isArrayOfCollectionResourceDocs(results, isMbtaStopResource)) {
+    const mbtaStopResources = results.flatMap(result => result.data);
     return configs.map(config =>
       config.ids
-        .map(id => mbtaStops.find(mbtaStop => mbtaStop.id === id))
+        .map(id =>
+          mbtaStopResources.find(mbtaStopResource => mbtaStopResource.id === id)
+        )
         .filter(isNotUndefined)
+        .map(mbtaStopResourceToMbtaStop)
     );
   } else {
     throw new MbtaRESTError();
@@ -165,8 +177,8 @@ export async function batchRouteStopsLoadFn(
       `stops?${fieldsAndIncludeParams}${routeFilterString}`
     );
 
-    if (isCollectionResourceDoc(result, isMbtaStop)) {
-      return [result.data];
+    if (isCollectionResourceDoc(result, isMbtaStopResource)) {
+      return [result.data.map(mbtaStopResourceToMbtaStop)];
     } else {
       throw new MbtaRESTError();
     }
@@ -185,8 +197,8 @@ export async function batchRouteStopsLoadFn(
     });
     const results = await Promise.all(requests);
 
-    if (isArrayOfCollectionResourceDocs(results, isMbtaStop)) {
-      return results.map(result => result.data);
+    if (isArrayOfCollectionResourceDocs(results, isMbtaStopResource)) {
+      return results.map(result => result.data.map(mbtaStopResourceToMbtaStop));
     } else {
       throw new MbtaRESTError();
     }
@@ -225,4 +237,40 @@ export function locationTypeToMbtaLocationType(locationType: LocationType) {
     case LocationType.BOARDING_AREA:
       return 4;
   }
+}
+
+function mbtaStopResourceToMbtaStop(
+  mbtaStopResource: MbtaStopResource
+): MbtaStop {
+  const { id = null, attributes = {}, relationships } = mbtaStopResource;
+  const childStopsRelationship = relationships?.child_stops;
+  const parentStationRelationship = relationships?.parent_station;
+
+  const childStopsRelationshipData = isRelationshipsWithData(
+    childStopsRelationship
+  )
+    ? childStopsRelationship.data
+    : null;
+  const childStops = isResourceIdentifierObjectArray(childStopsRelationshipData)
+    ? childStopsRelationshipData.map(({ id: stopId }) => ({ id: stopId }))
+    : [];
+  const parentStationRelationshipData = isRelationshipsWithData(
+    parentStationRelationship
+  )
+    ? parentStationRelationship.data
+    : null;
+  const parentStation = isResourceIdentifierObject(
+    parentStationRelationshipData
+  )
+    ? { id: parentStationRelationshipData.id }
+    : null;
+
+  const camelCaseAttributes = objSnakeKeysToCamelKeys(attributes);
+
+  return {
+    id,
+    ...camelCaseAttributes,
+    childStops,
+    parentStation
+  };
 }
