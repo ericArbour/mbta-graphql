@@ -23,7 +23,7 @@ export const typeDefs = [
   routeTypeDefs
 ];
 
-export const resolvers: IResolvers<any, IContext> = merge(
+export const resolvers: IResolvers<unknown, IContext> = merge(
   {
     Query: {}
   },

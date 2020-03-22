@@ -1,11 +1,11 @@
 import MbtaAPI from "../data/MbtaAPI";
-import { MbtaRESTError, objSnakeKeysToCamelKeys } from "../utils/utils";
+import { objSnakeKeysToCamelKeys, MbtaRESTError } from "../utils/utils";
 import {
   isNotNull,
   Nullish,
   isNotUndefined,
   isCollectionResourceDoc,
-  isArrayOfCollectionResourceDocs,
+  isCollectionResourceDocsArray,
   isDocWithData,
   isRelationshipsWithData,
   isResourceIdentifierObject,
@@ -48,7 +48,7 @@ export async function getRoutes(
 
   const result = await this.getParsedJSON(`routes?${queryString}`);
 
-  if (isCollectionResourceDoc(result, isMbtaRouteResource)) {
+  if (isCollectionResourceDoc(isMbtaRouteResource, result)) {
     return result.data.map(mbtaRouteResourceToMbtaRoute);
   } else {
     throw new MbtaRESTError();
@@ -70,7 +70,7 @@ export async function getRoute(
     `routes/${args.id}?${fieldsAndIncludeParams}`
   );
 
-  if (isDocWithData(result, isMbtaRouteResource)) {
+  if (isDocWithData(isMbtaRouteResource, result)) {
     return mbtaRouteResourceToMbtaRoute(result.data);
   } else {
     throw new MbtaRESTError();
@@ -93,7 +93,7 @@ export async function batchRouteLoadFn(
     `routes?${fieldsAndIncludeParams}${batchIdsString}`
   );
 
-  if (isCollectionResourceDoc(result, isMbtaRouteResource)) {
+  if (isCollectionResourceDoc(isMbtaRouteResource, result)) {
     const mbtaRouteResources = result.data;
     return configs
       .map(config =>
@@ -125,7 +125,7 @@ export async function batchStopRoutesLoadFn(
       `routes?${fieldsAndIncludeParams}${stopFilterString}`
     );
 
-    if (isCollectionResourceDoc(result, isMbtaRouteResource)) {
+    if (isCollectionResourceDoc(isMbtaRouteResource, result)) {
       return [result.data.map(mbtaRouteResourceToMbtaRoute)];
     } else {
       throw new MbtaRESTError();
@@ -134,7 +134,7 @@ export async function batchStopRoutesLoadFn(
     const routesResult = await this.getParsedJSON(
       `/routes?${fieldsAndIncludeParams}`
     );
-    if (!isCollectionResourceDoc(routesResult, isMbtaRouteResource))
+    if (!isCollectionResourceDoc(isMbtaRouteResource, routesResult))
       throw new MbtaRESTError();
 
     const mbtaRouteResources = routesResult.data;
@@ -145,7 +145,7 @@ export async function batchStopRoutesLoadFn(
     });
 
     const stopResults = await Promise.all(stopRequests);
-    if (!isArrayOfCollectionResourceDocs(stopResults, isMbtaStopResource))
+    if (!isCollectionResourceDocsArray(isMbtaStopResource, stopResults))
       throw new MbtaRESTError();
 
     const mbtaStopResources = stopResults.flatMap(result => result.data);

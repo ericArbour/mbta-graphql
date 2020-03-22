@@ -14,7 +14,7 @@ import {
 } from "./types";
 import { mbtaLocationTypeToLocationType } from "./data";
 
-const resolvers: IResolvers<any, IContext> = {
+const resolvers: IResolvers<unknown, IContext> = {
   Query: {
     stops: async (
       parent,

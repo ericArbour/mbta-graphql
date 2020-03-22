@@ -27,8 +27,8 @@ export type MbtaVehicleResource = JSONAPI.ResourceObject<
   MbtaVehicleAttributes
 >;
 
-export function isMbtaVehicleResource(a: any): a is MbtaVehicleResource {
-  return isResourceObject(a) && a.type === "vehicle";
+export function isMbtaVehicleResource(x: unknown): x is MbtaVehicleResource {
+  return isResourceObject(x) && x.type === "vehicle";
 }
 
 export type MbtaVehicle = {

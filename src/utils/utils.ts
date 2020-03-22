@@ -14,12 +14,15 @@ function camelToSnake(str: string) {
 }
 
 export function objSnakeKeysToCamelKeys(obj: object) {
-  return Object.entries(obj).reduce((newObj: { [key: string]: any }, entry) => {
-    const [key, value] = entry;
-    const camelKey = snakeToCamel(key);
-    newObj[camelKey] = value;
-    return newObj;
-  }, {});
+  return Object.entries(obj).reduce(
+    (newObj: { [key: string]: unknown }, entry) => {
+      const [key, value] = entry;
+      const camelKey = snakeToCamel(key);
+      newObj[camelKey] = value;
+      return newObj;
+    },
+    {}
+  );
 }
 
 export function getFieldsFromInfo(info: GraphQLResolveInfo): string[] {

@@ -40,7 +40,7 @@ export async function getVehicles(
 
   const result = await this.getParsedJSON(`vehicles?${queryString}`);
 
-  if (isCollectionResourceDoc(result, isMbtaVehicleResource)) {
+  if (isCollectionResourceDoc(isMbtaVehicleResource, result)) {
     return result.data.map(mbtaVehicleResourceToMbtaVehicle);
   } else {
     throw new MbtaRESTError();
@@ -62,7 +62,7 @@ export async function getVehicle(
     `vehicles/${args.id}?${fieldsAndIncludeParams}`
   );
 
-  if (isDocWithData(result, isMbtaVehicleResource)) {
+  if (isDocWithData(isMbtaVehicleResource, result)) {
     return mbtaVehicleResourceToMbtaVehicle(result.data);
   } else {
     throw new MbtaRESTError();
@@ -85,7 +85,7 @@ export async function batchRouteVehiclesLoadFn(
       `vehicles?${fieldsAndIncludeParams}${routeFilterString}`
     );
 
-    if (isCollectionResourceDoc(result, isMbtaVehicleResource)) {
+    if (isCollectionResourceDoc(isMbtaVehicleResource, result)) {
       return [result.data.map(mbtaVehicleResourceToMbtaVehicle)];
     } else {
       throw new MbtaRESTError();
@@ -101,7 +101,7 @@ export async function batchRouteVehiclesLoadFn(
       `vehicles?${fieldsAndIncludeParams}`
     );
 
-    if (isCollectionResourceDoc(result, isMbtaVehicleResource)) {
+    if (isCollectionResourceDoc(isMbtaVehicleResource, result)) {
       const mbtaVehicleResources = result.data;
 
       return configs.map(config => {

@@ -123,11 +123,11 @@ export default class MbtaAPI extends RESTDataSource {
     return this.batchStopRoutesDataLoader.load(config);
   }
 
-  getParsedJSON(path: string): Promise<any> {
+  getParsedJSON(path: string): Promise<unknown> {
     return this.parseAsyncJSON(this.get(path));
   }
 
-  private async parseAsyncJSON(promise: Promise<string>): Promise<any> {
+  private async parseAsyncJSON(promise: Promise<string>): Promise<unknown> {
     const jsonString = await promise;
     return JSON.parse(jsonString);
   }

@@ -22,8 +22,8 @@ export type MbtaRouteResource = JSONAPI.ResourceObject<
   MbtaRouteResourceAttributes
 >;
 
-export function isMbtaRouteResource(a: any): a is MbtaRouteResource {
-  return isResourceObject(a) && a.type === "route";
+export function isMbtaRouteResource(x: unknown): x is MbtaRouteResource {
+  return isResourceObject(x) && x.type === "route";
 }
 
 export enum RouteType {

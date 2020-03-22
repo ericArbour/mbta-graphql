@@ -6,7 +6,7 @@ import {
   isNotUndefined,
   Nullish,
   isCollectionResourceDoc,
-  isArrayOfCollectionResourceDocs,
+  isCollectionResourceDocsArray,
   isRelationshipsWithData,
   isResourceIdentifierObject,
   isResourceIdentifierObjectArray,
@@ -54,7 +54,7 @@ export async function getStops(
 
   const result = await this.getParsedJSON(`stops?${queryString}`);
 
-  if (isCollectionResourceDoc(result, isMbtaStopResource)) {
+  if (isCollectionResourceDoc(isMbtaStopResource, result)) {
     return result.data.map(mbtaStopResourceToMbtaStop);
   } else {
     throw new MbtaRESTError();
@@ -76,7 +76,7 @@ export async function getStop(
     `stops/${args.id}?${fieldsAndIncludeParams}`
   );
 
-  if (isDocWithData(result, isMbtaStopResource)) {
+  if (isDocWithData(isMbtaStopResource, result)) {
     return mbtaStopResourceToMbtaStop(result.data);
   } else {
     throw new MbtaRESTError();
@@ -107,7 +107,7 @@ export async function batchStopLoadFn(
 
   const results = await Promise.all(requests);
 
-  if (isArrayOfCollectionResourceDocs(results, isMbtaStopResource)) {
+  if (isCollectionResourceDocsArray(isMbtaStopResource, results)) {
     const mbtaStopResources = results.flatMap(result => result.data);
     return configs
       .map(config =>
@@ -146,7 +146,7 @@ export async function batchChildStopsLoadFn(
 
   const results = await Promise.all(requests);
 
-  if (isArrayOfCollectionResourceDocs(results, isMbtaStopResource)) {
+  if (isCollectionResourceDocsArray(isMbtaStopResource, results)) {
     const mbtaStopResources = results.flatMap(result => result.data);
     return configs.map(config =>
       config.ids
@@ -177,7 +177,7 @@ export async function batchRouteStopsLoadFn(
       `stops?${fieldsAndIncludeParams}${routeFilterString}`
     );
 
-    if (isCollectionResourceDoc(result, isMbtaStopResource)) {
+    if (isCollectionResourceDoc(isMbtaStopResource, result)) {
       return [result.data.map(mbtaStopResourceToMbtaStop)];
     } else {
       throw new MbtaRESTError();
@@ -197,7 +197,7 @@ export async function batchRouteStopsLoadFn(
     });
     const results = await Promise.all(requests);
 
-    if (isArrayOfCollectionResourceDocs(results, isMbtaStopResource)) {
+    if (isCollectionResourceDocsArray(isMbtaStopResource, results)) {
       return results.map(result => result.data.map(mbtaStopResourceToMbtaStop));
     } else {
       throw new MbtaRESTError();

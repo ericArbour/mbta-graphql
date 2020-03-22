@@ -14,7 +14,7 @@ import {
 } from "./types";
 import { mbtaRouteTypeToRouteType } from "./data";
 
-const resolvers: IResolvers<any, IContext> = {
+const resolvers: IResolvers<unknown, IContext> = {
   Query: {
     routes: async (
       parent,

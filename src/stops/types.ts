@@ -23,8 +23,8 @@ export type MbtaStopResource = JSONAPI.ResourceObject<
   MbtaStopAttributes
 >;
 
-export function isMbtaStopResource(a: any): a is MbtaStopResource {
-  return isResourceObject(a) && a.type === "stop";
+export function isMbtaStopResource(x: unknown): x is MbtaStopResource {
+  return isResourceObject(x) && x.type === "stop";
 }
 
 export enum LocationType {

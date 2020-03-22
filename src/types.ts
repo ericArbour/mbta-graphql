@@ -38,61 +38,90 @@ export function isNotNullish<T>(x: T | Nullish): x is T {
   return !isNullish(x);
 }
 
-export function isResourceObject(a: any): a is JSONAPI.ResourceObject {
+function isObject(x: unknown): x is object {
+  return typeof x === "object" && isNotNull(x);
+}
+
+export function isResourceObject(x: unknown): x is JSONAPI.ResourceObject {
+  if (!isObject(x)) return false;
+  const resourceObject = x as JSONAPI.ResourceObject;
+
   return (
-    typeof a === "object" &&
-    typeof a.id === "string" &&
-    typeof a.type === "string" &&
-    typeof a.attributes === "object"
+    typeof resourceObject.id === "string" &&
+    typeof resourceObject.type === "string" &&
+    isObject(resourceObject.attributes)
   );
 }
 
 export function isDocWithData<A extends { [k: string]: JSON.Value }>(
-  a: any,
-  isA: (a: any) => a is JSONAPI.ResourceObject<string, A>
-): a is JSONAPI.DocWithData<JSONAPI.ResourceObject<string, A>> {
-  return typeof a === "object" && typeof a.data === "object" && isA(a.data);
+  isType: (x: unknown) => x is JSONAPI.ResourceObject<string, A>,
+  x: unknown
+): x is JSONAPI.DocWithData<JSONAPI.ResourceObject<string, A>> {
+  if (!isObject(x)) return false;
+  const test = x;
+
+  const data = (x as JSONAPI.DocWithData<JSONAPI.ResourceObject<string, A>>)
+    .data;
+
+  return isType(data);
 }
 
 export function isCollectionResourceDoc<A extends { [k: string]: JSON.Value }>(
-  a: any,
-  isA: (a: any) => a is JSONAPI.ResourceObject<string, A>
-): a is JSONAPI.CollectionResourceDoc<string, A> {
-  return typeof a === "object" && Array.isArray(a.data) && a.data.every(isA);
+  isType: (x: unknown) => x is JSONAPI.ResourceObject<string, A>,
+  x: unknown
+): x is JSONAPI.CollectionResourceDoc<string, A> {
+  if (!isObject(x)) return false;
+
+  const data = (x as JSONAPI.CollectionResourceDoc<string, A>).data;
+
+  return Array.isArray(data) && data.every(isType);
 }
 
-export function isArrayOfCollectionResourceDocs<
+export function isCollectionResourceDocsArray<
   A extends { [k: string]: JSON.Value }
 >(
-  as: any[],
-  isA: (a: any) => a is JSONAPI.ResourceObject<string, A>
-): as is JSONAPI.CollectionResourceDoc<string, A>[] {
-  return as.every(a => isCollectionResourceDoc(a, isA));
+  isType: (x: unknown) => x is JSONAPI.ResourceObject<string, A>,
+  xs: unknown
+): xs is JSONAPI.CollectionResourceDoc<string, A>[] {
+  if (!Array.isArray(xs)) return false;
+
+  return xs.every(x => isCollectionResourceDoc(isType, x));
 }
 
 export function isRelationshipsWithData(
-  relationship: JSONAPI.RelationshipObject | undefined
-): relationship is JSONAPI.RelationshipsWithData {
-  const data = (relationship as JSONAPI.RelationshipsWithData)?.data;
-  return typeof data === "object" && data !== null;
+  maybeRelationship: JSONAPI.RelationshipObject | undefined
+): maybeRelationship is JSONAPI.RelationshipsWithData {
+  if (!isObject(maybeRelationship)) return false;
+
+  const data = (maybeRelationship as JSONAPI.RelationshipsWithData).data;
+
+  return isObject(data);
 }
 
 export function isResourceIdentifierObject(
-  relationship: JSONAPI.ResourceLinkage | undefined
-): relationship is JSONAPI.ResourceIdentifierObject {
-  const id = (relationship as JSONAPI.ResourceIdentifierObject)?.id;
-  return typeof id === "number" || typeof id === "string";
+  maybeResourceLinkage: JSONAPI.ResourceLinkage | undefined
+): maybeResourceLinkage is JSONAPI.ResourceIdentifierObject {
+  if (!isObject(maybeResourceLinkage)) return false;
+
+  const resourceIdObj = maybeResourceLinkage as JSONAPI.ResourceIdentifierObject;
+
+  return (
+    isObject(resourceIdObj) &&
+    (typeof resourceIdObj.id === "number" ||
+      typeof resourceIdObj.id === "string")
+  );
 }
 
 export function isResourceIdentifierObjectArray(
-  relationship: JSONAPI.ResourceLinkage | undefined
-): relationship is JSONAPI.ResourceIdentifierObject[] {
-  const relationshipArray = relationship as JSONAPI.ResourceIdentifierObject[];
+  maybeResourceLinkage: JSONAPI.ResourceLinkage | undefined
+): maybeResourceLinkage is JSONAPI.ResourceIdentifierObject[] {
+  if (!isObject(maybeResourceLinkage)) return false;
+
+  const resourceIdObjArr = maybeResourceLinkage as JSONAPI.ResourceIdentifierObject[];
+
   return (
-    relationship !== undefined &&
-    relationship !== null &&
-    Array.isArray(relationshipArray) &&
-    relationshipArray.every(isResourceIdentifierObject)
+    Array.isArray(resourceIdObjArr) &&
+    resourceIdObjArr.every(isResourceIdentifierObject)
   );
 }
 
@@ -107,5 +136,5 @@ export type FragmentMap = {
 export function isFragmentMap(
   maybeFragmentMap: FragmentMap | undefined
 ): maybeFragmentMap is FragmentMap {
-  return maybeFragmentMap !== undefined;
+  return isNotUndefined(maybeFragmentMap) && isObject(maybeFragmentMap);
 }

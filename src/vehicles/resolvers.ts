@@ -11,7 +11,7 @@ import {
   VehicleResolverArgs
 } from "./types";
 
-const resolvers: IResolvers<any, IContext> = {
+const resolvers: IResolvers<unknown, IContext> = {
   Query: {
     vehicles: async (
       parent,
