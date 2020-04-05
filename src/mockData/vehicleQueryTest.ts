@@ -1,4 +1,4 @@
-export const response1 = JSON.stringify({
+export const vehicleResponse = JSON.stringify({
   data: {
     attributes: {},
     id: "VEHICLE1",
@@ -6,38 +6,63 @@ export const response1 = JSON.stringify({
       stop: {
         data: {
           id: "STOP1",
-          type: "stop"
-        }
-      }
+          type: "stop",
+        },
+      },
+      route: {
+        data: {
+          id: "ROUTE1",
+          type: "route",
+        },
+      },
     },
-    type: "vehicle"
-  }
+    type: "vehicle",
+  },
 });
 
-export const response2 = JSON.stringify({
+export const stopResponse = JSON.stringify({
   data: [
     {
       attributes: {
-        location_type: 1
+        location_type: 1,
       },
       id: "STOP1",
       relationships: {
         child_stops: {
-          data: null
+          data: null,
         },
         parent_station: {
-          data: null
-        }
+          data: null,
+        },
       },
-      type: "stop"
-    }
-  ]
+      type: "stop",
+    },
+  ],
 });
 
-export const result = {
+export const routeResponse = JSON.stringify({
+  data: [
+    {
+      attributes: {},
+      id: "ROUTE1",
+      relationships: {},
+      type: "route",
+    },
+  ],
+});
+
+export const stopResult = {
   vehicle: {
     stop: {
-      locationType: "STATION"
-    }
-  }
+      locationType: "STATION",
+    },
+  },
+};
+
+export const routeResult = {
+  vehicle: {
+    route: {
+      id: "ROUTE1",
+    },
+  },
 };

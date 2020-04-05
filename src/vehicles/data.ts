@@ -16,17 +16,26 @@ import {
 } from "./types";
 
 const vehicleRelationships: string[] = ["stop", "route"];
+const ignoreFields: string[] = [];
+
+export function getVehicleFieldsAndIncludeParams(
+  this: MbtaAPI,
+  fields: string[]
+) {
+  return this.getFieldsAndIncludeParams(
+    "vehicle",
+    vehicleRelationships,
+    ignoreFields,
+    fields
+  );
+}
 
 export async function getVehicles(
   this: MbtaAPI,
   fields: string[],
   args: VehiclesResolverArgs
 ): Promise<MbtaVehicle[]> {
-  const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-    "vehicle",
-    fields,
-    vehicleRelationships
-  );
+  const fieldsAndIncludeParams = this.getVehicleFieldsAndIncludeParams(fields);
   const vehicleIdFilter = args.filter?.vehicleIdFilter;
   const labelFilter = args.filter?.labelFilter;
   const vehicleIdFilterString = vehicleIdFilter?.length
@@ -50,11 +59,7 @@ export async function getVehicle(
   fields: string[],
   args: VehicleResolverArgs
 ): Promise<MbtaVehicle> {
-  const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-    "vehicle",
-    fields,
-    vehicleRelationships
-  );
+  const fieldsAndIncludeParams = this.getVehicleFieldsAndIncludeParams(fields);
 
   const result = await this.getTypedParsedJSON(
     `vehicles/${args.id}?${fieldsAndIncludeParams}`,
@@ -70,10 +75,8 @@ export async function batchRouteVehiclesLoadFn(
 ): Promise<MbtaVehicle[][]> {
   if (configs.length === 1) {
     const [config] = configs;
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "vehicle",
-      config.fields,
-      vehicleRelationships
+    const fieldsAndIncludeParams = this.getVehicleFieldsAndIncludeParams(
+      config.fields
     );
     const routeFilterString = `&filter[route]=${config.id}`;
     const result = await this.getTypedParsedJSON(
@@ -84,11 +87,11 @@ export async function batchRouteVehiclesLoadFn(
     return [result.data.map(mbtaVehicleResourceToMbtaVehicle)];
   } else {
     const fields = configs.flatMap((config) => config.fields);
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "vehicle",
-      [...fields, "route"],
-      vehicleRelationships
-    );
+    const fieldsAndIncludeParams = this.getVehicleFieldsAndIncludeParams([
+      ...fields,
+      // Always include route so the relationship is requested
+      "route",
+    ]);
     const result = await this.getTypedParsedJSON(
       `vehicles?${fieldsAndIncludeParams}`,
       isMbtaVehicleResourceCollection

@@ -7,7 +7,8 @@ import { MbtaVehicle } from "../vehicles/types";
 import {
   getVehicles,
   getVehicle,
-  batchRouteVehiclesLoadFn
+  batchRouteVehiclesLoadFn,
+  getVehicleFieldsAndIncludeParams,
 } from "../vehicles/data";
 import { MbtaStop } from "../stops/types";
 import {
@@ -15,14 +16,16 @@ import {
   getStop,
   batchStopLoadFn,
   batchChildStopsLoadFn,
-  batchRouteStopsLoadFn
+  batchRouteStopsLoadFn,
+  getStopFieldsAndIncludeParams,
 } from "../stops/data";
 import { MbtaRoute } from "../routes/types";
 import {
   getRoutes,
   getRoute,
   batchRouteLoadFn,
-  batchStopRoutesLoadFn
+  batchStopRoutesLoadFn,
+  getRouteFieldsAndIncludeParams,
 } from "../routes/data";
 
 export default class MbtaAPI extends RESTDataSource {
@@ -37,18 +40,19 @@ export default class MbtaAPI extends RESTDataSource {
 
   protected getFieldsAndIncludeParams(
     pathType: string,
-    fields: string[],
     relationships: string[],
-    ignoreFields: string[] | undefined = []
+    // Fields the graphql api supports that aren't attributes or relationships in MBTA api
+    ignoreFields: string[] | undefined = [],
+    fields: string[]
   ): string {
     const uniqueFields = [...new Set(fields)].filter(
-      field => !ignoreFields?.includes(field)
+      (field) => !ignoreFields.includes(field)
     );
-    const relationshipsFields = uniqueFields.filter(field =>
+    const relationshipsFields = uniqueFields.filter((field) =>
       relationships.includes(field)
     );
     const attributeFields = uniqueFields.filter(
-      field => !relationships.includes(field)
+      (field) => !relationships.includes(field)
     );
     const fieldsString = `fields[${pathType}]=${attributeFields.join(",")}`;
     const includeRelationshipsString = relationshipsFields.length
@@ -56,7 +60,7 @@ export default class MbtaAPI extends RESTDataSource {
       : "";
     const includeRelationshipsFieldsString = relationshipsFields.length
       ? `${relationshipsFields
-          .map(relationshipsField => `&fields[${relationshipsField}]=`)
+          .map((relationshipsField) => `&fields[${relationshipsField}]=`)
           .join("")}`
       : "";
 
@@ -65,6 +69,7 @@ export default class MbtaAPI extends RESTDataSource {
 
   getVehicles = getVehicles;
   getVehicle = getVehicle;
+  protected getVehicleFieldsAndIncludeParams = getVehicleFieldsAndIncludeParams;
 
   private batchRouteVehiclesDataLoader = new DataLoader<
     BatchFieldConfig,
@@ -77,6 +82,7 @@ export default class MbtaAPI extends RESTDataSource {
 
   getStops = getStops;
   getStop = getStop;
+  protected getStopFieldsAndIncludeParams = getStopFieldsAndIncludeParams;
 
   private batchStopDataLoader = new DataLoader<BatchFieldConfig, MbtaStop>(
     batchStopLoadFn.bind(this)
@@ -106,6 +112,7 @@ export default class MbtaAPI extends RESTDataSource {
 
   getRoutes = getRoutes;
   getRoute = getRoute;
+  protected getRouteFieldsAndIncludeParams = getRouteFieldsAndIncludeParams;
 
   private batchRouteDataLoader = new DataLoader<BatchFieldConfig, MbtaRoute>(
     batchRouteLoadFn.bind(this)

@@ -1,7 +1,7 @@
 import chunk from "lodash.chunk";
 
 import MbtaAPI from "../data/MbtaAPI";
-import { MbtaRESTError, objSnakeKeysToCamelKeys } from "../utils/utils";
+import { objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
   isNotUndefined,
   Nullish,
@@ -9,7 +9,7 @@ import {
   isResourceIdentifierObject,
   isResourceIdentifierObjectArray,
   BatchFieldConfig,
-  BatchListFieldConfig
+  BatchListFieldConfig,
 } from "../types";
 
 import {
@@ -19,21 +19,27 @@ import {
   StopResolverArgs,
   isMbtaStopResourceDoc,
   isMbtaStopResourceCollection,
-  LocationType
+  LocationType,
 } from "./types";
 
-const stopRelationships: string[] = ["child_stops", "parent_station", "route"];
+const stopRelationships = ["child_stops", "parent_station", "route"];
+const ignoreFields = ["routes"];
+
+export function getStopFieldsAndIncludeParams(this: MbtaAPI, fields: string[]) {
+  return this.getFieldsAndIncludeParams(
+    "stop",
+    stopRelationships,
+    ignoreFields,
+    fields
+  );
+}
 
 export async function getStops(
   this: MbtaAPI,
   fields: string[],
   args: StopsResolverArgs
 ): Promise<MbtaStop[]> {
-  const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-    "stop",
-    fields,
-    stopRelationships
-  );
+  const fieldsAndIncludeParams = this.getStopFieldsAndIncludeParams(fields);
   const stopIdFilter = args.filter?.stopIdFilter;
   const locationTypeFilter = args.filter?.locationTypeFilter;
   const locationFilter = args.filter?.locationFilter;
@@ -63,11 +69,7 @@ export async function getStop(
   fields: string[],
   args: StopResolverArgs
 ): Promise<MbtaStop> {
-  const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-    "stop",
-    fields,
-    stopRelationships
-  );
+  const fieldsAndIncludeParams = this.getStopFieldsAndIncludeParams(fields);
 
   const result = await this.getTypedParsedJSON(
     `stops/${args.id}?${fieldsAndIncludeParams}`,
@@ -81,18 +83,14 @@ export async function batchStopLoadFn(
   this: MbtaAPI,
   configs: readonly BatchFieldConfig[]
 ): Promise<MbtaStop[]> {
-  const fields = configs.flatMap(config => config.fields);
-  const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-    "stop",
-    fields,
-    stopRelationships
-  );
+  const fields = configs.flatMap((config) => config.fields);
+  const fieldsAndIncludeParams = this.getStopFieldsAndIncludeParams(fields);
 
   const stopIds = configs.map(({ id }) => id);
   // requests are chunked in batches of 400 to prevent URL size limitations
   const stopIdsChunks = chunk(stopIds, 400);
 
-  const requests = stopIdsChunks.map(chunkOfstopIds => {
+  const requests = stopIdsChunks.map((chunkOfstopIds) => {
     const batchIdsString = `&filter[id]=${chunkOfstopIds.join(",")}`;
     return this.getTypedParsedJSON(
       `stops?${fieldsAndIncludeParams}${batchIdsString}`,
@@ -101,11 +99,11 @@ export async function batchStopLoadFn(
   });
   const results = await Promise.all(requests);
 
-  const mbtaStopResources = results.flatMap(result => result.data);
+  const mbtaStopResources = results.flatMap((result) => result.data);
   return configs
-    .map(config =>
+    .map((config) =>
       mbtaStopResources.find(
-        mbtaStopResource => mbtaStopResource.id === config.id
+        (mbtaStopResource) => mbtaStopResource.id === config.id
       )
     )
     .filter(isNotUndefined)
@@ -116,18 +114,14 @@ export async function batchChildStopsLoadFn(
   this: MbtaAPI,
   configs: readonly BatchListFieldConfig[]
 ): Promise<MbtaStop[][]> {
-  const fields = configs.flatMap(config => config.fields);
-  const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-    "stop",
-    fields,
-    stopRelationships
-  );
+  const fields = configs.flatMap((config) => config.fields);
+  const fieldsAndIncludeParams = this.getStopFieldsAndIncludeParams(fields);
 
-  const uniqueChildIds = [...new Set(configs.flatMap(config => config.ids))];
+  const uniqueChildIds = [...new Set(configs.flatMap((config) => config.ids))];
   // requests are chunked in batches of 400 to prevent URL size limitations
   const childIdsChunks = chunk(uniqueChildIds, 400);
 
-  const requests = childIdsChunks.map(childIds => {
+  const requests = childIdsChunks.map((childIds) => {
     const childIdsString = `&filter[id]=${childIds.join(",")}`;
     return this.getTypedParsedJSON(
       `stops?${fieldsAndIncludeParams}${childIdsString}`,
@@ -136,11 +130,11 @@ export async function batchChildStopsLoadFn(
   });
   const results = await Promise.all(requests);
 
-  const mbtaStopResources = results.flatMap(result => result.data);
-  return configs.map(config =>
+  const mbtaStopResources = results.flatMap((result) => result.data);
+  return configs.map((config) =>
     config.ids
-      .map(id =>
-        mbtaStopResources.find(mbtaStopResource => mbtaStopResource.id === id)
+      .map((id) =>
+        mbtaStopResources.find((mbtaStopResource) => mbtaStopResource.id === id)
       )
       .filter(isNotUndefined)
       .map(mbtaStopResourceToMbtaStop)
@@ -153,10 +147,8 @@ export async function batchRouteStopsLoadFn(
 ): Promise<MbtaStop[][]> {
   if (configs.length === 1) {
     const [config] = configs;
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "stop",
-      config.fields,
-      stopRelationships
+    const fieldsAndIncludeParams = this.getStopFieldsAndIncludeParams(
+      config.fields
     );
     const routeFilterString = `&filter[route]=${config.id}`;
     const result = await this.getTypedParsedJSON(
@@ -166,14 +158,10 @@ export async function batchRouteStopsLoadFn(
 
     return [result.data.map(mbtaStopResourceToMbtaStop)];
   } else {
-    const fields = configs.flatMap(config => config.fields);
-    const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-      "stop",
-      fields,
-      stopRelationships
-    );
+    const fields = configs.flatMap((config) => config.fields);
+    const fieldsAndIncludeParams = this.getStopFieldsAndIncludeParams(fields);
 
-    const requests = configs.map(config => {
+    const requests = configs.map((config) => {
       const routeFilterString = `&filter[route]=${config.id}`;
       return this.getTypedParsedJSON(
         `stops?${fieldsAndIncludeParams}${routeFilterString}`,
@@ -182,7 +170,7 @@ export async function batchRouteStopsLoadFn(
     });
     const results = await Promise.all(requests);
 
-    return results.map(result => result.data.map(mbtaStopResourceToMbtaStop));
+    return results.map((result) => result.data.map(mbtaStopResourceToMbtaStop));
   }
 }
 
@@ -252,6 +240,6 @@ function mbtaStopResourceToMbtaStop(
     id,
     ...camelCaseAttributes,
     childStops,
-    parentStation
+    parentStation,
   };
 }

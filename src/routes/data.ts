@@ -23,17 +23,24 @@ import {
 const routeRelationships: string[] = [];
 const ignoreFields = ["vehicles", "stops"];
 
+export function getRouteFieldsAndIncludeParams(
+  this: MbtaAPI,
+  fields: string[]
+) {
+  return this.getFieldsAndIncludeParams(
+    "route",
+    routeRelationships,
+    ignoreFields,
+    fields
+  );
+}
+
 export async function getRoutes(
   this: MbtaAPI,
   fields: string[],
   args: RoutesResolverArgs
 ): Promise<MbtaRoute[]> {
-  const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-    "route",
-    fields,
-    routeRelationships,
-    ignoreFields
-  );
+  const fieldsAndIncludeParams = this.getRouteFieldsAndIncludeParams(fields);
   const routeIdFilter = args.filter?.routeIdFilter;
   const typeFilter = args.filter?.typeFilter;
   const routeIdFilterString = routeIdFilter?.length
@@ -57,12 +64,7 @@ export async function getRoute(
   fields: string[],
   args: RouteResolverArgs
 ): Promise<MbtaRoute> {
-  const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-    "route",
-    fields,
-    routeRelationships,
-    ignoreFields
-  );
+  const fieldsAndIncludeParams = this.getRouteFieldsAndIncludeParams(fields);
 
   const result = await this.getTypedParsedJSON(
     `routes/${args.id}?${fieldsAndIncludeParams}`,
@@ -78,11 +80,7 @@ export async function batchRouteLoadFn(
 ): Promise<MbtaRoute[]> {
   const batchIdsString = `&filter[id]=${configs.map(({ id }) => id).join(",")}`;
   const fields = configs.flatMap((config) => config.fields);
-  const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-    "route",
-    fields,
-    routeRelationships
-  );
+  const fieldsAndIncludeParams = this.getRouteFieldsAndIncludeParams(fields);
 
   const result = await this.getTypedParsedJSON(
     `routes?${fieldsAndIncludeParams}${batchIdsString}`,
@@ -105,11 +103,8 @@ export async function batchStopRoutesLoadFn(
   configs: readonly BatchFieldConfig[]
 ): Promise<MbtaRoute[][]> {
   const fields = configs.flatMap((config) => config.fields);
-  const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
-    "route",
-    fields,
-    routeRelationships
-  );
+  const fieldsAndIncludeParams = this.getRouteFieldsAndIncludeParams(fields);
+
   if (configs.length === 1) {
     const [config] = configs;
     const stopFilterString = `&filter[stop]=${config.id}`;

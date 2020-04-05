@@ -4,12 +4,14 @@ import { gql } from "apollo-server";
 import { constructTestServer } from "../utils/testUtils";
 import { mockGet } from "../__mocks__/apollo-datasource-rest";
 import {
-  response1,
-  response2,
-  response3,
-  response4,
-  response5,
-  result
+  stopResponse1,
+  stopResponse2,
+  stopResponse3,
+  stopResponse4,
+  stopResponse5,
+  stopResult,
+  routeResponse,
+  routeResult,
 } from "../mockData/stopQueryTest";
 
 afterEach(() => {
@@ -38,11 +40,11 @@ describe("Stop query", () => {
 
   it("supports object field nesting of arbitrary depth ", async () => {
     mockGet
-      .mockReturnValueOnce(response1)
-      .mockReturnValueOnce(response2)
-      .mockReturnValueOnce(response3)
-      .mockReturnValueOnce(response4)
-      .mockReturnValueOnce(response5);
+      .mockReturnValueOnce(stopResponse1)
+      .mockReturnValueOnce(stopResponse2)
+      .mockReturnValueOnce(stopResponse3)
+      .mockReturnValueOnce(stopResponse4)
+      .mockReturnValueOnce(stopResponse5);
 
     const GET_STOP = gql`
       query GetStop {
@@ -109,6 +111,29 @@ describe("Stop query", () => {
       5,
       "stops?fields[stop]=location_type&filter[id]=STOP2,STOP3,STOP6"
     );
-    expect(res.data).toEqual(result);
+    expect(res.data).toEqual(stopResult);
+  });
+
+  it("correctly requests routes", async () => {
+    mockGet
+      .mockReturnValueOnce(stopResponse1)
+      .mockReturnValueOnce(routeResponse);
+    const GET_STOP = gql`
+      query GetStop {
+        stop(id: "STOP2") {
+          routes {
+            id
+          }
+        }
+      }
+    `;
+    const res = await query({ query: GET_STOP });
+
+    expect(mockGet).toHaveBeenNthCalledWith(1, "stops/STOP2?fields[stop]=");
+    expect(mockGet).toHaveBeenNthCalledWith(
+      2,
+      "routes?fields[route]=&filter[stop]=STOP2"
+    );
+    expect(res.data).toEqual(routeResult);
   });
 });

@@ -6,24 +6,24 @@ const stop1 = {
       data: [
         {
           id: "STOP2",
-          type: "stop"
+          type: "stop",
         },
         {
           id: "STOP3",
-          type: "stop"
-        }
-      ]
+          type: "stop",
+        },
+      ],
     },
     parent_station: {
-      data: null
-    }
+      data: null,
+    },
   },
-  type: "stop"
+  type: "stop",
 };
 
 const stop2 = {
   attributes: {
-    location_type: 0
+    location_type: 0,
   },
   id: "STOP2",
   relationships: {
@@ -31,22 +31,22 @@ const stop2 = {
       data: [
         {
           id: "STOP4",
-          type: "stop"
+          type: "stop",
         },
         {
           id: "STOP5",
-          type: "stop"
-        }
-      ]
+          type: "stop",
+        },
+      ],
     },
     parent_station: {
       data: {
         id: "STOP1",
-        type: "stop"
-      }
-    }
+        type: "stop",
+      },
+    },
   },
-  type: "stop"
+  type: "stop",
 };
 
 const stop3 = {
@@ -54,16 +54,16 @@ const stop3 = {
   id: "STOP3",
   relationships: {
     child_stops: {
-      data: null
+      data: null,
     },
     parent_station: {
       data: {
         id: "STOP1",
-        type: "stop"
-      }
-    }
+        type: "stop",
+      },
+    },
   },
-  type: "stop"
+  type: "stop",
 };
 
 const stop4 = {
@@ -71,16 +71,16 @@ const stop4 = {
   id: "STOP4",
   relationships: {
     child_stops: {
-      data: null
+      data: null,
     },
     parent_station: {
       data: {
         id: "STOP2",
-        type: "stop"
-      }
-    }
+        type: "stop",
+      },
+    },
   },
-  type: "stop"
+  type: "stop",
 };
 
 const stop5 = {
@@ -91,18 +91,18 @@ const stop5 = {
       data: [
         {
           id: "STOP6",
-          type: "stop"
-        }
-      ]
+          type: "stop",
+        },
+      ],
     },
     parent_station: {
       data: {
         id: "STOP2",
-        type: "stop"
-      }
-    }
+        type: "stop",
+      },
+    },
   },
-  type: "stop"
+  type: "stop",
 };
 
 const stop6 = {
@@ -110,16 +110,16 @@ const stop6 = {
   id: "STOP6",
   relationships: {
     child_stops: {
-      data: null
+      data: null,
     },
     parent_station: {
       data: {
         id: "STOP5",
-        type: "stop"
-      }
-    }
+        type: "stop",
+      },
+    },
   },
-  type: "stop"
+  type: "stop",
 };
 
 const stop7 = {
@@ -128,7 +128,7 @@ const stop7 = {
     description: "It's a stop",
     longitude: 40,
     latitude: 50,
-    vehicle_type: 1
+    vehicle_type: 1,
   },
   id: "STOP7",
   relationships: {
@@ -136,74 +136,91 @@ const stop7 = {
       data: [
         {
           id: "STOP8",
-          type: "stop"
-        }
-      ]
+          type: "stop",
+        },
+      ],
     },
     parent_station: {
-      data: null
-    }
+      data: null,
+    },
   },
-  type: "stop"
+  type: "stop",
 };
 
 const stop8 = {
   attributes: {
-    name: "Stop Eight"
+    name: "Stop Eight",
   },
   id: "STOP8",
   relationships: {
     child_stops: {
-      data: null
+      data: null,
     },
     parent_station: {
       data: {
         id: "STOP8",
-        type: "stop"
-      }
-    }
+        type: "stop",
+      },
+    },
   },
-  type: "stop"
+  type: "stop",
 };
 
-export const response1 = JSON.stringify({
-  data: stop2
+export const stopResponse1 = JSON.stringify({
+  data: stop2,
 });
 
-export const response2 = JSON.stringify({
-  data: stop7
+export const stopResponse2 = JSON.stringify({
+  data: stop7,
 });
 
-export const response3 = JSON.stringify({
-  data: [stop1]
+export const stopResponse3 = JSON.stringify({
+  data: [stop1],
 });
 
-export const response4 = JSON.stringify({
-  data: [stop4, stop5, stop8]
+export const stopResponse4 = JSON.stringify({
+  data: [stop4, stop5, stop8],
 });
 
-export const response5 = JSON.stringify({
-  data: [stop2, stop3, stop6]
+export const stopResponse5 = JSON.stringify({
+  data: [stop2, stop3, stop6],
 });
 
-export const result = {
+export const routeResponse = JSON.stringify({
+  data: [
+    {
+      attributes: {},
+      id: "ROUTE1",
+      relationships: {},
+      type: "route",
+    },
+    {
+      attributes: {},
+      id: "ROUTE2",
+      relationships: {},
+      type: "route",
+    },
+  ],
+});
+
+export const stopResult = {
   stop2: {
     id: "STOP2",
     parentStation: {
       id: "STOP1",
       me: [{ id: "STOP2" }],
-      siblingStations: [{ id: "STOP3" }]
+      siblingStations: [{ id: "STOP3" }],
     },
     childStops: [
       {
         id: "STOP4",
-        childStops: []
+        childStops: [],
       },
       {
         id: "STOP5",
-        childStops: [{ id: "STOP6" }]
-      }
-    ]
+        childStops: [{ id: "STOP6" }],
+      },
+    ],
   },
   stop7: {
     name: "Stop Seven",
@@ -214,8 +231,14 @@ export const result = {
     childStops: [
       {
         name: "Stop Eight",
-        childStops: []
-      }
-    ]
-  }
+        childStops: [],
+      },
+    ],
+  },
+};
+
+export const routeResult = {
+  stop: {
+    routes: [{ id: "ROUTE1" }, { id: "ROUTE2" }],
+  },
 };
