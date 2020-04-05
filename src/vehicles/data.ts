@@ -3,7 +3,7 @@ import { MbtaRESTError, objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
   isRelationshipsWithData,
   isResourceIdentifierObject,
-  BatchFieldConfig
+  BatchFieldConfig,
 } from "../types";
 
 import {
@@ -12,10 +12,10 @@ import {
   isMbtaVehicleResourceDoc,
   isMbtaVehicleResourceCollection,
   VehiclesResolverArgs,
-  VehicleResolverArgs
+  VehicleResolverArgs,
 } from "./types";
 
-const vehicleRelationships: string[] = ["stop"];
+const vehicleRelationships: string[] = ["stop", "route"];
 
 export async function getVehicles(
   this: MbtaAPI,
@@ -83,7 +83,7 @@ export async function batchRouteVehiclesLoadFn(
 
     return [result.data.map(mbtaVehicleResourceToMbtaVehicle)];
   } else {
-    const fields = configs.flatMap(config => config.fields);
+    const fields = configs.flatMap((config) => config.fields);
     const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
       "vehicle",
       [...fields, "route"],
@@ -96,9 +96,9 @@ export async function batchRouteVehiclesLoadFn(
 
     const mbtaVehicleResources = result.data;
 
-    return configs.map(config => {
+    return configs.map((config) => {
       const mbtaVehicleResourcesForRoute = mbtaVehicleResources.filter(
-        mbtaVehicleResource => {
+        (mbtaVehicleResource) => {
           const routeRelationship = mbtaVehicleResource.relationships?.route;
           const routeRelationshipData = isRelationshipsWithData(
             routeRelationship
@@ -130,7 +130,7 @@ function mbtaVehicleResourceToMbtaVehicle(
     : null;
   const stop = isResourceIdentifierObject(stopRelationshipData)
     ? {
-        id: stopRelationshipData.id
+        id: stopRelationshipData.id,
       }
     : null;
 
@@ -147,6 +147,6 @@ function mbtaVehicleResourceToMbtaVehicle(
     id,
     ...camelCaseAttributes,
     stop,
-    route
+    route,
   };
 }

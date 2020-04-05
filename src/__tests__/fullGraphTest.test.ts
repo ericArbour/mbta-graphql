@@ -6,9 +6,10 @@ import { mockGet } from "../__mocks__/apollo-datasource-rest";
 import {
   mbtaVehiclesResponse,
   mbtaStopsResponse,
+  mbtaRoutesResponse,
   mbtaChildStopsResponse,
   mbtaParentStopsResponse,
-  result
+  result,
 } from "../mockData/fullGraphTest";
 
 describe("Full graph query", () => {
@@ -16,6 +17,7 @@ describe("Full graph query", () => {
     mockGet
       .mockReturnValueOnce(mbtaVehiclesResponse)
       .mockReturnValueOnce(mbtaStopsResponse)
+      .mockReturnValueOnce(mbtaRoutesResponse)
       .mockReturnValueOnce(mbtaChildStopsResponse)
       .mockReturnValueOnce(mbtaParentStopsResponse);
 
@@ -40,6 +42,9 @@ describe("Full graph query", () => {
             childStops {
               ...StopFields
             }
+          }
+          route {
+            shortName
           }
         }
       }
@@ -67,7 +72,7 @@ describe("Full graph query", () => {
 
     expect(mockGet).toHaveBeenNthCalledWith(
       1,
-      "vehicles?fields[vehicle]=updated_at,speed,longitude,latitude,label,direction_id,current_stop_sequence,current_status,bearing&include=stop&fields[stop]="
+      "vehicles?fields[vehicle]=updated_at,speed,longitude,latitude,label,direction_id,current_stop_sequence,current_status,bearing&include=stop,route&fields[stop]=&fields[route]="
     );
     expect(mockGet).toHaveBeenNthCalledWith(
       2,
@@ -75,10 +80,14 @@ describe("Full graph query", () => {
     );
     expect(mockGet).toHaveBeenNthCalledWith(
       3,
-      "stops?fields[stop]=wheelchair_boarding,vehicle_type,platform_name,platform_code,on_street,name,municipality,latitude,longitude,location_type,description,at_street,address&filter[id]=STOP4,STOP5,STOP6,STOP7"
+      "routes?fields[route]=short_name&filter[id]=ROUTE1,ROUTE2,ROUTE3"
     );
     expect(mockGet).toHaveBeenNthCalledWith(
       4,
+      "stops?fields[stop]=wheelchair_boarding,vehicle_type,platform_name,platform_code,on_street,name,municipality,latitude,longitude,location_type,description,at_street,address&filter[id]=STOP4,STOP5,STOP6,STOP7"
+    );
+    expect(mockGet).toHaveBeenNthCalledWith(
+      5,
       "stops?fields[stop]=wheelchair_boarding,vehicle_type,platform_name,platform_code,on_street,name,municipality,latitude,longitude,location_type,description,at_street,address&filter[id]=STOP8,STOP9"
     );
     expect(res.data).toEqual(result);

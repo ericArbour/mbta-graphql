@@ -6,7 +6,7 @@ import {
   isNotUndefined,
   isRelationshipsWithData,
   isResourceIdentifierObject,
-  BatchFieldConfig
+  BatchFieldConfig,
 } from "../types";
 import { isMbtaStopResourceCollection } from "../stops/types";
 
@@ -17,7 +17,7 @@ import {
   isMbtaRouteResourceDoc,
   isMbtaRouteResourceCollection,
   RoutesResolverArgs,
-  RouteResolverArgs
+  RouteResolverArgs,
 } from "./types";
 
 const routeRelationships: string[] = [];
@@ -60,7 +60,8 @@ export async function getRoute(
   const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
     "route",
     fields,
-    routeRelationships
+    routeRelationships,
+    ignoreFields
   );
 
   const result = await this.getTypedParsedJSON(
@@ -76,7 +77,7 @@ export async function batchRouteLoadFn(
   configs: readonly BatchFieldConfig[]
 ): Promise<MbtaRoute[]> {
   const batchIdsString = `&filter[id]=${configs.map(({ id }) => id).join(",")}`;
-  const fields = configs.flatMap(config => config.fields);
+  const fields = configs.flatMap((config) => config.fields);
   const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
     "route",
     fields,
@@ -90,9 +91,9 @@ export async function batchRouteLoadFn(
   const mbtaRouteResources = result.data;
 
   return configs
-    .map(config =>
+    .map((config) =>
       mbtaRouteResources.find(
-        mbtaRouteResource => mbtaRouteResource.id === config.id
+        (mbtaRouteResource) => mbtaRouteResource.id === config.id
       )
     )
     .filter(isNotUndefined)
@@ -103,7 +104,7 @@ export async function batchStopRoutesLoadFn(
   this: MbtaAPI,
   configs: readonly BatchFieldConfig[]
 ): Promise<MbtaRoute[][]> {
-  const fields = configs.flatMap(config => config.fields);
+  const fields = configs.flatMap((config) => config.fields);
   const fieldsAndIncludeParams = this.getFieldsAndIncludeParams(
     "route",
     fields,
@@ -125,22 +126,22 @@ export async function batchStopRoutesLoadFn(
     );
     const mbtaRouteResources = routesResult.data;
 
-    const stopRequests = mbtaRouteResources.map(mbtaRouteResource => {
+    const stopRequests = mbtaRouteResources.map((mbtaRouteResource) => {
       return this.getTypedParsedJSON(
         `stops?fields=&include=route&filter[route]=${mbtaRouteResource.id}`,
         isMbtaStopResourceCollection
       );
     });
     const stopResults = await Promise.all(stopRequests);
-    const mbtaStopResources = stopResults.flatMap(result => result.data);
+    const mbtaStopResources = stopResults.flatMap((result) => result.data);
 
-    return configs.map(config => {
+    return configs.map((config) => {
       const configStops = mbtaStopResources.filter(
-        mbtaStopResource => mbtaStopResource.id === config.id
+        (mbtaStopResource) => mbtaStopResource.id === config.id
       );
 
       const stopRouteIds = configStops
-        .map(configStop => {
+        .map((configStop) => {
           const routeRelationship = configStop.relationships?.route;
           if (
             !isRelationshipsWithData(routeRelationship) ||
@@ -154,7 +155,7 @@ export async function batchStopRoutesLoadFn(
 
       return mbtaRouteResources
         .filter(
-          mbtaRouteResource =>
+          (mbtaRouteResource) =>
             isNotUndefined(mbtaRouteResource.id) &&
             stopRouteIds.includes(mbtaRouteResource.id)
         )
@@ -205,6 +206,6 @@ function mbtaRouteResourceToMbtaRoute(
 
   return {
     id,
-    ...camelCaseAttributes
+    ...camelCaseAttributes,
   };
 }

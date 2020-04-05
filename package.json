@@ -4,9 +4,8 @@
   "description": "A graphql wrapper for the open mbta REST api",
   "main": "index.js",
   "scripts": {
-    "start:dev": "npm run build:dev",
-    "build:dev": "nodemon src/server.ts",
-    "build:debug": "nodemon --inspect src/server.ts",
+    "start:dev": "nodemon src/server.ts",
+    "start:debug": "nodemon --inspect src/server.ts",
     "test": "jest --watch"
   },
   "author": "",

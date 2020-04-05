@@ -10,18 +10,24 @@ export const mbtaVehiclesResponse = JSON.stringify({
         latitude: 20,
         longitude: 20,
         speed: 30,
-        updated_at: "2020-02-28T13:27:44-05:00"
+        updated_at: "2020-02-28T13:27:44-05:00",
       },
       id: "VEHICLE1",
       relationships: {
+        route: {
+          data: {
+            id: "ROUTE1",
+            type: "route",
+          },
+        },
         stop: {
           data: {
             id: "STOP1",
-            type: "stop"
-          }
-        }
+            type: "stop",
+          },
+        },
       },
-      type: "vehicle"
+      type: "vehicle",
     },
     {
       attributes: {
@@ -33,18 +39,24 @@ export const mbtaVehiclesResponse = JSON.stringify({
         latitude: 20,
         longitude: 20,
         speed: 30,
-        updated_at: "2020-02-28T13:27:44-05:00"
+        updated_at: "2020-02-28T13:27:44-05:00",
       },
       id: "VEHICLE2",
       relationships: {
+        route: {
+          data: {
+            id: "ROUTE2",
+            type: "route",
+          },
+        },
         stop: {
           data: {
             id: "STOP2",
-            type: "stop"
-          }
-        }
+            type: "stop",
+          },
+        },
       },
-      type: "vehicle"
+      type: "vehicle",
     },
     {
       attributes: {
@@ -56,20 +68,26 @@ export const mbtaVehiclesResponse = JSON.stringify({
         latitude: 20,
         longitude: 20,
         speed: 30,
-        updated_at: "2020-02-28T13:27:44-05:00"
+        updated_at: "2020-02-28T13:27:44-05:00",
       },
       id: "VEHICLE3",
       relationships: {
+        route: {
+          data: {
+            id: "ROUTE3",
+            type: "route",
+          },
+        },
         stop: {
           data: {
             id: "STOP3",
-            type: "stop"
-          }
-        }
+            type: "stop",
+          },
+        },
       },
-      type: "vehicle"
-    }
-  ]
+      type: "vehicle",
+    },
+  ],
 });
 
 export const mbtaStopsResponse = JSON.stringify({
@@ -88,7 +106,7 @@ export const mbtaStopsResponse = JSON.stringify({
         platform_code: null,
         platform_name: null,
         vehicle_type: null,
-        wheelchair_boarding: 1
+        wheelchair_boarding: 1,
       },
       id: "STOP1",
       relationships: {
@@ -96,23 +114,23 @@ export const mbtaStopsResponse = JSON.stringify({
           data: [
             {
               id: "STOP4",
-              type: "stop"
+              type: "stop",
             },
             {
               id: "STOP5",
-              type: "stop"
+              type: "stop",
             },
             {
               id: "STOP6",
-              type: "stop"
-            }
-          ]
+              type: "stop",
+            },
+          ],
         },
         parent_station: {
-          data: null
-        }
+          data: null,
+        },
       },
-      type: "stop"
+      type: "stop",
     },
     {
       attributes: {
@@ -128,7 +146,7 @@ export const mbtaStopsResponse = JSON.stringify({
         platform_code: null,
         platform_name: null,
         vehicle_type: null,
-        wheelchair_boarding: 1
+        wheelchair_boarding: 1,
       },
       id: "STOP2",
       relationships: {
@@ -136,18 +154,18 @@ export const mbtaStopsResponse = JSON.stringify({
           data: [
             {
               id: "STOP7",
-              type: "stop"
-            }
-          ]
+              type: "stop",
+            },
+          ],
         },
         parent_station: {
           data: {
             id: "STOP8",
-            type: "stop"
-          }
-        }
+            type: "stop",
+          },
+        },
       },
-      type: "stop"
+      type: "stop",
     },
     {
       attributes: {
@@ -163,23 +181,49 @@ export const mbtaStopsResponse = JSON.stringify({
         platform_code: null,
         platform_name: null,
         vehicle_type: null,
-        wheelchair_boarding: 1
+        wheelchair_boarding: 1,
       },
       id: "STOP3",
       relationships: {
         child_stops: {
-          data: null
+          data: null,
         },
         parent_station: {
           data: {
             id: "STOP9",
-            type: "stop"
-          }
-        }
+            type: "stop",
+          },
+        },
       },
-      type: "stop"
-    }
-  ]
+      type: "stop",
+    },
+  ],
+});
+
+export const mbtaRoutesResponse = JSON.stringify({
+  data: [
+    {
+      attributes: {
+        short_name: "Route 1",
+      },
+      id: "ROUTE1",
+      type: "route",
+    },
+    {
+      attributes: {
+        short_name: "Route 2",
+      },
+      id: "ROUTE2",
+      type: "route",
+    },
+    {
+      attributes: {
+        short_name: "Route 3",
+      },
+      id: "ROUTE3",
+      type: "route",
+    },
+  ],
 });
 
 export const mbtaChildStopsResponse = JSON.stringify({
@@ -198,21 +242,21 @@ export const mbtaChildStopsResponse = JSON.stringify({
         platform_code: null,
         platform_name: null,
         vehicle_type: null,
-        wheelchair_boarding: 1
+        wheelchair_boarding: 1,
       },
       id: "STOP4",
       relationships: {
         child_stops: {
-          data: null
+          data: null,
         },
         parent_station: {
           data: {
             id: "STOP1",
-            type: "stop"
-          }
-        }
+            type: "stop",
+          },
+        },
       },
-      type: "stop"
+      type: "stop",
     },
     {
       attributes: {
@@ -228,21 +272,21 @@ export const mbtaChildStopsResponse = JSON.stringify({
         platform_code: null,
         platform_name: null,
         vehicle_type: null,
-        wheelchair_boarding: 1
+        wheelchair_boarding: 1,
       },
       id: "STOP5",
       relationships: {
         child_stops: {
-          data: null
+          data: null,
         },
         parent_station: {
           data: {
             id: "STOP1",
-            type: "stop"
-          }
-        }
+            type: "stop",
+          },
+        },
       },
-      type: "stop"
+      type: "stop",
     },
     {
       attributes: {
@@ -258,21 +302,21 @@ export const mbtaChildStopsResponse = JSON.stringify({
         platform_code: null,
         platform_name: null,
         vehicle_type: null,
-        wheelchair_boarding: 1
+        wheelchair_boarding: 1,
       },
       id: "STOP6",
       relationships: {
         child_stops: {
-          data: null
+          data: null,
         },
         parent_station: {
           data: {
             id: "STOP1",
-            type: "stop"
-          }
-        }
+            type: "stop",
+          },
+        },
       },
-      type: "stop"
+      type: "stop",
     },
     {
       attributes: {
@@ -288,23 +332,23 @@ export const mbtaChildStopsResponse = JSON.stringify({
         platform_code: null,
         platform_name: null,
         vehicle_type: null,
-        wheelchair_boarding: 1
+        wheelchair_boarding: 1,
       },
       id: "STOP7",
       relationships: {
         child_stops: {
-          data: null
+          data: null,
         },
         parent_station: {
           data: {
             id: "STOP2",
-            type: "stop"
-          }
-        }
+            type: "stop",
+          },
+        },
       },
-      type: "stop"
-    }
-  ]
+      type: "stop",
+    },
+  ],
 });
 
 export const mbtaParentStopsResponse = JSON.stringify({
@@ -323,21 +367,21 @@ export const mbtaParentStopsResponse = JSON.stringify({
         platform_code: null,
         platform_name: null,
         vehicle_type: null,
-        wheelchair_boarding: 1
+        wheelchair_boarding: 1,
       },
       id: "STOP8",
       relationships: {
         child_stops: {
-          data: null
+          data: null,
         },
         parent_station: {
           data: {
             id: "STOP1",
-            type: "stop"
-          }
-        }
+            type: "stop",
+          },
+        },
       },
-      type: "stop"
+      type: "stop",
     },
     {
       attributes: {
@@ -353,23 +397,23 @@ export const mbtaParentStopsResponse = JSON.stringify({
         platform_code: null,
         platform_name: null,
         vehicle_type: null,
-        wheelchair_boarding: 1
+        wheelchair_boarding: 1,
       },
       id: "STOP9",
       relationships: {
         child_stops: {
-          data: null
+          data: null,
         },
         parent_station: {
           data: {
             id: "STOP1",
-            type: "stop"
-          }
-        }
+            type: "stop",
+          },
+        },
       },
-      type: "stop"
-    }
-  ]
+      type: "stop",
+    },
+  ],
 });
 
 export const result = {
@@ -385,6 +429,9 @@ export const result = {
       longitude: 20,
       speed: 30,
       updatedAt: "2020-02-28T13:27:44-05:00",
+      route: {
+        shortName: "Route 1",
+      },
       stop: {
         id: "STOP1",
         address: "123 Street",
@@ -416,7 +463,7 @@ export const result = {
             platformCode: null,
             platformName: null,
             vehicleType: null,
-            wheelchairBoarding: 1
+            wheelchairBoarding: 1,
           },
           {
             id: "STOP5",
@@ -432,7 +479,7 @@ export const result = {
             platformCode: null,
             platformName: null,
             vehicleType: null,
-            wheelchairBoarding: 1
+            wheelchairBoarding: 1,
           },
           {
             id: "STOP6",
@@ -448,10 +495,10 @@ export const result = {
             platformCode: null,
             platformName: null,
             vehicleType: null,
-            wheelchairBoarding: 1
-          }
-        ]
-      }
+            wheelchairBoarding: 1,
+          },
+        ],
+      },
     },
     {
       id: "VEHICLE2",
@@ -464,6 +511,9 @@ export const result = {
       longitude: 20,
       speed: 30,
       updatedAt: "2020-02-28T13:27:44-05:00",
+      route: {
+        shortName: "Route 2",
+      },
       stop: {
         id: "STOP2",
         address: "123 Street",
@@ -493,7 +543,7 @@ export const result = {
           platformCode: null,
           platformName: null,
           vehicleType: null,
-          wheelchairBoarding: 1
+          wheelchairBoarding: 1,
         },
         childStops: [
           {
@@ -510,10 +560,10 @@ export const result = {
             platformCode: null,
             platformName: null,
             vehicleType: null,
-            wheelchairBoarding: 1
-          }
-        ]
-      }
+            wheelchairBoarding: 1,
+          },
+        ],
+      },
     },
     {
       id: "VEHICLE3",
@@ -526,6 +576,9 @@ export const result = {
       longitude: 20,
       speed: 30,
       updatedAt: "2020-02-28T13:27:44-05:00",
+      route: {
+        shortName: "Route 3",
+      },
       stop: {
         id: "STOP3",
         address: "123 Street",
@@ -555,10 +608,10 @@ export const result = {
           platformCode: null,
           platformName: null,
           vehicleType: null,
-          wheelchairBoarding: 1
+          wheelchairBoarding: 1,
         },
-        childStops: []
-      }
-    }
-  ]
+        childStops: [],
+      },
+    },
+  ],
 };
