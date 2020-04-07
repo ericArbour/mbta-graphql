@@ -1,7 +1,7 @@
 import { IResolvers, FilterToSchema } from "graphql-tools";
 
 import { getFieldsFromInfo, objSnakeKeysToCamelKeys } from "../utils/utils";
-import { IContext, isNotNull, isNotNullish } from "../types";
+import { Context, isNotNull, isNotNullish } from "../types";
 import { MbtaRoute, RouteType, RoutesResolverArgs } from "../routes/types";
 import { mbtaRouteTypeToRouteType } from "../routes/data";
 
@@ -10,11 +10,11 @@ import {
   LocationType,
   StopsResolverArgs,
   StopResolverArgs,
-  NestedStopsResolverArgs
+  NestedStopsResolverArgs,
 } from "./types";
 import { mbtaLocationTypeToLocationType } from "./data";
 
-const resolvers: IResolvers<unknown, IContext> = {
+const resolvers: IResolvers<unknown, Context> = {
   Query: {
     stops: async (
       parent,
@@ -33,7 +33,7 @@ const resolvers: IResolvers<unknown, IContext> = {
     ): Promise<MbtaStop> => {
       const fields = getFieldsFromInfo(info);
       return await dataSources.mbtaAPI.getStop(fields, args);
-    }
+    },
   },
   Stop: {
     locationType: (
@@ -71,17 +71,19 @@ const resolvers: IResolvers<unknown, IContext> = {
       const childStopIds = childStops.map(({ id }) => id).filter(isNotNull);
 
       const filteredChildStopIds = stopIdFilter
-        ? childStopIds.filter(childStopId => stopIdFilter.includes(childStopId))
+        ? childStopIds.filter((childStopId) =>
+            stopIdFilter.includes(childStopId)
+          )
         : childStopIds;
 
       const childMbtaStops = await dataSources.mbtaAPI.getBatchChildStops({
         ids: filteredChildStopIds,
-        fields: fieldsWithFilterInfo
+        fields: fieldsWithFilterInfo,
       });
 
       const stopIdFilteredChildMbtaStops = stopIdFilter
         ? childMbtaStops.filter(
-            childMbtaStop =>
+            (childMbtaStop) =>
               isNotNullish(childMbtaStop.id) &&
               stopIdFilter.includes(childMbtaStop.id)
           )
@@ -89,7 +91,7 @@ const resolvers: IResolvers<unknown, IContext> = {
 
       const locationTypeFilteredChildStops = locationTypeFilter
         ? stopIdFilteredChildMbtaStops.filter(
-            childMbtaStop =>
+            (childMbtaStop) =>
               isNotNullish(childMbtaStop.locationType) &&
               locationTypeFilter.includes(
                 mbtaLocationTypeToLocationType(childMbtaStop.locationType)
@@ -111,7 +113,7 @@ const resolvers: IResolvers<unknown, IContext> = {
       const fields = getFieldsFromInfo(info);
       return await dataSources.mbtaAPI.getBatchStop({
         id: stopId,
-        fields
+        fields,
       });
     },
     routes: async (
@@ -131,26 +133,26 @@ const resolvers: IResolvers<unknown, IContext> = {
 
       const mbtaRoutes = await dataSources.mbtaAPI.getBatchStopRoutes({
         id: stopId,
-        fields: fieldsWithFilterInfo
+        fields: fieldsWithFilterInfo,
       });
 
       const routeIdFilteredMbtaRoutes = routeIdFilter
         ? mbtaRoutes.filter(
-            mbtaRoute =>
+            (mbtaRoute) =>
               isNotNullish(mbtaRoute.id) && routeIdFilter.includes(mbtaRoute.id)
           )
         : mbtaRoutes;
 
       const typeFilteredRoutes = typeFilter
-        ? routeIdFilteredMbtaRoutes.filter(mbtaRoute => {
+        ? routeIdFilteredMbtaRoutes.filter((mbtaRoute) => {
             const routeType = mbtaRouteTypeToRouteType(mbtaRoute.type);
             return isNotNullish(routeType) && typeFilter.includes(routeType);
           })
         : routeIdFilteredMbtaRoutes;
 
       return typeFilteredRoutes;
-    }
-  }
+    },
+  },
 };
 
 export default resolvers;

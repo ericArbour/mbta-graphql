@@ -8,10 +8,14 @@ import stopTypeDefs from "./stops/typeDefs";
 import stopResolvers from "./stops/resolvers";
 import routeTypeDefs from "./routes/typeDefs";
 import routeResolvers from "./routes/resolvers";
-import { IContext } from "./types";
+import { Context } from "./types";
 
 const rootTypeDefs = gql`
   type Query {
+    root: String
+  }
+
+  type Subscription {
     root: String
   }
 `;
@@ -20,12 +24,12 @@ export const typeDefs = [
   rootTypeDefs,
   vehicleTypeDefs,
   stopTypeDefs,
-  routeTypeDefs
+  routeTypeDefs,
 ];
 
-export const resolvers: IResolvers<unknown, IContext> = merge(
+export const resolvers: IResolvers<unknown, Context> = merge(
   {
-    Query: {}
+    Query: {},
   },
   vehicleResolvers,
   stopResolvers,

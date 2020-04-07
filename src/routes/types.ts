@@ -3,7 +3,7 @@ import * as JSONAPI from "jsonapi-typescript";
 import {
   isResourceObject,
   isCollectionResourceDoc,
-  isSingleResourceDoc
+  isSingleResourceDoc,
 } from "../types";
 import { MbtaVehicle } from "../vehicles/types";
 import { MbtaStop } from "../stops/types";
@@ -47,11 +47,11 @@ export enum RouteType {
   SUBWAY = "SUBWAY",
   RAIL = "RAIL",
   BUS = "BUS",
-  FERRY = "FERRY"
+  FERRY = "FERRY",
 }
 
 export type MbtaRoute = {
-  id: string | null;
+  id: string;
   type?: number | null;
   textColor?: string | null;
   sortOrder?: number | null;

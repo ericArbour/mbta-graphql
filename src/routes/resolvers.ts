@@ -1,6 +1,6 @@
 import { IResolvers } from "graphql-tools";
 
-import { IContext, isNotNullish } from "../types";
+import { Context, isNotNullish } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
 import { MbtaVehicle, VehiclesResolverArgs } from "../vehicles/types";
 import { MbtaStop, NestedStopsResolverArgs } from "../stops/types";
@@ -10,11 +10,11 @@ import {
   MbtaRoute,
   RouteType,
   RoutesResolverArgs,
-  RouteResolverArgs
+  RouteResolverArgs,
 } from "./types";
 import { mbtaRouteTypeToRouteType } from "./data";
 
-const resolvers: IResolvers<unknown, IContext> = {
+const resolvers: IResolvers<unknown, Context> = {
   Query: {
     routes: async (
       parent,
@@ -32,7 +32,7 @@ const resolvers: IResolvers<unknown, IContext> = {
       const mbtaRoute = await dataSources.mbtaAPI.getRoute(fields, args);
 
       return mbtaRoute;
-    }
+    },
   },
   Route: {
     type: ({ type }: MbtaRoute, args, context, info): RouteType | null => {
@@ -56,12 +56,12 @@ const resolvers: IResolvers<unknown, IContext> = {
 
       const mbtaVehicles = await dataSources.mbtaAPI.getBatchRouteVehicles({
         id,
-        fields: fieldsWithFilterInfo
+        fields: fieldsWithFilterInfo,
       });
 
       const vehicleIdFilteredMbtaVehicles = vehicleIdFilter
         ? mbtaVehicles.filter(
-            mbtaVehicle =>
+            (mbtaVehicle) =>
               isNotNullish(mbtaVehicle.id) &&
               vehicleIdFilter.includes(mbtaVehicle.id)
           )
@@ -69,7 +69,7 @@ const resolvers: IResolvers<unknown, IContext> = {
 
       const labelFilteredMbtaVehicles = labelFilter
         ? vehicleIdFilteredMbtaVehicles.filter(
-            mbtaVehicle =>
+            (mbtaVehicle) =>
               isNotNullish(mbtaVehicle.label) &&
               labelFilter.includes(mbtaVehicle.label)
           )
@@ -94,19 +94,19 @@ const resolvers: IResolvers<unknown, IContext> = {
 
       const mbtaStops = await dataSources.mbtaAPI.getBatchRouteStops({
         id,
-        fields: fieldsWithFilterInfo
+        fields: fieldsWithFilterInfo,
       });
 
       const stopIdFilteredMbtaStops = stopIdFilter
         ? mbtaStops.filter(
-            mbtaStop =>
+            (mbtaStop) =>
               isNotNullish(mbtaStop.id) && stopIdFilter.includes(mbtaStop.id)
           )
         : mbtaStops;
 
       const locationTypeFilteredMbtaStops = locationTypeFilter
         ? stopIdFilteredMbtaStops.filter(
-            mbtaStop =>
+            (mbtaStop) =>
               isNotNullish(mbtaStop.locationType) &&
               locationTypeFilter.includes(
                 mbtaLocationTypeToLocationType(mbtaStop.locationType)
@@ -115,8 +115,8 @@ const resolvers: IResolvers<unknown, IContext> = {
         : stopIdFilteredMbtaStops;
 
       return locationTypeFilteredMbtaStops;
-    }
-  }
+    },
+  },
 };
 
 export default resolvers;

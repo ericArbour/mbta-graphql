@@ -3,7 +3,8 @@ import * as JSONAPI from "jsonapi-typescript";
 import {
   isResourceObject,
   isSingleResourceDoc,
-  isCollectionResourceDoc
+  isCollectionResourceDoc,
+  isArrayOf,
 } from "../types";
 import { MbtaStop } from "../stops/types";
 import { MbtaRoute } from "../routes/types";
@@ -11,7 +12,7 @@ import { MbtaRoute } from "../routes/types";
 enum VehicleCurrentStopStatus {
   INCOMING_AT = "INCOMING_AT",
   STOPPED_AT = "STOPPED_AT",
-  IN_TRANSIT_TO = "IN_TRANSIT_TO"
+  IN_TRANSIT_TO = "IN_TRANSIT_TO",
 }
 
 type MbtaVehicleAttributes = {
@@ -35,6 +36,12 @@ export function isMbtaVehicleResource(x: unknown): x is MbtaVehicleResource {
   return isResourceObject(x) && x.type === "vehicle";
 }
 
+export function isMbtaVehicleResources(
+  xs: unknown
+): xs is MbtaVehicleResource[] {
+  return isArrayOf(xs, isMbtaVehicleResource);
+}
+
 export function isMbtaVehicleResourceDoc(
   x: unknown
 ): x is JSONAPI.SingleResourceDoc<string, MbtaVehicleAttributes> {
@@ -48,7 +55,7 @@ export function isMbtaVehicleResourceCollection(
 }
 
 export type MbtaVehicle = {
-  id: string | null;
+  id: string;
   updatedAt?: string | null;
   speed?: number | null;
   longitude?: number | null;

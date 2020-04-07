@@ -1,16 +1,19 @@
 import * as JSONAPI from "jsonapi-typescript";
 import * as JSON from "json-typescript";
 import { FragmentDefinitionNode } from "graphql";
+import { PubSub } from "apollo-server";
 
 import MbtaAPI from "./data/MbtaAPI";
+import MbtaSSE from "./data/MbtaSSE";
 
-export interface IDataSources {
+export type DataSources = {
   mbtaAPI: MbtaAPI;
-}
+};
 
-export interface IContext {
-  dataSources: IDataSources;
-}
+export type Context = {
+  dataSources: DataSources;
+  mbtaSSE: MbtaSSE;
+};
 
 export function isUndefined<T>(x: T | undefined): x is undefined {
   return x === undefined;
@@ -40,6 +43,13 @@ export function isNotNullish<T>(x: T | Nullish): x is T {
 
 function isObject(x: unknown): x is object {
   return typeof x === "object" && isNotNull(x);
+}
+
+export function isArrayOf<T>(
+  xs: unknown,
+  isType: (x: unknown) => x is T
+): xs is T[] {
+  return Array.isArray(xs) && xs.every(isType);
 }
 
 export function isResourceObject(x: unknown): x is JSONAPI.ResourceObject {
@@ -73,7 +83,7 @@ export function isCollectionResourceDoc<A extends { [k: string]: JSON.Value }>(
 
   const data = (x as JSONAPI.CollectionResourceDoc<string, A>).data;
 
-  return Array.isArray(data) && data.every(isType);
+  return isArrayOf(data, isType);
 }
 
 export function isRelationshipsWithData(
@@ -107,10 +117,7 @@ export function isResourceIdentifierObjectArray(
 
   const resourceIdObjArr = maybeResourceLinkage as JSONAPI.ResourceIdentifierObject[];
 
-  return (
-    Array.isArray(resourceIdObjArr) &&
-    resourceIdObjArr.every(isResourceIdentifierObject)
-  );
+  return isArrayOf(resourceIdObjArr, isResourceIdentifierObject);
 }
 
 export type BatchFieldConfig = { id: string; fields: string[] };

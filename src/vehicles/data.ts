@@ -1,9 +1,10 @@
 import MbtaAPI from "../data/MbtaAPI";
-import { MbtaRESTError, objSnakeKeysToCamelKeys } from "../utils/utils";
+import { objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
   isRelationshipsWithData,
   isResourceIdentifierObject,
   BatchFieldConfig,
+  isUndefined,
 } from "../types";
 
 import {
@@ -121,10 +122,12 @@ export async function batchRouteVehiclesLoadFn(
   }
 }
 
-function mbtaVehicleResourceToMbtaVehicle(
+export function mbtaVehicleResourceToMbtaVehicle(
   mbtaVehicleResource: MbtaVehicleResource
 ): MbtaVehicle {
-  const { id = null, attributes = {}, relationships } = mbtaVehicleResource;
+  const { id, attributes = {}, relationships } = mbtaVehicleResource;
+  if (isUndefined(id)) throw new Error("No id on vehicle.");
+
   const stopRelationship = relationships?.stop;
   const routeRelationship = relationships?.route;
 

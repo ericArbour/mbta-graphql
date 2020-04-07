@@ -3,7 +3,7 @@ import * as JSONAPI from "jsonapi-typescript";
 import {
   isResourceObject,
   isSingleResourceDoc,
-  isCollectionResourceDoc
+  isCollectionResourceDoc,
 } from "../types";
 
 type MbtaStopAttributes = {
@@ -48,11 +48,11 @@ export enum LocationType {
   STATION = "STATION",
   ENTRANCE_OR_EXIT = "ENTRANCE_OR_EXIT",
   GENERIC_NODE = "GENERIC_NODE",
-  BOARDING_AREA = "BOARDING_AREA"
+  BOARDING_AREA = "BOARDING_AREA",
 }
 
 export type MbtaStop = {
-  id: string | null;
+  id: string;
   wheelchairBoarding?: number | null;
   vehicleType?: number | null;
   platformName?: string | null;

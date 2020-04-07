@@ -1,6 +1,6 @@
 import { IResolvers } from "graphql-tools";
 
-import { IContext } from "../types";
+import { Context } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
 import { MbtaStop } from "../stops/types";
 import { MbtaRoute } from "../routes/types";
@@ -8,10 +8,10 @@ import { MbtaRoute } from "../routes/types";
 import {
   MbtaVehicle,
   VehiclesResolverArgs,
-  VehicleResolverArgs
+  VehicleResolverArgs,
 } from "./types";
 
-const resolvers: IResolvers<unknown, IContext> = {
+const resolvers: IResolvers<unknown, Context> = {
   Query: {
     vehicles: async (
       parent,
@@ -32,7 +32,7 @@ const resolvers: IResolvers<unknown, IContext> = {
       const fields = getFieldsFromInfo(info);
 
       return await dataSources.mbtaAPI.getVehicle(fields, args);
-    }
+    },
   },
   Vehicle: {
     stop: async (
@@ -47,7 +47,7 @@ const resolvers: IResolvers<unknown, IContext> = {
       const fields = getFieldsFromInfo(info);
       return await dataSources.mbtaAPI.getBatchStop({
         id: stopId,
-        fields
+        fields,
       });
     },
     route: async (
@@ -62,12 +62,19 @@ const resolvers: IResolvers<unknown, IContext> = {
       const fields = getFieldsFromInfo(info);
       const mbtaRoute = await dataSources.mbtaAPI.getBatchRoute({
         id: routeId,
-        fields
+        fields,
       });
 
       return mbtaRoute;
-    }
-  }
+    },
+  },
+  Subscription: {
+    vehicles: {
+      subscribe: (parent, args, { mbtaSSE }, info) => {
+        return mbtaSSE.subscribeToVehicles();
+      },
+    },
+  },
 };
 
 export default resolvers;

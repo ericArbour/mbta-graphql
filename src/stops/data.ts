@@ -3,6 +3,7 @@ import chunk from "lodash.chunk";
 import MbtaAPI from "../data/MbtaAPI";
 import { objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
+  isUndefined,
   isNotUndefined,
   Nullish,
   isRelationshipsWithData,
@@ -211,7 +212,9 @@ export function locationTypeToMbtaLocationType(locationType: LocationType) {
 function mbtaStopResourceToMbtaStop(
   mbtaStopResource: MbtaStopResource
 ): MbtaStop {
-  const { id = null, attributes = {}, relationships } = mbtaStopResource;
+  const { id, attributes = {}, relationships } = mbtaStopResource;
+  if (isUndefined(id)) throw new Error("No id on stop.");
+
   const childStopsRelationship = relationships?.child_stops;
   const parentStationRelationship = relationships?.parent_station;
 

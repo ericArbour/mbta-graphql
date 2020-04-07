@@ -30,15 +30,15 @@ export function getFieldsFromInfo(info: GraphQLResolveInfo): string[] {
 
   // id field is always returned from MBTA api and never needs to be specified in fields
   return recursiveFieldsGetter(selections, info.fragments)
-    .filter(field => isNotNullish(field) && field !== "id")
-    .map(field => camelToSnake(field));
+    .filter((field) => isNotNullish(field) && field !== "id")
+    .map((field) => camelToSnake(field));
 }
 
 function recursiveFieldsGetter(
   selections: readonly SelectionNode[],
   maybeFragmentMap?: FragmentMap
 ): string[] {
-  return selections.flatMap(fieldNode => {
+  return selections.flatMap((fieldNode) => {
     if (fieldNode.kind === "Field") return fieldNode.name.value;
     if (fieldNode.kind === "FragmentSpread" && isFragmentMap(maybeFragmentMap))
       return recursiveFieldsGetter(
@@ -47,6 +47,34 @@ function recursiveFieldsGetter(
       );
     return "";
   });
+}
+
+export function parseAndTypeJSON<T>(
+  jsonString: string,
+  isType: (x: unknown) => x is T
+) {
+  try {
+    const result = JSON.parse(jsonString);
+    if (isType(result)) return result;
+
+    throw new MbtaRESTError();
+  } catch (e) {
+    throw new MbtaRESTError();
+  }
+}
+
+export function updateArrayItem<T extends { id: string }>(
+  items: T[],
+  newItem: T
+): T[] {
+  return items.map((item) => (item.id === newItem.id ? newItem : item));
+}
+
+export function removeArrayItem<T extends { id: string }>(
+  items: T[],
+  itemToRemove: T
+): T[] {
+  return items.filter((item) => item.id !== itemToRemove.id);
 }
 
 export class MbtaRESTError extends ApolloError {

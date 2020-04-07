@@ -86,4 +86,8 @@ export default gql`
     vehicles(filter: VehiclesFilter): [Vehicle!]!
     vehicle(id: ID!): Vehicle
   }
+
+  extend type Subscription {
+    vehicles: [Vehicle!]!
+  }
 `;

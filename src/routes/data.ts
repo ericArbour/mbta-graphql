@@ -1,6 +1,7 @@
 import MbtaAPI from "../data/MbtaAPI";
-import { objSnakeKeysToCamelKeys, MbtaRESTError } from "../utils/utils";
+import { objSnakeKeysToCamelKeys } from "../utils/utils";
 import {
+  isUndefined,
   isNotNull,
   Nullish,
   isNotUndefined,
@@ -196,7 +197,9 @@ export function routeTypeToMbtaRouteType(type: RouteType): number {
 function mbtaRouteResourceToMbtaRoute(
   mbtaRouteResource: MbtaRouteResource
 ): MbtaRoute {
-  const { id = null, attributes = {} } = mbtaRouteResource;
+  const { id, attributes = {} } = mbtaRouteResource;
+  if (isUndefined(id)) throw new Error("No id on route.");
+
   const camelCaseAttributes = objSnakeKeysToCamelKeys(attributes);
 
   return {

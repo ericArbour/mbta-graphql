@@ -2,7 +2,7 @@ import { RESTDataSource, RequestOptions } from "apollo-datasource-rest";
 import DataLoader from "dataloader";
 
 import { BatchFieldConfig, BatchListFieldConfig } from "../types";
-import { MbtaRESTError } from "../utils/utils";
+import { parseAndTypeJSON } from "../utils/utils";
 import { MbtaVehicle } from "../vehicles/types";
 import {
   getVehicles,
@@ -135,15 +135,8 @@ export default class MbtaAPI extends RESTDataSource {
     path: string,
     isType: (x: unknown) => x is T
   ): Promise<T> | never {
-    const json = await this.get(path);
+    const jsonString = await this.get(path);
 
-    try {
-      const result = JSON.parse(json);
-      if (isType(result)) return result;
-
-      throw new MbtaRESTError();
-    } catch (e) {
-      throw new MbtaRESTError();
-    }
+    return parseAndTypeJSON(jsonString, isType);
   }
 }
