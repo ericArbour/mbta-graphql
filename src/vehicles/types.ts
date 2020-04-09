@@ -72,6 +72,7 @@ export type MbtaVehicle = {
 export type VehiclesFilter = {
   vehicleIdFilter?: string[];
   labelFilter?: string[];
+  routeFilter?: string[];
 };
 
 export type VehiclesResolverArgs = {
@@ -80,4 +81,8 @@ export type VehiclesResolverArgs = {
 
 export type VehicleResolverArgs = {
   id: string;
+};
+
+export type SubsVehiclesResolverArgs = {
+  route: string;
 };

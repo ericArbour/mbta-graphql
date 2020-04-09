@@ -1,5 +1,7 @@
 import { GraphQLResolveInfo, SelectionNode } from "graphql";
 import { ApolloError } from "apollo-server";
+import throttle from "lodash.throttle";
+import memoize from "lodash.memoize";
 
 import { isNotNullish, FragmentMap, isFragmentMap } from "../types";
 
@@ -53,14 +55,15 @@ export function parseAndTypeJSON<T>(
   jsonString: string,
   isType: (x: unknown) => x is T
 ) {
+  let result: unknown;
   try {
-    const result = JSON.parse(jsonString);
-    if (isType(result)) return result;
-
-    throw new MbtaRESTError();
+    result = JSON.parse(jsonString);
   } catch (e) {
-    throw new MbtaRESTError();
+    throw new MbtaRESTError("Could not parse MBTA API response.");
   }
+
+  if (isType(result)) return result;
+  throw new MbtaRESTError("MBTA API response is not of the expected type.");
 }
 
 export function updateArrayItem<T extends { id: string }>(
@@ -78,10 +81,17 @@ export function removeArrayItem<T extends { id: string }>(
 }
 
 export class MbtaRESTError extends ApolloError {
-  constructor() {
-    super(
-      "An error occurred mapping data between the MBTA REST endpoint and this service.",
-      "MBTA_DATA_MAPPING_ERROR"
-    );
+  constructor(msg: string) {
+    super(msg, "MBTA_DATA_MAPPING_ERROR");
   }
+}
+
+export function memoizedThrottle(func: any, wait = 0, options = {}) {
+  const memoized = memoize(function () {
+    return throttle(func, wait, options);
+  });
+
+  return function (...args: any[]) {
+    memoized.apply(this, args).apply(this, args);
+  };
 }

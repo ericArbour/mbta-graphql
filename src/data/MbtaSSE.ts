@@ -1,20 +1,26 @@
 import { PubSub } from "apollo-server";
 import { DataSource } from "apollo-datasource";
 import EventSource from "eventsource";
+import groupby from "lodash.groupby";
 
 import {
   parseAndTypeJSON,
   updateArrayItem,
   removeArrayItem,
+  memoizedThrottle,
 } from "../utils/utils";
 import {
   MbtaVehicle,
   isMbtaVehicleResource,
   isMbtaVehicleResources,
+  SubsVehiclesResolverArgs,
+  VehicleResolverArgs,
 } from "../vehicles/types";
 import { mbtaVehicleResourceToMbtaVehicle } from "../vehicles/data";
 
-const VEHICLES_UPDATED = "VEHICLES_UPDATED";
+const VEHICLES_EVENT_SUFFIX = "_VEHICLES_UPDATED";
+const VEHICLE_EVENT_SUFFIX = "_VEHICLE_UPDATED";
+const throttleWait = 10000;
 
 export default class MbtaSSE extends DataSource {
   pubsub: PubSub;
@@ -26,14 +32,20 @@ export default class MbtaSSE extends DataSource {
     },
   };
   mbtaVehicles: MbtaVehicle[] = [];
+  mbtaVehiclesByRoute: { [key: string]: MbtaVehicle[] };
 
   constructor(pubsub: PubSub) {
     super();
 
     this.pubsub = pubsub;
+    this.publishRouteVehicles = memoizedThrottle(
+      this.publishRouteVehicles,
+      throttleWait
+    );
+    this.publishVehicle = memoizedThrottle(this.publishVehicle, throttleWait);
 
     const mbtaVehicleEvtSrc = new EventSource(
-      this.baseURL + "vehicles?filter[route]=Red",
+      this.baseURL + "vehicles",
       this.eventSourceInitDict
     );
 
@@ -95,19 +107,37 @@ export default class MbtaSSE extends DataSource {
 
   setAndPublishMbtaVehicles(mbtaVehicles: MbtaVehicle[]) {
     this.mbtaVehicles = mbtaVehicles;
-    this.pubsub.publish(VEHICLES_UPDATED, { vehicles: this.mbtaVehicles });
+    this.mbtaVehiclesByRoute = groupby(this.mbtaVehicles, "route.id");
+
+    Object.keys(this.mbtaVehiclesByRoute).forEach((route) =>
+      this.publishRouteVehicles(route)
+    );
+    this.mbtaVehicles.forEach((mbtaVehicle) =>
+      this.publishVehicle(mbtaVehicle.id)
+    );
   }
 
-  subscribeToVehicles() {
-    return this.pubsub.asyncIterator<MbtaVehicle[]>([VEHICLES_UPDATED]);
+  publishRouteVehicles(route: string) {
+    this.pubsub.publish(route + VEHICLES_EVENT_SUFFIX, {
+      vehicles: this.mbtaVehiclesByRoute[route],
+    });
+  }
+
+  publishVehicle(id: string) {
+    this.pubsub.publish(id + VEHICLE_EVENT_SUFFIX, {
+      vehicle: this.mbtaVehicles.find((mbtaVehicle) => mbtaVehicle.id === id),
+    });
+  }
+
+  subscribeToRouteVehicles(args: SubsVehiclesResolverArgs) {
+    return this.pubsub.asyncIterator<MbtaVehicle[]>(
+      args.route + VEHICLES_EVENT_SUFFIX
+    );
+  }
+
+  subscribeToVehicle(args: VehicleResolverArgs) {
+    return this.pubsub.asyncIterator<MbtaVehicle[]>(
+      args.id + VEHICLE_EVENT_SUFFIX
+    );
   }
 }
-
-// const kendallId = "place-knncl";
-// const kendallInboundId = "70071";
-// const brighamCircleId = "place-brmnl";
-// const brighamCircleInboundId = "70250";
-// const parkStreetId = "place-pktrm";
-// const parkStreetRedOutbound = "70076";
-// const parkStreetGreenOutbound = "70199";
-// const url = "https://api-v3.mbta.com/predictions/?filter[stop]=place-knncl";

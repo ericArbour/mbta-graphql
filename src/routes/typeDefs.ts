@@ -85,7 +85,7 @@ export default gql`
     """
     The list of vehicles assigned to the route.
     """
-    vehicles(filter: VehiclesFilter): [Vehicle!]!
+    vehicles(filter: RouteVehiclesFilter): [Vehicle!]!
     """
     The list of stops on the route.
     """
@@ -95,6 +95,11 @@ export default gql`
   input RoutesFilter {
     routeIdFilter: [String!]
     typeFilter: [RouteType!]
+  }
+
+  input RouteVehiclesFilter {
+    vehicleIdFilter: [String!]
+    labelFilter: [String!]
   }
 
   extend type Query {

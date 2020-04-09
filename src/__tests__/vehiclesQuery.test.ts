@@ -58,4 +58,19 @@ describe("Vehicles query", () => {
       "vehicles?fields[vehicle]=&filter[label]=Vehicle One"
     );
   });
+
+  it("allows filtering by route", async () => {
+    const GET_VEHICLES = gql`
+      query GetVehicles {
+        vehicles(filter: { routeFilter: ["ROUTE1", "ROUTE2"] }) {
+          id
+        }
+      }
+    `;
+    await query({ query: GET_VEHICLES });
+
+    expect(mockGet).toBeCalledWith(
+      "vehicles?fields[vehicle]=&filter[route]=ROUTE1,ROUTE2"
+    );
+  });
 });

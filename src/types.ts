@@ -56,11 +56,7 @@ export function isResourceObject(x: unknown): x is JSONAPI.ResourceObject {
   if (!isObject(x)) return false;
   const resourceObject = x as JSONAPI.ResourceObject;
 
-  return (
-    typeof resourceObject.id === "string" &&
-    typeof resourceObject.type === "string" &&
-    isObject(resourceObject.attributes)
-  );
+  return typeof resourceObject.type === "string";
 }
 
 export function isSingleResourceDoc<A extends { [k: string]: JSON.Value }>(

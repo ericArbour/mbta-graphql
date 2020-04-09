@@ -2,7 +2,7 @@ import { IResolvers } from "graphql-tools";
 
 import { Context, isNotNullish } from "../types";
 import { getFieldsFromInfo } from "../utils/utils";
-import { MbtaVehicle, VehiclesResolverArgs } from "../vehicles/types";
+import { MbtaVehicle } from "../vehicles/types";
 import { MbtaStop, NestedStopsResolverArgs } from "../stops/types";
 import { mbtaLocationTypeToLocationType } from "../stops/data";
 
@@ -11,6 +11,7 @@ import {
   RouteType,
   RoutesResolverArgs,
   RouteResolverArgs,
+  RouteVehiclesResolverArgs,
 } from "./types";
 import { mbtaRouteTypeToRouteType } from "./data";
 
@@ -40,7 +41,7 @@ const resolvers: IResolvers<unknown, Context> = {
     },
     vehicles: async (
       { id }: MbtaRoute,
-      args: VehiclesResolverArgs,
+      args: RouteVehiclesResolverArgs,
       { dataSources },
       info
     ): Promise<MbtaVehicle[]> => {

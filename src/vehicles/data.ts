@@ -37,15 +37,22 @@ export async function getVehicles(
   args: VehiclesResolverArgs
 ): Promise<MbtaVehicle[]> {
   const fieldsAndIncludeParams = this.getVehicleFieldsAndIncludeParams(fields);
+
   const vehicleIdFilter = args.filter?.vehicleIdFilter;
   const labelFilter = args.filter?.labelFilter;
+  const routeFilter = args.filter?.routeFilter;
+
   const vehicleIdFilterString = vehicleIdFilter?.length
     ? `&filter[id]=${vehicleIdFilter.join(",")}`
     : "";
   const labelFilterString = labelFilter?.length
     ? `&filter[label]=${labelFilter.join(",")}`
     : "";
-  const queryString = `${fieldsAndIncludeParams}${vehicleIdFilterString}${labelFilterString}`;
+  const routeFilterString = routeFilter?.length
+    ? `&filter[route]=${routeFilter.join(",")}`
+    : "";
+
+  const queryString = `${fieldsAndIncludeParams}${vehicleIdFilterString}${labelFilterString}${routeFilterString}`;
 
   const result = await this.getTypedParsedJSON(
     `vehicles?${queryString}`,

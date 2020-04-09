@@ -1,4 +1,5 @@
 import { ApolloServer, PubSub } from "apollo-server";
+import { DataSourceConfig } from "apollo-datasource";
 import dotenv from "dotenv";
 
 import MbtaAPI from "./data/MbtaAPI";
@@ -18,7 +19,13 @@ const server = new ApolloServer({
     mbtaAPI: new MbtaAPI(),
   }),
   context: ({ connection }) => {
-    if (connection) return { ...connection.context, mbtaSSE };
+    if (connection) {
+      const mbtaAPI = new MbtaAPI();
+      mbtaAPI.initialize({ context: connection.context } as DataSourceConfig<
+        any
+      >);
+      return { ...connection.context, mbtaSSE, dataSources: { mbtaAPI } };
+    }
 
     return {};
   },

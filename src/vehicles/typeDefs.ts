@@ -80,6 +80,7 @@ export default gql`
   input VehiclesFilter {
     vehicleIdFilter: [String!]
     labelFilter: [String!]
+    routeFilter: [String!]
   }
 
   extend type Query {
@@ -88,6 +89,7 @@ export default gql`
   }
 
   extend type Subscription {
-    vehicles: [Vehicle!]!
+    vehicles(route: String!): [Vehicle!]!
+    vehicle(id: ID!): Vehicle
   }
 `;

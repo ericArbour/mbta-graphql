@@ -9,6 +9,7 @@ import {
   MbtaVehicle,
   VehiclesResolverArgs,
   VehicleResolverArgs,
+  SubsVehiclesResolverArgs,
 } from "./types";
 
 const resolvers: IResolvers<unknown, Context> = {
@@ -37,7 +38,7 @@ const resolvers: IResolvers<unknown, Context> = {
   Vehicle: {
     stop: async (
       parent: MbtaVehicle,
-      args: VehiclesResolverArgs,
+      args,
       { dataSources },
       info
     ): Promise<MbtaStop | null> => {
@@ -70,8 +71,18 @@ const resolvers: IResolvers<unknown, Context> = {
   },
   Subscription: {
     vehicles: {
-      subscribe: (parent, args, { mbtaSSE }, info) => {
-        return mbtaSSE.subscribeToVehicles();
+      subscribe: (
+        parent,
+        args: SubsVehiclesResolverArgs,
+        { mbtaSSE },
+        info
+      ) => {
+        return mbtaSSE.subscribeToRouteVehicles(args);
+      },
+    },
+    vehicle: {
+      subscribe: (parent, args: VehicleResolverArgs, { mbtaSSE }, info) => {
+        return mbtaSSE.subscribeToVehicle(args);
       },
     },
   },

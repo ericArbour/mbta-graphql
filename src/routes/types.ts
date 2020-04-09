@@ -71,8 +71,17 @@ export type RoutesFilter = {
   typeFilter?: RouteType[];
 };
 
+export type RouteVehiclesFilter = {
+  vehicleIdFilter?: string[];
+  labelFilter?: string[];
+};
+
 export type RoutesResolverArgs = {
   filter?: RoutesFilter;
+};
+
+export type RouteVehiclesResolverArgs = {
+  filter?: RouteVehiclesFilter;
 };
 
 export type RouteResolverArgs = {
