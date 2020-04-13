@@ -8,6 +8,8 @@ import stopTypeDefs from "./stops/typeDefs";
 import stopResolvers from "./stops/resolvers";
 import routeTypeDefs from "./routes/typeDefs";
 import routeResolvers from "./routes/resolvers";
+import shapeTypeDefs from "./shapes/typeDefs";
+import shapeResolvers from "./shapes/resolvers";
 import { Context } from "./types";
 
 const rootTypeDefs = gql`
@@ -25,6 +27,7 @@ export const typeDefs = [
   vehicleTypeDefs,
   stopTypeDefs,
   routeTypeDefs,
+  shapeTypeDefs,
 ];
 
 export const resolvers: IResolvers<unknown, Context> = merge(
@@ -33,5 +36,6 @@ export const resolvers: IResolvers<unknown, Context> = merge(
   },
   vehicleResolvers,
   stopResolvers,
-  routeResolvers
+  routeResolvers,
+  shapeResolvers,
 );

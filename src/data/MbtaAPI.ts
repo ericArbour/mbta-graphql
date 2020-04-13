@@ -27,6 +27,7 @@ import {
   batchStopRoutesLoadFn,
   getRouteFieldsAndIncludeParams,
 } from "../routes/data";
+import { getShapes, getShapeFieldsAndIncludeParams } from "../shapes/data";
 
 export default class MbtaAPI extends RESTDataSource {
   constructor() {
@@ -43,16 +44,16 @@ export default class MbtaAPI extends RESTDataSource {
     relationships: string[],
     // Fields the graphql api supports that aren't attributes or relationships in MBTA api
     ignoreFields: string[] | undefined = [],
-    fields: string[]
+    fields: string[],
   ): string {
     const uniqueFields = [...new Set(fields)].filter(
-      (field) => !ignoreFields.includes(field)
+      (field) => !ignoreFields.includes(field),
     );
     const relationshipsFields = uniqueFields.filter((field) =>
-      relationships.includes(field)
+      relationships.includes(field),
     );
     const attributeFields = uniqueFields.filter(
-      (field) => !relationships.includes(field)
+      (field) => !relationships.includes(field),
     );
     const fieldsString = `fields[${pathType}]=${attributeFields.join(",")}`;
     const includeRelationshipsString = relationshipsFields.length
@@ -85,7 +86,7 @@ export default class MbtaAPI extends RESTDataSource {
   protected getStopFieldsAndIncludeParams = getStopFieldsAndIncludeParams;
 
   private batchStopDataLoader = new DataLoader<BatchFieldConfig, MbtaStop>(
-    batchStopLoadFn.bind(this)
+    batchStopLoadFn.bind(this),
   );
 
   getBatchStop(config: BatchFieldConfig): Promise<MbtaStop> {
@@ -115,7 +116,7 @@ export default class MbtaAPI extends RESTDataSource {
   protected getRouteFieldsAndIncludeParams = getRouteFieldsAndIncludeParams;
 
   private batchRouteDataLoader = new DataLoader<BatchFieldConfig, MbtaRoute>(
-    batchRouteLoadFn.bind(this)
+    batchRouteLoadFn.bind(this),
   );
 
   getBatchRoute(config: BatchFieldConfig) {
@@ -131,9 +132,12 @@ export default class MbtaAPI extends RESTDataSource {
     return this.batchStopRoutesDataLoader.load(config);
   }
 
+  getShapes = getShapes;
+  protected getShapeFieldsAndIncludeParams = getShapeFieldsAndIncludeParams;
+
   async getTypedParsedJSON<T>(
     path: string,
-    isType: (x: unknown) => x is T
+    isType: (x: unknown) => x is T,
   ): Promise<T> | never {
     const jsonString = await this.get(path);
 
