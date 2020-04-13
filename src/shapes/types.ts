@@ -1,6 +1,7 @@
 import * as JSONAPI from "jsonapi-typescript";
 
 import { isResourceObject, isCollectionResourceDoc } from "../types";
+import { MbtaRoute } from "../routes/types";
 
 type MbtaShapeAttributes = {
   priority: number | null;
@@ -30,6 +31,7 @@ export type MbtaShape = {
   polyline?: string | null;
   name?: string | null;
   directionId?: number | null;
+  route?: MbtaRoute | null;
 };
 
 export type ShapesResolverArgs = {

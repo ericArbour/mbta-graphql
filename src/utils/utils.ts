@@ -23,7 +23,7 @@ export function objSnakeKeysToCamelKeys(obj: object) {
       newObj[camelKey] = value;
       return newObj;
     },
-    {}
+    {},
   );
 }
 
@@ -38,14 +38,14 @@ export function getFieldsFromInfo(info: GraphQLResolveInfo): string[] {
 
 function recursiveFieldsGetter(
   selections: readonly SelectionNode[],
-  maybeFragmentMap?: FragmentMap
+  maybeFragmentMap?: FragmentMap,
 ): string[] {
   return selections.flatMap((fieldNode) => {
     if (fieldNode.kind === "Field") return fieldNode.name.value;
     if (fieldNode.kind === "FragmentSpread" && isFragmentMap(maybeFragmentMap))
       return recursiveFieldsGetter(
         maybeFragmentMap[fieldNode.name.value].selectionSet.selections,
-        maybeFragmentMap
+        maybeFragmentMap,
       );
     return "";
   });
@@ -53,7 +53,7 @@ function recursiveFieldsGetter(
 
 export function parseAndTypeJSON<T>(
   jsonString: string,
-  isType: (x: unknown) => x is T
+  isType: (x: unknown) => x is T,
 ) {
   let result: unknown;
   try {
@@ -68,14 +68,14 @@ export function parseAndTypeJSON<T>(
 
 export function updateArrayItem<T extends { id: string }>(
   items: T[],
-  newItem: T
+  newItem: T,
 ): T[] {
   return items.map((item) => (item.id === newItem.id ? newItem : item));
 }
 
 export function removeArrayItem<T extends { id: string }>(
   items: T[],
-  itemToRemove: T
+  itemToRemove: T,
 ): T[] {
   return items.filter((item) => item.id !== itemToRemove.id);
 }

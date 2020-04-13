@@ -9,6 +9,8 @@ import {
   stopsResult,
   vehiclesResponse,
   vehiclesResult,
+  shapesResponse,
+  shapesResult,
 } from "../mockData/routeQueryTest";
 
 jest.mock("apollo-datasource-rest");
@@ -55,7 +57,7 @@ describe("Route query", () => {
     expect(mockGet).toHaveBeenNthCalledWith(1, "routes/ROUTE1?fields[route]=");
     expect(mockGet).toHaveBeenNthCalledWith(
       2,
-      "stops?fields[stop]=latitude,longitude&filter[route]=ROUTE1"
+      "stops?fields[stop]=latitude,longitude&filter[route]=ROUTE1",
     );
     expect(res.data).toEqual(stopsResult);
   });
@@ -79,8 +81,33 @@ describe("Route query", () => {
     expect(mockGet).toHaveBeenNthCalledWith(1, "routes/ROUTE1?fields[route]=");
     expect(mockGet).toHaveBeenNthCalledWith(
       2,
-      "vehicles?fields[vehicle]=latitude,longitude&filter[route]=ROUTE1"
+      "vehicles?fields[vehicle]=latitude,longitude&filter[route]=ROUTE1",
     );
     expect(res.data).toEqual(vehiclesResult);
+  });
+
+  it("correctly requests shapes", async () => {
+    mockGet
+      .mockReturnValueOnce(routeResponse)
+      .mockReturnValueOnce(shapesResponse);
+    const GET_ROUTE = gql`
+      query GetRoute {
+        route(id: "ROUTE1") {
+          id
+          shapes {
+            id
+            polyline
+          }
+        }
+      }
+    `;
+    const res = await query({ query: GET_ROUTE });
+
+    expect(mockGet).toHaveBeenNthCalledWith(1, "routes/ROUTE1?fields[route]=");
+    expect(mockGet).toHaveBeenNthCalledWith(
+      2,
+      "shapes?fields[shape]=polyline&include=route&fields[route]=&filter[route]=ROUTE1",
+    );
+    expect(res.data).toEqual(shapesResult);
   });
 });

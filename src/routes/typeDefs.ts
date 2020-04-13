@@ -90,6 +90,10 @@ export default gql`
     The list of stops on the route.
     """
     stops(filter: NestedStopsFilter): [Stop!]!
+    """
+    The list of geolocation shapes for the route to be displayed on a map.
+    """
+    shapes: [Shape!]!
   }
 
   input RoutesFilter {

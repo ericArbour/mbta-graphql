@@ -27,7 +27,12 @@ import {
   batchStopRoutesLoadFn,
   getRouteFieldsAndIncludeParams,
 } from "../routes/data";
-import { getShapes, getShapeFieldsAndIncludeParams } from "../shapes/data";
+import {
+  getShapes,
+  getShapeFieldsAndIncludeParams,
+  batchRouteShapesLoadFn,
+} from "../shapes/data";
+import { MbtaShape } from "../shapes/types";
 
 export default class MbtaAPI extends RESTDataSource {
   constructor() {
@@ -47,7 +52,7 @@ export default class MbtaAPI extends RESTDataSource {
     fields: string[],
   ): string {
     const uniqueFields = [...new Set(fields)].filter(
-      (field) => !ignoreFields.includes(field),
+      (field) => ![...ignoreFields, "__typename"].includes(field),
     );
     const relationshipsFields = uniqueFields.filter((field) =>
       relationships.includes(field),
@@ -134,6 +139,15 @@ export default class MbtaAPI extends RESTDataSource {
 
   getShapes = getShapes;
   protected getShapeFieldsAndIncludeParams = getShapeFieldsAndIncludeParams;
+
+  private batchRouteShapesDataLoader = new DataLoader<
+    BatchFieldConfig,
+    MbtaShape[]
+  >(batchRouteShapesLoadFn.bind(this));
+
+  getBatchRouteShapes(config: BatchFieldConfig) {
+    return this.batchRouteShapesDataLoader.load(config);
+  }
 
   async getTypedParsedJSON<T>(
     path: string,

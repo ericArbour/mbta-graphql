@@ -53,6 +53,41 @@ export const vehiclesResponse = JSON.stringify({
   ],
 });
 
+export const shapesResponse = JSON.stringify({
+  data: [
+    {
+      attributes: {
+        polyline: "polyline",
+      },
+      id: "SHAPE1",
+      relationships: {
+        route: {
+          data: {
+            id: "ROUTE1",
+            type: "route",
+          },
+        },
+      },
+      type: "shape",
+    },
+    {
+      attributes: {
+        polyline: "polyline",
+      },
+      id: "SHAPE2",
+      relationships: {
+        route: {
+          data: {
+            id: "ROUTE1",
+            type: "route",
+          },
+        },
+      },
+      type: "shape",
+    },
+  ],
+});
+
 export const stopsResult = {
   route: {
     stops: [
@@ -78,6 +113,22 @@ export const vehiclesResult = {
       {
         latitude: 2,
         longitude: 2,
+      },
+    ],
+  },
+};
+
+export const shapesResult = {
+  route: {
+    id: "ROUTE1",
+    shapes: [
+      {
+        id: "SHAPE1",
+        polyline: "polyline",
+      },
+      {
+        id: "SHAPE2",
+        polyline: "polyline",
       },
     ],
   },

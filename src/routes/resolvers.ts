@@ -5,6 +5,7 @@ import { getFieldsFromInfo } from "../utils/utils";
 import { MbtaVehicle } from "../vehicles/types";
 import { MbtaStop, NestedStopsResolverArgs } from "../stops/types";
 import { mbtaLocationTypeToLocationType } from "../stops/data";
+import { MbtaShape } from "../shapes/types";
 
 import {
   MbtaRoute,
@@ -21,18 +22,14 @@ const resolvers: IResolvers<unknown, Context> = {
       parent,
       args: RoutesResolverArgs,
       { dataSources },
-      info
+      info,
     ): Promise<MbtaRoute[]> => {
       const fields = getFieldsFromInfo(info);
-      const mbtaRoutes = await dataSources.mbtaAPI.getRoutes(fields, args);
-
-      return mbtaRoutes;
+      return await dataSources.mbtaAPI.getRoutes(fields, args);
     },
     route: async (parent, args: RouteResolverArgs, { dataSources }, info) => {
       const fields = getFieldsFromInfo(info);
-      const mbtaRoute = await dataSources.mbtaAPI.getRoute(fields, args);
-
-      return mbtaRoute;
+      return await dataSources.mbtaAPI.getRoute(fields, args);
     },
   },
   Route: {
@@ -43,7 +40,7 @@ const resolvers: IResolvers<unknown, Context> = {
       { id }: MbtaRoute,
       args: RouteVehiclesResolverArgs,
       { dataSources },
-      info
+      info,
     ): Promise<MbtaVehicle[]> => {
       if (!id) return [];
 
@@ -64,7 +61,7 @@ const resolvers: IResolvers<unknown, Context> = {
         ? mbtaVehicles.filter(
             (mbtaVehicle) =>
               isNotNullish(mbtaVehicle.id) &&
-              vehicleIdFilter.includes(mbtaVehicle.id)
+              vehicleIdFilter.includes(mbtaVehicle.id),
           )
         : mbtaVehicles;
 
@@ -72,7 +69,7 @@ const resolvers: IResolvers<unknown, Context> = {
         ? vehicleIdFilteredMbtaVehicles.filter(
             (mbtaVehicle) =>
               isNotNullish(mbtaVehicle.label) &&
-              labelFilter.includes(mbtaVehicle.label)
+              labelFilter.includes(mbtaVehicle.label),
           )
         : vehicleIdFilteredMbtaVehicles;
 
@@ -82,7 +79,7 @@ const resolvers: IResolvers<unknown, Context> = {
       { id }: MbtaRoute,
       args: NestedStopsResolverArgs,
       { dataSources },
-      info
+      info,
     ): Promise<MbtaStop[]> => {
       if (!id) return [];
       const fields = getFieldsFromInfo(info);
@@ -101,7 +98,7 @@ const resolvers: IResolvers<unknown, Context> = {
       const stopIdFilteredMbtaStops = stopIdFilter
         ? mbtaStops.filter(
             (mbtaStop) =>
-              isNotNullish(mbtaStop.id) && stopIdFilter.includes(mbtaStop.id)
+              isNotNullish(mbtaStop.id) && stopIdFilter.includes(mbtaStop.id),
           )
         : mbtaStops;
 
@@ -110,12 +107,26 @@ const resolvers: IResolvers<unknown, Context> = {
             (mbtaStop) =>
               isNotNullish(mbtaStop.locationType) &&
               locationTypeFilter.includes(
-                mbtaLocationTypeToLocationType(mbtaStop.locationType)
-              )
+                mbtaLocationTypeToLocationType(mbtaStop.locationType),
+              ),
           )
         : stopIdFilteredMbtaStops;
 
       return locationTypeFilteredMbtaStops;
+    },
+    shapes: async (
+      { id }: MbtaRoute,
+      args,
+      { dataSources },
+      info,
+    ): Promise<MbtaShape[]> => {
+      if (!id) return [];
+      const fields = getFieldsFromInfo(info);
+
+      return await dataSources.mbtaAPI.getBatchRouteShapes({
+        id,
+        fields,
+      });
     },
   },
 };
