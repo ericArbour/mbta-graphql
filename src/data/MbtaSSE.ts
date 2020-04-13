@@ -20,7 +20,7 @@ import { mbtaVehicleResourceToMbtaVehicle } from "../vehicles/data";
 
 const VEHICLES_EVENT_SUFFIX = "_VEHICLES_UPDATED";
 const VEHICLE_EVENT_SUFFIX = "_VEHICLE_UPDATED";
-const throttleWait = 10000;
+const throttleWait = 5000;
 
 export default class MbtaSSE extends DataSource {
   pubsub: PubSub;
@@ -40,13 +40,13 @@ export default class MbtaSSE extends DataSource {
     this.pubsub = pubsub;
     this.publishRouteVehicles = memoizedThrottle(
       this.publishRouteVehicles,
-      throttleWait
+      throttleWait,
     );
     this.publishVehicle = memoizedThrottle(this.publishVehicle, throttleWait);
 
     const mbtaVehicleEvtSrc = new EventSource(
       this.baseURL + "vehicles",
-      this.eventSourceInitDict
+      this.eventSourceInitDict,
     );
 
     mbtaVehicleEvtSrc.onerror = (err) => {
@@ -56,10 +56,10 @@ export default class MbtaSSE extends DataSource {
     mbtaVehicleEvtSrc.addEventListener("reset", (e: MessageEvent) => {
       const mbtaVehicleResources = parseAndTypeJSON(
         e.data,
-        isMbtaVehicleResources
+        isMbtaVehicleResources,
       );
       const newMbtaVehicles = mbtaVehicleResources.map(
-        mbtaVehicleResourceToMbtaVehicle
+        mbtaVehicleResourceToMbtaVehicle,
       );
 
       this.setAndPublishMbtaVehicles(newMbtaVehicles);
@@ -68,7 +68,7 @@ export default class MbtaSSE extends DataSource {
     mbtaVehicleEvtSrc.addEventListener("add", (e: MessageEvent) => {
       const mbtaVehicleResource = parseAndTypeJSON(
         e.data,
-        isMbtaVehicleResource
+        isMbtaVehicleResource,
       );
       const mbtaVehicle = mbtaVehicleResourceToMbtaVehicle(mbtaVehicleResource);
       const newMbtaVehicles = [...this.mbtaVehicles, mbtaVehicle];
@@ -79,14 +79,14 @@ export default class MbtaSSE extends DataSource {
     mbtaVehicleEvtSrc.addEventListener("update", (e: MessageEvent) => {
       const mbtaVehicleResource = parseAndTypeJSON(
         e.data,
-        isMbtaVehicleResource
+        isMbtaVehicleResource,
       );
       const updatedMbtaVehicle = mbtaVehicleResourceToMbtaVehicle(
-        mbtaVehicleResource
+        mbtaVehicleResource,
       );
       const newMbtaVehicles = updateArrayItem(
         this.mbtaVehicles,
-        updatedMbtaVehicle
+        updatedMbtaVehicle,
       );
 
       this.setAndPublishMbtaVehicles(newMbtaVehicles);
@@ -95,7 +95,7 @@ export default class MbtaSSE extends DataSource {
     mbtaVehicleEvtSrc.addEventListener("remove", (e: MessageEvent) => {
       const mbtaVehicleResource = parseAndTypeJSON(
         e.data,
-        isMbtaVehicleResource
+        isMbtaVehicleResource,
       );
       const mbtaVehicle = mbtaVehicleResourceToMbtaVehicle(mbtaVehicleResource);
 
@@ -110,10 +110,10 @@ export default class MbtaSSE extends DataSource {
     this.mbtaVehiclesByRoute = groupby(this.mbtaVehicles, "route.id");
 
     Object.keys(this.mbtaVehiclesByRoute).forEach((route) =>
-      this.publishRouteVehicles(route)
+      this.publishRouteVehicles(route),
     );
     this.mbtaVehicles.forEach((mbtaVehicle) =>
-      this.publishVehicle(mbtaVehicle.id)
+      this.publishVehicle(mbtaVehicle.id),
     );
   }
 
@@ -131,13 +131,13 @@ export default class MbtaSSE extends DataSource {
 
   subscribeToRouteVehicles(args: SubsVehiclesResolverArgs) {
     return this.pubsub.asyncIterator<MbtaVehicle[]>(
-      args.route + VEHICLES_EVENT_SUFFIX
+      args.route + VEHICLES_EVENT_SUFFIX,
     );
   }
 
   subscribeToVehicle(args: VehicleResolverArgs) {
     return this.pubsub.asyncIterator<MbtaVehicle[]>(
-      args.id + VEHICLE_EVENT_SUFFIX
+      args.id + VEHICLE_EVENT_SUFFIX,
     );
   }
 }
