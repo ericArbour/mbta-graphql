@@ -16,9 +16,9 @@ export default gql`
     """
     priority: Int
     """
-    Encoded polyline
+    [[lon, lat]] polyline coordinates decoded from the encoded polyline provided by the MBTA API
     """
-    polyline: String
+    polyline: [[Float!]!]!
     """
     User-facing name for shape. It may, but is not required to, be a headsign
     """

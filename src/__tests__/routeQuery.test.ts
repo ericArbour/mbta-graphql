@@ -96,7 +96,6 @@ describe("Route query", () => {
           id
           shapes {
             id
-            polyline
           }
         }
       }
@@ -106,7 +105,7 @@ describe("Route query", () => {
     expect(mockGet).toHaveBeenNthCalledWith(1, "routes/ROUTE1?fields[route]=");
     expect(mockGet).toHaveBeenNthCalledWith(
       2,
-      "shapes?fields[shape]=polyline&include=route&fields[route]=&filter[route]=ROUTE1",
+      "shapes?fields[shape]=&include=route&fields[route]=&filter[route]=ROUTE1",
     );
     expect(res.data).toEqual(shapesResult);
   });

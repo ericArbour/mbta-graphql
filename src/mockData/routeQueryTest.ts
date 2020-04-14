@@ -56,9 +56,7 @@ export const vehiclesResponse = JSON.stringify({
 export const shapesResponse = JSON.stringify({
   data: [
     {
-      attributes: {
-        polyline: "polyline",
-      },
+      attributes: {},
       id: "SHAPE1",
       relationships: {
         route: {
@@ -71,9 +69,7 @@ export const shapesResponse = JSON.stringify({
       type: "shape",
     },
     {
-      attributes: {
-        polyline: "polyline",
-      },
+      attributes: {},
       id: "SHAPE2",
       relationships: {
         route: {
@@ -124,11 +120,9 @@ export const shapesResult = {
     shapes: [
       {
         id: "SHAPE1",
-        polyline: "polyline",
       },
       {
         id: "SHAPE2",
-        polyline: "polyline",
       },
     ],
   },
