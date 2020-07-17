@@ -31,19 +31,20 @@ export function getStopFieldsAndIncludeParams(this: MbtaAPI, fields: string[]) {
     "stop",
     stopRelationships,
     ignoreFields,
-    fields
+    fields,
   );
 }
 
 export async function getStops(
   this: MbtaAPI,
   fields: string[],
-  args: StopsResolverArgs
+  args: StopsResolverArgs,
 ): Promise<MbtaStop[]> {
   const fieldsAndIncludeParams = this.getStopFieldsAndIncludeParams(fields);
   const stopIdFilter = args.filter?.stopIdFilter;
   const locationTypeFilter = args.filter?.locationTypeFilter;
   const locationFilter = args.filter?.locationFilter;
+  const routeIdFilter = args.filter?.routeIdFilter;
   const stopIdFilterString = stopIdFilter?.length
     ? `&filter[id]=${stopIdFilter.join(",")}`
     : "";
@@ -55,11 +56,14 @@ export async function getStops(
   const locationFilterString = locationFilter
     ? `&filter[latitude]=${locationFilter.latitude}&filter[longitude]=${locationFilter.longitude}&filter[radius]=${locationFilter.radius}`
     : "";
-  const queryString = `${fieldsAndIncludeParams}${stopIdFilterString}${locationTypeFilterString}${locationFilterString}`;
+  const routeIdFilterString = routeIdFilter?.length
+    ? `&filter[route]=${routeIdFilter.join(",")}`
+    : "";
+  const queryString = `${fieldsAndIncludeParams}${stopIdFilterString}${locationTypeFilterString}${locationFilterString}${routeIdFilterString}`;
 
   const result = await this.getTypedParsedJSON(
     `stops?${queryString}`,
-    isMbtaStopResourceCollection
+    isMbtaStopResourceCollection,
   );
 
   return result.data.map(mbtaStopResourceToMbtaStop);
@@ -68,13 +72,13 @@ export async function getStops(
 export async function getStop(
   this: MbtaAPI,
   fields: string[],
-  args: StopResolverArgs
+  args: StopResolverArgs,
 ): Promise<MbtaStop> {
   const fieldsAndIncludeParams = this.getStopFieldsAndIncludeParams(fields);
 
   const result = await this.getTypedParsedJSON(
     `stops/${args.id}?${fieldsAndIncludeParams}`,
-    isMbtaStopResourceDoc
+    isMbtaStopResourceDoc,
   );
 
   return mbtaStopResourceToMbtaStop(result.data);
@@ -82,7 +86,7 @@ export async function getStop(
 
 export async function batchStopLoadFn(
   this: MbtaAPI,
-  configs: readonly BatchFieldConfig[]
+  configs: readonly BatchFieldConfig[],
 ): Promise<MbtaStop[]> {
   const fields = configs.flatMap((config) => config.fields);
   const fieldsAndIncludeParams = this.getStopFieldsAndIncludeParams(fields);
@@ -95,7 +99,7 @@ export async function batchStopLoadFn(
     const batchIdsString = `&filter[id]=${chunkOfstopIds.join(",")}`;
     return this.getTypedParsedJSON(
       `stops?${fieldsAndIncludeParams}${batchIdsString}`,
-      isMbtaStopResourceCollection
+      isMbtaStopResourceCollection,
     );
   });
   const results = await Promise.all(requests);
@@ -104,8 +108,8 @@ export async function batchStopLoadFn(
   return configs
     .map((config) =>
       mbtaStopResources.find(
-        (mbtaStopResource) => mbtaStopResource.id === config.id
-      )
+        (mbtaStopResource) => mbtaStopResource.id === config.id,
+      ),
     )
     .filter(isNotUndefined)
     .map(mbtaStopResourceToMbtaStop);
@@ -113,7 +117,7 @@ export async function batchStopLoadFn(
 
 export async function batchChildStopsLoadFn(
   this: MbtaAPI,
-  configs: readonly BatchListFieldConfig[]
+  configs: readonly BatchListFieldConfig[],
 ): Promise<MbtaStop[][]> {
   const fields = configs.flatMap((config) => config.fields);
   const fieldsAndIncludeParams = this.getStopFieldsAndIncludeParams(fields);
@@ -126,7 +130,7 @@ export async function batchChildStopsLoadFn(
     const childIdsString = `&filter[id]=${childIds.join(",")}`;
     return this.getTypedParsedJSON(
       `stops?${fieldsAndIncludeParams}${childIdsString}`,
-      isMbtaStopResourceCollection
+      isMbtaStopResourceCollection,
     );
   });
   const results = await Promise.all(requests);
@@ -135,26 +139,28 @@ export async function batchChildStopsLoadFn(
   return configs.map((config) =>
     config.ids
       .map((id) =>
-        mbtaStopResources.find((mbtaStopResource) => mbtaStopResource.id === id)
+        mbtaStopResources.find(
+          (mbtaStopResource) => mbtaStopResource.id === id,
+        ),
       )
       .filter(isNotUndefined)
-      .map(mbtaStopResourceToMbtaStop)
+      .map(mbtaStopResourceToMbtaStop),
   );
 }
 
 export async function batchRouteStopsLoadFn(
   this: MbtaAPI,
-  configs: readonly BatchFieldConfig[]
+  configs: readonly BatchFieldConfig[],
 ): Promise<MbtaStop[][]> {
   if (configs.length === 1) {
     const [config] = configs;
     const fieldsAndIncludeParams = this.getStopFieldsAndIncludeParams(
-      config.fields
+      config.fields,
     );
     const routeFilterString = `&filter[route]=${config.id}`;
     const result = await this.getTypedParsedJSON(
       `stops?${fieldsAndIncludeParams}${routeFilterString}`,
-      isMbtaStopResourceCollection
+      isMbtaStopResourceCollection,
     );
 
     return [result.data.map(mbtaStopResourceToMbtaStop)];
@@ -166,7 +172,7 @@ export async function batchRouteStopsLoadFn(
       const routeFilterString = `&filter[route]=${config.id}`;
       return this.getTypedParsedJSON(
         `stops?${fieldsAndIncludeParams}${routeFilterString}`,
-        isMbtaStopResourceCollection
+        isMbtaStopResourceCollection,
       );
     });
     const results = await Promise.all(requests);
@@ -176,7 +182,7 @@ export async function batchRouteStopsLoadFn(
 }
 
 export function mbtaLocationTypeToLocationType(
-  mbtaLocationType: number | Nullish
+  mbtaLocationType: number | Nullish,
 ) {
   switch (mbtaLocationType) {
     case 0:
@@ -210,7 +216,7 @@ export function locationTypeToMbtaLocationType(locationType: LocationType) {
 }
 
 function mbtaStopResourceToMbtaStop(
-  mbtaStopResource: MbtaStopResource
+  mbtaStopResource: MbtaStopResource,
 ): MbtaStop {
   const { id, attributes = {}, relationships } = mbtaStopResource;
   if (isUndefined(id)) throw new Error("No id on stop.");
@@ -219,7 +225,7 @@ function mbtaStopResourceToMbtaStop(
   const parentStationRelationship = relationships?.parent_station;
 
   const childStopsRelationshipData = isRelationshipsWithData(
-    childStopsRelationship
+    childStopsRelationship,
   )
     ? childStopsRelationship.data
     : null;
@@ -227,12 +233,12 @@ function mbtaStopResourceToMbtaStop(
     ? childStopsRelationshipData.map(({ id: stopId }) => ({ id: stopId }))
     : [];
   const parentStationRelationshipData = isRelationshipsWithData(
-    parentStationRelationship
+    parentStationRelationship,
   )
     ? parentStationRelationship.data
     : null;
   const parentStation = isResourceIdentifierObject(
-    parentStationRelationshipData
+    parentStationRelationshipData,
   )
     ? { id: parentStationRelationshipData.id }
     : null;

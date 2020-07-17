@@ -130,6 +130,7 @@ export default gql`
     stopIdFilter: [String!]
     locationTypeFilter: [LocationType!]
     locationFilter: LocationFilterInput
+    routeIdFilter: [String!]
   }
 
   input NestedStopsFilter {

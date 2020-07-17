@@ -32,13 +32,13 @@ export function isMbtaStopResource(x: unknown): x is MbtaStopResource {
 }
 
 export function isMbtaStopResourceDoc(
-  x: unknown
+  x: unknown,
 ): x is JSONAPI.SingleResourceDoc<string, MbtaStopAttributes> {
   return isSingleResourceDoc(isMbtaStopResource, x);
 }
 
 export function isMbtaStopResourceCollection(
-  x: unknown
+  x: unknown,
 ): x is JSONAPI.CollectionResourceDoc<string, MbtaStopAttributes> {
   return isCollectionResourceDoc(isMbtaStopResource, x);
 }
@@ -80,6 +80,7 @@ type StopsFilter = {
   stopIdFilter?: string[];
   locationTypeFilter?: LocationType[];
   locationFilter?: LocationFilterInput;
+  routeIdFilter?: string[];
 };
 
 type NestedStopsFilter = {

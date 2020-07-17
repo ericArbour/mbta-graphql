@@ -24,7 +24,7 @@ describe("Stops query", () => {
     await query({ query: GET_STOPS });
 
     expect(mockGet).toBeCalledWith(
-      "stops?fields[stop]=vehicle_type,description"
+      "stops?fields[stop]=vehicle_type,description",
     );
   });
 
@@ -39,7 +39,7 @@ describe("Stops query", () => {
     await query({ query: GET_STOPS });
 
     expect(mockGet).toBeCalledWith(
-      "stops?fields[stop]=&filter[id]=STOP1,STOP2"
+      "stops?fields[stop]=&filter[id]=STOP1,STOP2",
     );
   });
 
@@ -56,7 +56,7 @@ describe("Stops query", () => {
     await query({ query: GET_STOPS });
 
     expect(mockGet).toBeCalledWith(
-      "stops?fields[stop]=&filter[location_type]=0,1,2"
+      "stops?fields[stop]=&filter[location_type]=0,1,2",
     );
   });
 
@@ -75,7 +75,22 @@ describe("Stops query", () => {
     await query({ query: GET_STOPS });
 
     expect(mockGet).toBeCalledWith(
-      "stops?fields[stop]=latitude,longitude&filter[latitude]=70&filter[longitude]=40&filter[radius]=1"
+      "stops?fields[stop]=latitude,longitude&filter[latitude]=70&filter[longitude]=40&filter[radius]=1",
+    );
+  });
+
+  it("allows filtering by route ids", async () => {
+    const GET_STOPS = gql`
+      query GetStops {
+        stops(filter: { routeIdFilter: ["ROUTE1", "ROUTE2"] }) {
+          id
+        }
+      }
+    `;
+    await query({ query: GET_STOPS });
+
+    expect(mockGet).toBeCalledWith(
+      "stops?fields[stop]=&filter[route]=ROUTE1,ROUTE2",
     );
   });
 
@@ -97,7 +112,7 @@ describe("Stops query", () => {
     await query({ query: GET_STOPS });
 
     expect(mockGet).toBeCalledWith(
-      "stops?fields[stop]=latitude,longitude&filter[location_type]=1&filter[latitude]=70&filter[longitude]=40&filter[radius]=1"
+      "stops?fields[stop]=latitude,longitude&filter[location_type]=1&filter[latitude]=70&filter[longitude]=40&filter[radius]=1",
     );
   });
 });
